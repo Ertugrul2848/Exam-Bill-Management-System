@@ -1,0 +1,2129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EBM Architecture Plan</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+        :root {
+            --bg: #0a0a0f;
+            --bg-card: #12121a;
+            --bg-card-hover: #1a1a25;
+            --bg-code: #1e1e2e;
+            --border: #2a2a3a;
+            --border-glow: #6366f1;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --text-dim: #64748b;
+            --accent: #6366f1;
+            --accent-light: #818cf8;
+            --accent2: #06b6d4;
+            --accent3: #f59e0b;
+            --accent4: #10b981;
+            --accent5: #f43f5e;
+            --accent6: #a855f7;
+            --gradient1: linear-gradient(135deg, #6366f1, #06b6d4);
+            --gradient2: linear-gradient(135deg, #f43f5e, #f59e0b);
+            --gradient3: linear-gradient(135deg, #10b981, #06b6d4);
+            --shadow: 0 4px 30px rgba(0,0,0,0.4);
+            --shadow-glow: 0 0 40px rgba(99,102,241,0.15);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        /* ============ SCROLLBAR ============ */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+        /* ============ HERO ============ */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(99,102,241,0.15), transparent 70%);
+            top: -100px; left: -100px;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(6,182,212,0.1), transparent 70%);
+            bottom: -100px; right: -100px;
+            animation: float 8s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(30px, -30px); }
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            background: rgba(99,102,241,0.1);
+            border: 1px solid rgba(99,102,241,0.3);
+            border-radius: 50px;
+            font-size: 0.85rem;
+            color: var(--accent-light);
+            margin-bottom: 2rem;
+            z-index: 1;
+        }
+
+        .hero-badge .dot {
+            width: 8px; height: 8px;
+            background: var(--accent4);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            background: var(--gradient1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1.5rem;
+            z-index: 1;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            z-index: 1;
+            margin-bottom: 3rem;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 3rem;
+            z-index: 1;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .hero-stat {
+            text-align: center;
+        }
+
+        .hero-stat .num {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: var(--gradient1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-stat .label {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .scroll-hint {
+            position: absolute;
+            bottom: 2rem;
+            animation: bounce 2s infinite;
+            z-index: 1;
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .scroll-hint svg {
+            width: 24px; height: 24px;
+            stroke: var(--text-dim);
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(8px); }
+        }
+
+        /* ============ NAV ============ */
+        .side-nav {
+            position: fixed;
+            top: 50%;
+            right: 1.5rem;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .side-nav a {
+            display: block;
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            background: var(--border);
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .side-nav a:hover,
+        .side-nav a.active {
+            background: var(--accent);
+            box-shadow: 0 0 10px rgba(99,102,241,0.5);
+            transform: scale(1.3);
+        }
+
+        .side-nav a .tooltip {
+            position: absolute;
+            right: 24px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+
+        .side-nav a:hover .tooltip {
+            opacity: 1;
+        }
+
+        /* ============ SECTIONS ============ */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        section {
+            padding: 6rem 0;
+            position: relative;
+        }
+
+        .section-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        .section-label::before {
+            content: '';
+            width: 24px; height: 2px;
+            background: var(--accent);
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 1rem;
+        }
+
+        .section-desc {
+            font-size: 1.05rem;
+            color: var(--text-muted);
+            max-width: 700px;
+            margin-bottom: 3rem;
+        }
+
+        /* ============ CARDS ============ */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(99,102,241,0.3);
+            box-shadow: var(--shadow-glow);
+            transform: translateY(-2px);
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card-icon {
+            width: 48px; height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .card h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .card p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* ============ PROBLEMS TABLE ============ */
+        .problem-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .problem-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem 1.5rem;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .problem-item:hover {
+            border-color: rgba(99,102,241,0.3);
+            transform: translateX(4px);
+        }
+
+        .problem-item .num {
+            min-width: 32px; height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .severity-critical .num { background: rgba(244,63,94,0.15); color: var(--accent5); }
+        .severity-high .num { background: rgba(245,158,11,0.15); color: var(--accent3); }
+        .severity-medium .num { background: rgba(6,182,212,0.15); color: var(--accent2); }
+        .severity-low .num { background: rgba(99,102,241,0.15); color: var(--accent); }
+
+        .problem-item .content { flex: 1; }
+        .problem-item .title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .problem-item h4 { font-size: 0.95rem; font-weight: 600; }
+        .problem-item .location { font-size: 0.8rem; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
+        .problem-item .badge {
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 50px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .severity-critical .badge { background: rgba(244,63,94,0.15); color: var(--accent5); }
+        .severity-high .badge { background: rgba(245,158,11,0.15); color: var(--accent3); }
+        .severity-medium .badge { background: rgba(6,182,212,0.15); color: var(--accent2); }
+        .severity-low .badge { background: rgba(99,102,241,0.15); color: var(--accent); }
+
+        /* ============ DOMAIN MAP ============ */
+        .domain-map {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .domain-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .domain-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .domain-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+        }
+
+        .domain-card:nth-child(1)::before { background: var(--gradient1); }
+        .domain-card:nth-child(2)::before { background: var(--gradient2); }
+        .domain-card:nth-child(3)::before { background: var(--gradient3); }
+        .domain-card:nth-child(4)::before { background: linear-gradient(135deg, #a855f7, #f43f5e); }
+        .domain-card:nth-child(5)::before { background: linear-gradient(135deg, #f59e0b, #10b981); }
+
+        .domain-card h3 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .domain-card ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .domain-card li {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            padding-left: 16px;
+            position: relative;
+        }
+
+        .domain-card li::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 10px;
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--border);
+        }
+
+        /* ============ TREE ============ */
+        .file-tree {
+            background: var(--bg-code);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+
+        .file-tree .folder {
+            color: var(--accent2);
+            cursor: pointer;
+            user-select: none;
+            display: inline;
+        }
+
+        .file-tree .folder:hover { color: var(--accent-light); }
+
+        .file-tree .file { color: var(--text-muted); }
+        .file-tree .comment { color: var(--text-dim); font-style: italic; }
+        .file-tree .highlight { color: var(--accent3); font-weight: 600; }
+        .file-tree .critical { color: var(--accent5); font-weight: 600; }
+
+        .tree-item {
+            padding-left: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+        }
+
+        .tree-item.collapsed {
+            max-height: 0 !important;
+        }
+
+        /* ============ ARCHITECTURE DIAGRAM ============ */
+        .arch-diagram {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            align-items: center;
+        }
+
+        .arch-layer {
+            width: 100%;
+            max-width: 900px;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem 2rem;
+            position: relative;
+            background: var(--bg-card);
+            transition: all 0.3s;
+        }
+
+        .arch-layer:hover {
+            border-color: rgba(99,102,241,0.3);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .arch-layer h3 {
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .arch-layer p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .arch-connector {
+            width: 2px;
+            height: 30px;
+            background: var(--border);
+            position: relative;
+        }
+
+        .arch-connector::after {
+            content: '';
+            position: absolute;
+            bottom: -4px; left: -4px;
+            width: 10px; height: 10px;
+            border-left: 2px solid var(--border);
+            border-bottom: 2px solid var(--border);
+            transform: rotate(-45deg);
+        }
+
+        .arch-modules {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .arch-module {
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .mod-blue { background: rgba(99,102,241,0.12); color: var(--accent-light); border: 1px solid rgba(99,102,241,0.25); }
+        .mod-cyan { background: rgba(6,182,212,0.12); color: var(--accent2); border: 1px solid rgba(6,182,212,0.25); }
+        .mod-green { background: rgba(16,185,129,0.12); color: var(--accent4); border: 1px solid rgba(16,185,129,0.25); }
+        .mod-amber { background: rgba(245,158,11,0.12); color: var(--accent3); border: 1px solid rgba(245,158,11,0.25); }
+        .mod-red { background: rgba(244,63,94,0.12); color: var(--accent5); border: 1px solid rgba(244,63,94,0.25); }
+        .mod-purple { background: rgba(168,85,247,0.12); color: var(--accent6); border: 1px solid rgba(168,85,247,0.25); }
+
+        /* ============ CODE BLOCK ============ */
+        .code-block {
+            background: var(--bg-code);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 1.5rem 0;
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1.25rem;
+            background: rgba(255,255,255,0.02);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .code-header .filename {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--accent2);
+        }
+
+        .code-header .lang {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            padding: 2px 8px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 4px;
+        }
+
+        .code-block pre {
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82rem;
+            line-height: 1.7;
+            color: var(--text-muted);
+        }
+
+        .code-block .kw { color: #c678dd; }
+        .code-block .fn { color: #61afef; }
+        .code-block .str { color: #98c379; }
+        .code-block .cm { color: #5c6370; font-style: italic; }
+        .code-block .num { color: #d19a66; }
+        .code-block .dec { color: #e5c07b; }
+        .code-block .cls { color: #e5c07b; }
+        .code-block .op { color: #56b6c2; }
+
+        /* ============ COLLAPSIBLE ============ */
+        .collapsible {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+            transition: border-color 0.3s;
+        }
+
+        .collapsible:hover { border-color: rgba(99,102,241,0.3); }
+
+        .collapsible-header {
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.2s;
+        }
+
+        .collapsible-header:hover {
+            background: rgba(255,255,255,0.02);
+        }
+
+        .collapsible-header h3 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .collapsible-header .arrow {
+            width: 24px; height: 24px;
+            transition: transform 0.3s;
+            color: var(--text-dim);
+        }
+
+        .collapsible.open .collapsible-header .arrow {
+            transform: rotate(180deg);
+        }
+
+        .collapsible-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
+        }
+
+        .collapsible.open .collapsible-body {
+            max-height: 5000px;
+        }
+
+        .collapsible-content {
+            padding: 0 1.5rem 1.5rem;
+        }
+
+        /* ============ FLOW COMPARISON ============ */
+        .flow-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .flow-comparison { grid-template-columns: 1fr; }
+        }
+
+        .flow-card {
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid var(--border);
+        }
+
+        .flow-card.before {
+            background: linear-gradient(135deg, rgba(244,63,94,0.05), var(--bg-card));
+            border-color: rgba(244,63,94,0.2);
+        }
+
+        .flow-card.after {
+            background: linear-gradient(135deg, rgba(16,185,129,0.05), var(--bg-card));
+            border-color: rgba(16,185,129,0.2);
+        }
+
+        .flow-card h4 {
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1.5rem;
+        }
+
+        .flow-card.before h4 { color: var(--accent5); }
+        .flow-card.after h4 { color: var(--accent4); }
+
+        .flow-step {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            position: relative;
+            padding-left: 1rem;
+        }
+
+        .flow-step::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 8px;
+            width: 6px; height: 6px;
+            border-radius: 50%;
+        }
+
+        .flow-card.before .flow-step::before { background: var(--accent5); }
+        .flow-card.after .flow-step::before { background: var(--accent4); }
+
+        .flow-step p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .flow-step code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            background: rgba(255,255,255,0.05);
+            padding: 2px 8px;
+            border-radius: 4px;
+            color: var(--accent2);
+        }
+
+        /* ============ SECURITY TABLE ============ */
+        .security-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .security-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .security-row:hover { border-color: rgba(16,185,129,0.3); }
+
+        .security-row .issue {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+        }
+
+        .security-row .issue .icon {
+            color: var(--accent5);
+            font-size: 1rem;
+        }
+
+        .security-row .fix {
+            font-size: 0.85rem;
+            color: var(--accent4);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .security-row .fix .icon { font-size: 1rem; }
+
+        /* ============ TIMELINE ============ */
+        .timeline {
+            position: relative;
+            padding-left: 3rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 15px; top: 0; bottom: 0;
+            width: 2px;
+            background: var(--border);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2.5rem;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: -3rem; top: 4px;
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 800;
+            z-index: 1;
+        }
+
+        .timeline-item:nth-child(1) .timeline-dot { background: rgba(99,102,241,0.2); color: var(--accent); border: 2px solid var(--accent); }
+        .timeline-item:nth-child(2) .timeline-dot { background: rgba(6,182,212,0.2); color: var(--accent2); border: 2px solid var(--accent2); }
+        .timeline-item:nth-child(3) .timeline-dot { background: rgba(245,158,11,0.2); color: var(--accent3); border: 2px solid var(--accent3); }
+        .timeline-item:nth-child(4) .timeline-dot { background: rgba(16,185,129,0.2); color: var(--accent4); border: 2px solid var(--accent4); }
+        .timeline-item:nth-child(5) .timeline-dot { background: rgba(168,85,247,0.2); color: var(--accent6); border: 2px solid var(--accent6); }
+        .timeline-item:nth-child(6) .timeline-dot { background: rgba(244,63,94,0.2); color: var(--accent5); border: 2px solid var(--accent5); }
+
+        .timeline-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .timeline-card:hover {
+            border-color: rgba(99,102,241,0.3);
+            transform: translateX(4px);
+        }
+
+        .timeline-card h4 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+
+        .timeline-card ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .timeline-card li {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .timeline-card li::before {
+            content: '\2713';
+            position: absolute;
+            left: 0;
+            color: var(--accent4);
+            font-weight: 700;
+        }
+
+        /* ============ METRICS TABLE ============ */
+        .metrics-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .metrics-header,
+        .metrics-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 1rem;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+
+        .metrics-header {
+            background: rgba(99,102,241,0.1);
+            font-weight: 700;
+            color: var(--accent-light);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .metrics-row {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+        }
+
+        .metrics-row:hover {
+            border-color: rgba(99,102,241,0.3);
+        }
+
+        .metrics-row .before-val { color: var(--accent5); }
+        .metrics-row .after-val { color: var(--accent4); }
+
+        /* ============ TEMPLATE TREE VIZ ============ */
+        .template-tree {
+            background: var(--bg-code);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+        }
+
+        .tree-node {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+        }
+
+        .tree-node .icon { font-size: 1rem; }
+        .tree-node .name { color: var(--text-muted); }
+        .tree-node .arrow-text { color: var(--text-dim); font-style: italic; font-size: 0.8rem; }
+        .tree-children { padding-left: 1.5rem; border-left: 1px solid var(--border); margin-left: 0.5rem; }
+
+        /* ============ URL TABLE ============ */
+        .url-comparison {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .url-row {
+            display: grid;
+            grid-template-columns: 1fr 20px 1fr;
+            gap: 0.5rem;
+            align-items: center;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 0.75rem 1.25rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82rem;
+        }
+
+        .url-row .old { color: var(--accent5); text-decoration: line-through; opacity: 0.7; }
+        .url-row .arrow-icon { color: var(--text-dim); text-align: center; }
+        .url-row .new { color: var(--accent4); }
+
+        /* ============ RESPONSIVE ============ */
+        @media (max-width: 768px) {
+            .container { padding: 0 1rem; }
+            section { padding: 3rem 0; }
+            .section-title { font-size: 1.8rem; }
+            .side-nav { display: none; }
+            .hero-stats { gap: 1.5rem; }
+            .security-row { grid-template-columns: 1fr; }
+            .metrics-header, .metrics-row { grid-template-columns: 1.5fr 1fr 1fr; font-size: 0.8rem; padding: 0.75rem 1rem; }
+            .url-row { grid-template-columns: 1fr; gap: 4px; }
+            .url-row .arrow-icon { display: none; }
+        }
+
+        /* ============ DIVIDER ============ */
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border), transparent);
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SIDE NAV -->
+    <nav class="side-nav" id="sideNav">
+        <a href="#hero"><span class="tooltip">Top</span></a>
+        <a href="#problems"><span class="tooltip">Problems</span></a>
+        <a href="#domain"><span class="tooltip">Domain Map</span></a>
+        <a href="#structure"><span class="tooltip">New Structure</span></a>
+        <a href="#architecture"><span class="tooltip">Architecture</span></a>
+        <a href="#apps"><span class="tooltip">App Details</span></a>
+        <a href="#urls"><span class="tooltip">URL Design</span></a>
+        <a href="#flow"><span class="tooltip">Data Flow</span></a>
+        <a href="#security"><span class="tooltip">Security</span></a>
+        <a href="#migration"><span class="tooltip">Migration Plan</span></a>
+        <a href="#metrics"><span class="tooltip">Metrics</span></a>
+    </nav>
+
+    <!-- ==================== HERO ==================== -->
+    <section class="hero" id="hero">
+        <div class="hero-badge">
+            <span class="dot"></span>
+            Software Architecture Plan
+        </div>
+        <h1>Exam Bill Management<br>System Redesign</h1>
+        <p>A complete architectural overhaul from monolithic spaghetti to a clean, layered Django MVT application.</p>
+        <div class="hero-stats">
+            <div class="hero-stat">
+                <div class="num">1210</div>
+                <div class="label">Lines in views.py</div>
+            </div>
+            <div class="hero-stat">
+                <div class="num">13</div>
+                <div class="label">Critical Issues</div>
+            </div>
+            <div class="hero-stat">
+                <div class="num">4x</div>
+                <div class="label">Code Duplication</div>
+            </div>
+            <div class="hero-stat">
+                <div class="num">0</div>
+                <div class="label">Tests Written</div>
+            </div>
+        </div>
+        <div class="scroll-hint">
+            Scroll to explore
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M7 13l5 5 5-5M7 6l5 5 5-5"/>
+            </svg>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ==================== PROBLEMS ==================== -->
+    <section id="problems">
+        <div class="container">
+            <div class="section-label">Section 01</div>
+            <h2 class="section-title">Critical Problems Identified</h2>
+            <p class="section-desc">An audit of the current codebase reveals 13 architectural issues, including 2 critical security vulnerabilities.</p>
+
+            <div class="problem-list">
+                <div class="problem-item severity-critical">
+                    <div class="num">1</div>
+                    <div class="content">
+                        <div class="title-row">
+                            <h4>Plain-text passwords stored in database</h4>
+                            <span class="badge">Critical</span>
+                        </div>
+                        <div class="location">models.py:22 &mdash; faculty.password = CharField(max_length=15)</div>
+                    </div>
+                </div>
+
+                <div class="problem-item severity-critical">
+                    <div class="num">2</div>
+                    <div class="content">
+                        <div class="title-row">
+                            <h4>Hardcoded chairman email for access control</h4>
+                            <span class="badge">Critical</span>
+                        </div>
+                        <div class="location">views.py:855 &mdash; faculty.objects.get(email="chairman@gmail.com")</div>
+                    </div>
+                </div>
+
+                <div class="problem-item severity-high">
+                    <div class="num">3</div>
+                    <div class="content">
+                        <div class="title-row">
+                            <h4>Bill calculation duplicated 4 times (~480 lines)</h4>
+                            <span class="badge">High</span>
+                        </div>
+                        <div class="location">views.py:537-677, 678-836, 880-969, 1009-1140</div>
+                    </div>
+                </div>
+
+                <div class="problem-item severity-high">
+                    <div class="num">4</div>
+                    <div class="content">
+                        <div class="title-row">
+                            <h4>No Django Forms &mdash; zero input validation</h4>
+                            <span class="badge">High</span>
+                        </div>
+                        <div class="location">All views use raw request.POST.get() with no validation</div>
+                    </div>
+                </div>
+
+                <div class="problem-item severity-high">
+                    <div class="num">5</div>
+                    <div class="content">
+                        <div class="title-row">
+                            <h4>No @login_required on 21 of 22 views</h4>
+                            <span class="badge">High</span>
+                        </div>
+                        <div class="location">Only home() has @login_required decorator</div>
+                    </div>
+                </div>
+
+                <div class="problem-item severity-high">
+                    <div class="num">6</div>
+                    <div class="content">
+                        <div class="title-row">
+                            <h4>No error handling &mdash; bare .objects.get() everywhere</h4>
+                            <span class="badge">High</span>
+                        </div>
+                        <div class="location">All views &mdash; will crash with 500 on missing data</div>
+                    </div>
+                </div>
+
+                <div class="problem-item severity-high">
+                    <div class="num">7</div>
+                    <div class="content">
+                        <div class="title-row">
+                            <h4>Zero test coverage &mdash; tests.py is empty</h4>
+                            <span class="badge">High</span>
+                        </div>
+                        <div class="location">root/tests.py</div>
+                    </div>
+                </div>
+
+                <div class="problem-item severity-medium">
+                    <div class="num">8</div>
+                    <div class="content">
+                        <div class="title-row">
+                            <h4>Junk imports from unrelated Python modules</h4>
+                            <span class="badge">Medium</span>
+                        </div>
+                        <div class="location">models.py:1-11 &mdash; tkinter, turtle, pyexpat, telnetlib</div>
+                    </div>
+                </div>
+
+                <div class="problem-item severity-medium">
+                    <div class="num">9</div>
+                    <div class="content">
+                        <div class="title-row">
+                            <h4>Inline CSS duplicated across 22 templates</h4>
+                            <span class="badge">Medium</span>
+                        </div>
+                        <div class="location">~100+ lines of CSS repeated in each template file</div>
+                    </div>
+                </div>
+
+                <div class="problem-item severity-medium">
+                    <div class="num">10</div>
+                    <div class="content">
+                        <div class="title-row">
+                            <h4>URL building via string concatenation</h4>
+                            <span class="badge">Medium</span>
+                        </div>
+                        <div class="location">15+ locations &mdash; '/viewSem/'+str(id)+'/'+str(id2)</div>
+                    </div>
+                </div>
+
+                <div class="problem-item severity-medium">
+                    <div class="num">11</div>
+                    <div class="content">
+                        <div class="title-row">
+                            <h4>Inline classes defined inside view functions</h4>
+                            <span class="badge">Medium</span>
+                        </div>
+                        <div class="location">views.py:125, 282, 537 &mdash; display logic in controllers</div>
+                    </div>
+                </div>
+
+                <div class="problem-item severity-low">
+                    <div class="num">12</div>
+                    <div class="content">
+                        <div class="title-row">
+                            <h4>Virtual environment committed to git repository</h4>
+                            <span class="badge">Low</span>
+                        </div>
+                        <div class="location">Lib/ and Scripts/ folders tracked in version control</div>
+                    </div>
+                </div>
+
+                <div class="problem-item severity-low">
+                    <div class="num">13</div>
+                    <div class="content">
+                        <div class="title-row">
+                            <h4>ROOT_URLCONF misconfigured &mdash; EBM/urls.py unused</h4>
+                            <span class="badge">Low</span>
+                        </div>
+                        <div class="location">settings.py:54 &mdash; ROOT_URLCONF = 'root.urls'</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ==================== DOMAIN MAP ==================== -->
+    <section id="domain">
+        <div class="container">
+            <div class="section-label">Section 02</div>
+            <h2 class="section-title">Business Domain Map</h2>
+            <p class="section-desc">Five bounded contexts extracted from the existing code, each becoming its own Django app.</p>
+
+            <div class="domain-map">
+                <div class="domain-card">
+                    <h3>&#128100; Accounts</h3>
+                    <ul>
+                        <li>Faculty management</li>
+                        <li>External examiner profiles</li>
+                        <li>Login / Logout</li>
+                        <li>Role-based permissions</li>
+                    </ul>
+                </div>
+                <div class="domain-card">
+                    <h3>&#127979; Committee</h3>
+                    <ul>
+                        <li>Session management</li>
+                        <li>Semester committees</li>
+                        <li>Chairman assignment</li>
+                        <li>Tabulator assignment</li>
+                        <li>Moderator / Translator / Typist</li>
+                    </ul>
+                </div>
+                <div class="domain-card">
+                    <h3>&#128218; Courses</h3>
+                    <ul>
+                        <li>Theory courses</li>
+                        <li>Lab courses</li>
+                        <li>Viva courses</li>
+                        <li>Examiner assignment</li>
+                        <li>Invigilator management</li>
+                    </ul>
+                </div>
+                <div class="domain-card">
+                    <h3>&#128209; Thesis</h3>
+                    <ul>
+                        <li>Paper evaluation tracking</li>
+                        <li>Supervisor assignment</li>
+                        <li>Student allocation</li>
+                    </ul>
+                </div>
+                <div class="domain-card">
+                    <h3>&#128176; Billing</h3>
+                    <ul>
+                        <li>Rate calculation engine</li>
+                        <li>12 role-based rate rules</li>
+                        <li>Individual teacher bills</li>
+                        <li>Semester summary bills</li>
+                        <li>PDF export</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ==================== PROJECT STRUCTURE ==================== -->
+    <section id="structure">
+        <div class="container">
+            <div class="section-label">Section 03</div>
+            <h2 class="section-title">Proposed Project Structure</h2>
+            <p class="section-desc">Click on any folder to expand or collapse its contents.</p>
+
+            <div class="file-tree" id="fileTree">
+                <div>
+                    <span class="folder" onclick="toggleTree('root-tree')">&#128193; EBM/</span> <span class="comment">&larr; project root</span>
+                    <div class="tree-item" id="root-tree" style="padding-left:24px;">
+                        <div><span class="file">manage.py</span></div>
+                        <div><span class="file">requirements.txt</span></div>
+                        <div><span class="file">.gitignore</span></div>
+                        <br>
+                        <div>
+                            <span class="folder" onclick="toggleTree('config-tree')">&#128193; config/</span> <span class="comment">&larr; project settings</span>
+                            <div class="tree-item" id="config-tree" style="padding-left:24px;">
+                                <div><span class="file">__init__.py</span></div>
+                                <div>
+                                    <span class="folder" onclick="toggleTree('settings-tree')">&#128193; settings/</span>
+                                    <div class="tree-item" id="settings-tree" style="padding-left:24px;">
+                                        <div><span class="file">base.py</span> <span class="comment">&larr; shared settings</span></div>
+                                        <div><span class="file">development.py</span> <span class="comment">&larr; DEBUG=True, SQLite</span></div>
+                                        <div><span class="file">production.py</span> <span class="comment">&larr; PostgreSQL, HTTPS</span></div>
+                                    </div>
+                                </div>
+                                <div><span class="file">urls.py</span> <span class="comment">&larr; root URL dispatcher</span></div>
+                                <div><span class="file">wsgi.py</span></div>
+                                <div><span class="file">asgi.py</span></div>
+                            </div>
+                        </div>
+                        <br>
+                        <div>
+                            <span class="folder" onclick="toggleTree('apps-tree')">&#128193; apps/</span>
+                            <div class="tree-item" id="apps-tree" style="padding-left:24px;">
+                                <div>
+                                    <span class="folder" onclick="toggleTree('acc-tree')">&#128193; accounts/</span> <span class="comment">&larr; auth &amp; users</span>
+                                    <div class="tree-item" id="acc-tree" style="padding-left:24px;">
+                                        <div><span class="file">models.py</span> <span class="comment">&larr; Faculty profile (extends Django User)</span></div>
+                                        <div><span class="highlight">forms.py</span> <span class="comment">&larr; LoginForm</span></div>
+                                        <div><span class="file">views.py</span></div>
+                                        <div><span class="file">urls.py</span></div>
+                                        <div><span class="file">admin.py</span></div>
+                                        <div><span class="folder">&#128193; templates/accounts/</span></div>
+                                    </div>
+                                </div>
+                                <br>
+                                <div>
+                                    <span class="folder" onclick="toggleTree('com-tree')">&#128193; committee/</span> <span class="comment">&larr; exam committees</span>
+                                    <div class="tree-item" id="com-tree" style="padding-left:24px;">
+                                        <div><span class="file">models.py</span> <span class="comment">&larr; Session, Semester, SemesterRole</span></div>
+                                        <div><span class="highlight">forms.py</span> <span class="comment">&larr; CommitteeForm, RoleForm</span></div>
+                                        <div><span class="file">views.py</span></div>
+                                        <div><span class="critical">services.py</span> <span class="comment">&larr; validation logic</span></div>
+                                        <div><span class="file">urls.py</span></div>
+                                        <div><span class="file">admin.py</span></div>
+                                        <div><span class="folder">&#128193; templates/committee/</span></div>
+                                    </div>
+                                </div>
+                                <br>
+                                <div>
+                                    <span class="folder" onclick="toggleTree('crs-tree')">&#128193; courses/</span> <span class="comment">&larr; course management</span>
+                                    <div class="tree-item" id="crs-tree" style="padding-left:24px;">
+                                        <div><span class="file">models.py</span> <span class="comment">&larr; Course, CourseInvigilator</span></div>
+                                        <div><span class="highlight">forms.py</span> <span class="comment">&larr; CourseForm, ExaminerForm</span></div>
+                                        <div><span class="file">views.py</span></div>
+                                        <div><span class="file">constants.py</span> <span class="comment">&larr; CourseType enum</span></div>
+                                        <div><span class="file">urls.py</span></div>
+                                        <div><span class="file">admin.py</span></div>
+                                        <div><span class="folder">&#128193; templates/courses/</span></div>
+                                    </div>
+                                </div>
+                                <br>
+                                <div>
+                                    <span class="folder" onclick="toggleTree('ths-tree')">&#128193; thesis/</span> <span class="comment">&larr; thesis tracking</span>
+                                    <div class="tree-item" id="ths-tree" style="padding-left:24px;">
+                                        <div><span class="file">models.py</span> <span class="comment">&larr; ThesisPaper, ThesisSupervisor</span></div>
+                                        <div><span class="highlight">forms.py</span></div>
+                                        <div><span class="file">views.py</span></div>
+                                        <div><span class="file">urls.py</span></div>
+                                        <div><span class="file">admin.py</span></div>
+                                        <div><span class="folder">&#128193; templates/thesis/</span></div>
+                                    </div>
+                                </div>
+                                <br>
+                                <div>
+                                    <span class="folder" onclick="toggleTree('bill-tree')">&#128193; billing/</span> <span class="comment">&larr; THE CORE</span>
+                                    <div class="tree-item" id="bill-tree" style="padding-left:24px;">
+                                        <div><span class="file">forms.py</span> <span class="comment">&larr; BillSearchForm</span></div>
+                                        <div><span class="file">views.py</span> <span class="comment">&larr; thin wrappers</span></div>
+                                        <div><span class="critical">services.py</span> <span class="comment">&larr; BillCalculator engine (CORE)</span></div>
+                                        <div><span class="critical">rates.py</span> <span class="comment">&larr; ALL rate constants</span></div>
+                                        <div><span class="file">pdf.py</span> <span class="comment">&larr; PDF generation</span></div>
+                                        <div><span class="file">urls.py</span></div>
+                                        <div><span class="folder">&#128193; templates/billing/</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                        <div>
+                            <span class="folder" onclick="toggleTree('tpl-tree')">&#128193; templates/</span> <span class="comment">&larr; shared templates</span>
+                            <div class="tree-item" id="tpl-tree" style="padding-left:24px;">
+                                <div><span class="highlight">base.html</span> <span class="comment">&larr; master layout</span></div>
+                                <div>
+                                    <span class="folder">&#128193; components/</span>
+                                    <div style="padding-left:24px;">
+                                        <div><span class="file">navbar.html</span></div>
+                                        <div><span class="file">alert_error.html</span></div>
+                                        <div><span class="file">alert_success.html</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                        <div>
+                            <span class="folder" onclick="toggleTree('static-tree')">&#128193; static/</span>
+                            <div class="tree-item" id="static-tree" style="padding-left:24px;">
+                                <div><span class="folder">&#128193; css/</span> <span class="highlight">styles.css</span> <span class="comment">&larr; ALL CSS here</span></div>
+                                <div><span class="folder">&#128193; js/</span> <span class="file">alerts.js</span></div>
+                                <div><span class="folder">&#128193; images/</span> <span class="file">banner.jpg</span></div>
+                            </div>
+                        </div>
+                        <br>
+                        <div>
+                            <span class="folder" onclick="toggleTree('test-tree')">&#128193; tests/</span>
+                            <div class="tree-item" id="test-tree" style="padding-left:24px;">
+                                <div><span class="file">test_accounts.py</span></div>
+                                <div><span class="file">test_committee.py</span></div>
+                                <div><span class="file">test_courses.py</span></div>
+                                <div><span class="file">test_thesis.py</span></div>
+                                <div><span class="critical">test_billing.py</span> <span class="comment">&larr; most critical</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ==================== ARCHITECTURE DIAGRAM ==================== -->
+    <section id="architecture">
+        <div class="container">
+            <div class="section-label">Section 04</div>
+            <h2 class="section-title">Layered Architecture Diagram</h2>
+            <p class="section-desc">Each layer has a single responsibility. Data flows top-down, and no layer skips the one below it.</p>
+
+            <div class="arch-diagram">
+                <div class="arch-layer" style="background: linear-gradient(135deg, rgba(99,102,241,0.05), var(--bg-card));">
+                    <h3 style="color: var(--accent-light);">&#127760; Client (Browser)</h3>
+                    <p>HTTP Requests / HTML Responses</p>
+                </div>
+
+                <div class="arch-connector"></div>
+
+                <div class="arch-layer">
+                    <h3 style="color: var(--accent2);">&#128268; URL Dispatcher</h3>
+                    <p>config/urls.py routes to app-level urls. Named URLs with namespaces.</p>
+                    <div class="arch-modules">
+                        <span class="arch-module mod-cyan">committee:create</span>
+                        <span class="arch-module mod-cyan">billing:teacher-bill</span>
+                        <span class="arch-module mod-cyan">courses:update</span>
+                    </div>
+                </div>
+
+                <div class="arch-connector"></div>
+
+                <div class="arch-layer">
+                    <h3 style="color: var(--accent6);">&#128737; Middleware</h3>
+                    <div class="arch-modules">
+                        <span class="arch-module mod-purple">Auth</span>
+                        <span class="arch-module mod-purple">CSRF</span>
+                        <span class="arch-module mod-purple">Session</span>
+                        <span class="arch-module mod-purple">Security</span>
+                        <span class="arch-module mod-purple">Messages</span>
+                    </div>
+                </div>
+
+                <div class="arch-connector"></div>
+
+                <div class="arch-layer" style="background: linear-gradient(135deg, rgba(16,185,129,0.05), var(--bg-card));">
+                    <h3 style="color: var(--accent4);">&#128065; View Layer (Thin)</h3>
+                    <p>Parse request via Forms &rarr; Call service &rarr; Pass context to template &rarr; Return response</p>
+                    <div class="arch-modules">
+                        <span class="arch-module mod-green">accounts/views.py</span>
+                        <span class="arch-module mod-green">committee/views.py</span>
+                        <span class="arch-module mod-green">courses/views.py</span>
+                        <span class="arch-module mod-green">thesis/views.py</span>
+                        <span class="arch-module mod-green">billing/views.py</span>
+                    </div>
+                </div>
+
+                <div class="arch-connector"></div>
+
+                <div class="arch-layer" style="background: linear-gradient(135deg, rgba(245,158,11,0.05), var(--bg-card));">
+                    <h3 style="color: var(--accent3);">&#128203; Form Layer (Validation)</h3>
+                    <p>Django Forms & ModelForms handle input validation, type coercion, and error messages.</p>
+                    <div class="arch-modules">
+                        <span class="arch-module mod-amber">LoginForm</span>
+                        <span class="arch-module mod-amber">CommitteeForm</span>
+                        <span class="arch-module mod-amber">CourseForm</span>
+                        <span class="arch-module mod-amber">ThesisForm</span>
+                        <span class="arch-module mod-amber">BillSearchForm</span>
+                    </div>
+                </div>
+
+                <div class="arch-connector"></div>
+
+                <div class="arch-layer" style="border-color: rgba(244,63,94,0.3); background: linear-gradient(135deg, rgba(244,63,94,0.05), var(--bg-card));">
+                    <h3 style="color: var(--accent5);">&#9881; Service Layer (Business Logic)</h3>
+                    <p>All complex logic lives here. Views never contain business rules.</p>
+                    <div class="arch-modules">
+                        <span class="arch-module mod-red">committee/services.py</span>
+                        <span class="arch-module mod-red">billing/services.py</span>
+                        <span class="arch-module mod-red">billing/rates.py</span>
+                        <span class="arch-module mod-red">billing/pdf.py</span>
+                    </div>
+                </div>
+
+                <div class="arch-connector"></div>
+
+                <div class="arch-layer" style="background: linear-gradient(135deg, rgba(99,102,241,0.05), var(--bg-card));">
+                    <h3 style="color: var(--accent-light);">&#128451; Model Layer (Data)</h3>
+                    <p>Clean models with PascalCase names, snake_case fields, choices for enums, and __str__ on every model.</p>
+                    <div class="arch-modules">
+                        <span class="arch-module mod-blue">Faculty</span>
+                        <span class="arch-module mod-blue">External</span>
+                        <span class="arch-module mod-blue">Session</span>
+                        <span class="arch-module mod-blue">Semester</span>
+                        <span class="arch-module mod-blue">Course</span>
+                        <span class="arch-module mod-blue">SemesterRole</span>
+                        <span class="arch-module mod-blue">ThesisPaper</span>
+                    </div>
+                </div>
+
+                <div class="arch-connector"></div>
+
+                <div class="arch-layer">
+                    <h3 style="color: var(--text-dim);">&#128451; Database</h3>
+                    <p>SQLite (development) &rarr; PostgreSQL (production)</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ==================== APP DETAILS ==================== -->
+    <section id="apps">
+        <div class="container">
+            <div class="section-label">Section 05</div>
+            <h2 class="section-title">Detailed App Design</h2>
+            <p class="section-desc">Expand each app below to see the model, form, service, and view design.</p>
+
+            <!-- ACCOUNTS -->
+            <div class="collapsible open">
+                <div class="collapsible-header" onclick="toggleCollapsible(this)">
+                    <h3><span style="color:var(--accent)">&#128100;</span> accounts &mdash; Authentication & Users</h3>
+                    <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                </div>
+                <div class="collapsible-body">
+                    <div class="collapsible-content">
+                        <p style="color:var(--accent5); font-weight:600; margin-bottom:1rem;">Problem: Custom faculty model stores plain-text passwords, bypasses Django's auth.</p>
+
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span class="filename">accounts/models.py</span>
+                                <span class="lang">Python</span>
+                            </div>
+<pre><span class="kw">from</span> django.db <span class="kw">import</span> models
+<span class="kw">from</span> django.contrib.auth.models <span class="kw">import</span> User
+
+<span class="kw">class</span> <span class="cls">Faculty</span>(models.Model):
+    user    = models.OneToOneField(User, on_delete=models.CASCADE)  <span class="cm"># Django auth handles passwords</span>
+    title   = models.CharField(max_length=100)                       <span class="cm"># e.g., "Professor"</span>
+
+    <span class="kw">def</span> <span class="fn">__str__</span>(self):
+        <span class="kw">return</span> <span class="str">f"</span>{self.user.get_full_name()} ({self.title})<span class="str">"</span>
+
+<span class="kw">class</span> <span class="cls">External</span>(models.Model):
+    name  = models.CharField(max_length=100)
+    email = models.EmailField(unique=<span class="num">True</span>)</pre>
+                        </div>
+
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span class="filename">accounts/views.py</span>
+                                <span class="lang">Python</span>
+                            </div>
+<pre><span class="kw">def</span> <span class="fn">login_view</span>(request):
+    form = LoginForm(request.POST <span class="kw">or</span> <span class="num">None</span>)
+    <span class="kw">if</span> form.is_valid():
+        user = authenticate(
+            username=form.cleaned_data[<span class="str">'email'</span>],
+            password=form.cleaned_data[<span class="str">'password'</span>]
+        )
+        <span class="kw">if</span> user:
+            login(request, user)
+            <span class="kw">return</span> redirect(<span class="str">'home'</span>)
+        form.add_error(<span class="num">None</span>, <span class="str">'Invalid credentials'</span>)
+    <span class="kw">return</span> render(request, <span class="str">'accounts/login.html'</span>, {<span class="str">'form'</span>: form})</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COMMITTEE -->
+            <div class="collapsible">
+                <div class="collapsible-header" onclick="toggleCollapsible(this)">
+                    <h3><span style="color:var(--accent2)">&#127979;</span> committee &mdash; Exam Committee Management</h3>
+                    <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                </div>
+                <div class="collapsible-body">
+                    <div class="collapsible-content">
+                        <p style="color:var(--accent5); font-weight:600; margin-bottom:1rem;">Problem: 50+ lines of validation crammed into createCom() view. Inline Class for semester names.</p>
+
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span class="filename">committee/models.py</span>
+                                <span class="lang">Python</span>
+                            </div>
+<pre><span class="kw">class</span> <span class="cls">Semester</span>(models.Model):
+    SEMESTER_CHOICES = [
+        (<span class="num">1</span>, <span class="str">"1st Year 1st Semester"</span>), (<span class="num">2</span>, <span class="str">"1st Year 2nd Semester"</span>),
+        (<span class="num">3</span>, <span class="str">"2nd Year 1st Semester"</span>), (<span class="num">4</span>, <span class="str">"2nd Year 2nd Semester"</span>),
+        <span class="cm"># ... up to (10, "Masters 2nd Semester")</span>
+    ]
+    sem_id     = models.IntegerField(choices=SEMESTER_CHOICES)
+    session    = models.ForeignKey(Session, on_delete=models.CASCADE)
+    chairman   = models.ForeignKey(Faculty, related_name=<span class="str">'chairman_of'</span>, ...)
+    tabulator_1 = models.ForeignKey(Faculty, related_name=<span class="str">'tabulator1_of'</span>, ...)
+    tabulator_2 = models.ForeignKey(Faculty, related_name=<span class="str">'tabulator2_of'</span>, ...)
+
+    <span class="kw">def</span> <span class="fn">get_display_name</span>(self):    <span class="cm"># Replaces inline Class in views!</span>
+        <span class="kw">return</span> self.get_sem_id_display()
+
+<span class="kw">class</span> <span class="cls">SemesterRole</span>(models.Model):  <span class="cm"># Replaces 3 integer fields</span>
+    ROLE_CHOICES = [(<span class="str">'moderator'</span>, <span class="str">'Moderator'</span>), (<span class="str">'translator'</span>, <span class="str">'Translator'</span>), (<span class="str">'typist'</span>, <span class="str">'Typist'</span>)]
+    semester = models.ForeignKey(Semester, ...)
+    teacher  = models.ForeignKey(Faculty, ...)
+    role     = models.CharField(choices=ROLE_CHOICES, max_length=20)</pre>
+                        </div>
+
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span class="filename">committee/services.py</span>
+                                <span class="lang">Python</span>
+                            </div>
+<pre><span class="kw">def</span> <span class="fn">validate_committee</span>(chairman, tab1, tab2, session):
+    <span class="str">"""All committee validation in ONE place."""</span>
+    errors = []
+    <span class="kw">if</span> <span class="fn">len</span>({chairman, tab1, tab2}) < <span class="num">3</span>:
+        errors.append(<span class="str">"Faculty cannot be selected more than once."</span>)
+    <span class="kw">if</span> Semester.objects.filter(session=session, chairman=chairman).exists():
+        errors.append(<span class="str">"Chairman already assigned in this session."</span>)
+    <span class="kw">return</span> errors</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COURSES -->
+            <div class="collapsible">
+                <div class="collapsible-header" onclick="toggleCollapsible(this)">
+                    <h3><span style="color:var(--accent3)">&#128218;</span> courses &mdash; Course Management</h3>
+                    <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                </div>
+                <div class="collapsible-body">
+                    <div class="collapsible-content">
+                        <p style="color:var(--accent5); font-weight:600; margin-bottom:1rem;">Problem: Raw POST parsing, bug at line 332 (credit = int(code) instead of int(credit)).</p>
+
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span class="filename">courses/constants.py</span>
+                                <span class="lang">Python</span>
+                            </div>
+<pre><span class="kw">from</span> django.db <span class="kw">import</span> models
+
+<span class="kw">class</span> <span class="cls">CourseType</span>(models.IntegerChoices):
+    THEORY = <span class="num">1</span>, <span class="str">'Theory'</span>
+    LAB    = <span class="num">2</span>, <span class="str">'Lab'</span>
+    VIVA   = <span class="num">3</span>, <span class="str">'Viva'</span></pre>
+                        </div>
+
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span class="filename">courses/models.py</span>
+                                <span class="lang">Python</span>
+                            </div>
+<pre><span class="kw">class</span> <span class="cls">Course</span>(models.Model):
+    course_name       = models.CharField(max_length=<span class="num">100</span>)
+    course_code       = models.IntegerField()
+    course_type       = models.IntegerField(choices=CourseType.choices)
+    credit            = models.IntegerField()
+    session           = models.ForeignKey(Session, ...)
+    semester          = models.ForeignKey(Semester, ...)
+    internal_examiner = models.ForeignKey(Faculty, ..., null=<span class="num">True</span>, blank=<span class="num">True</span>)
+    external_examiner = models.ForeignKey(Faculty, ..., null=<span class="num">True</span>, blank=<span class="num">True</span>)
+    third_examiner    = models.ForeignKey(Faculty, ..., null=<span class="num">True</span>, blank=<span class="num">True</span>)
+    paper_count       = models.IntegerField(default=<span class="num">0</span>)
+    duration          = models.IntegerField(default=<span class="num">0</span>)
+
+<span class="kw">class</span> <span class="cls">CourseInvigilator</span>(models.Model):  <span class="cm"># Renamed from courseBill</span>
+    course  = models.ForeignKey(Course, ...)
+    faculty = models.ForeignKey(Faculty, ...)</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BILLING -->
+            <div class="collapsible">
+                <div class="collapsible-header" onclick="toggleCollapsible(this)">
+                    <h3><span style="color:var(--accent5)">&#128176;</span> billing &mdash; The Core Refactor</h3>
+                    <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                </div>
+                <div class="collapsible-body">
+                    <div class="collapsible-content">
+                        <p style="color:var(--accent5); font-weight:600; margin-bottom:1rem;">Problem: Bill calculation copy-pasted 4 times (~480 lines). 12+ hardcoded rate values scattered everywhere.</p>
+
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span class="filename">billing/rates.py</span>
+                                <span class="lang">Python &mdash; Single source of truth</span>
+                            </div>
+<pre><span class="cm"># All compensation rates in ONE file</span>
+
+CHAIRMAN_RATE                = <span class="num">2700</span>
+TABULATION_RATE_JUNIOR       = <span class="num">2500</span>    <span class="cm"># sem_id 1-3</span>
+TABULATION_RATE_SENIOR       = <span class="num">3125</span>    <span class="cm"># sem_id 4+</span>
+MODERATION_RATE              = <span class="num">2150</span>
+TRANSLATION_RATE             = <span class="num">400</span>
+STENCIL_CUTTER_RATE          = <span class="num">375</span>
+QUESTION_PAPER_RATE          = <span class="num">2150</span>
+PAPER_EVALUATION_PER_PAPER   = <span class="num">115</span>
+LAB_EVALUATION_RATE          = <span class="num">15000</span>
+LAB_VIVA_PER_HOUR            = <span class="num">200</span>
+LAB_INVIGILATOR_PER_HOUR     = <span class="num">400</span>
+VIVA_VOCE_PER_HOUR           = <span class="num">200</span>
+THESIS_PAPER_PER_PAPER       = <span class="num">1250</span>
+THESIS_SUPERVISOR_PER_STUDENT = <span class="num">3100</span></pre>
+                        </div>
+
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span class="filename">billing/services.py</span>
+                                <span class="lang">Python &mdash; Written ONCE, used everywhere</span>
+                            </div>
+<pre><span class="kw">from</span> dataclasses <span class="kw">import</span> dataclass
+<span class="kw">from</span> . <span class="kw">import</span> rates
+
+<span class="dec">@dataclass</span>
+<span class="kw">class</span> <span class="cls">BillLineItem</span>:
+    role: str
+    department: str
+    course_code: int
+    paper_count: int
+    duration: int
+    amount: int
+
+<span class="kw">class</span> <span class="cls">BillCalculator</span>:
+    <span class="str">"""
+    SINGLE implementation of bill calculation.
+    Used by: teacher_bill view, semester_bill view, PDF export.
+    Eliminates 480 lines of duplicated code.
+    """</span>
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, session, semester, faculty):
+        self.session = session
+        self.semester = semester
+        self.faculty = faculty
+        self.items = []
+
+    <span class="kw">def</span> <span class="fn">calculate</span>(self):
+        self._add_committee_roles()
+        self._add_thesis_roles()
+        self._add_semester_roles()
+        self._add_course_roles()
+        <span class="kw">return</span> self.items
+
+    <span class="kw">def</span> <span class="fn">total</span>(self):
+        <span class="kw">return</span> <span class="fn">sum</span>(item.amount <span class="kw">for</span> item <span class="kw">in</span> self.items)</pre>
+                        </div>
+
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span class="filename">billing/views.py</span>
+                                <span class="lang">Python &mdash; Thin wrapper (~10 lines per view)</span>
+                            </div>
+<pre><span class="dec">@login_required</span>
+<span class="kw">def</span> <span class="fn">teacher_bill</span>(request, session_year, sem_id):
+    session  = get_object_or_404(Session, year=session_year)
+    semester = get_object_or_404(Semester, session=session, sem_id=sem_id)
+    faculty  = get_object_or_404(Faculty, user=request.user)
+
+    calculator = BillCalculator(session, semester, faculty)
+    items = calculator.calculate()
+
+    <span class="kw">return</span> render(request, <span class="str">'billing/teacher_bill.html'</span>, {
+        <span class="str">'items'</span>: items,
+        <span class="str">'total'</span>: calculator.total(),
+        <span class="str">'faculty'</span>: faculty,
+        <span class="str">'semester'</span>: semester,
+    })</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ==================== URL DESIGN ==================== -->
+    <section id="urls">
+        <div class="container">
+            <div class="section-label">Section 06</div>
+            <h2 class="section-title">URL Redesign</h2>
+            <p class="section-desc">From string concatenation to named, namespaced URLs with reverse().</p>
+
+            <div class="url-comparison">
+                <div class="url-row">
+                    <span class="old">/viewCom/2023/</span>
+                    <span class="arrow-icon">&rarr;</span>
+                    <span class="new">/committees/2023/</span>
+                </div>
+                <div class="url-row">
+                    <span class="old">/viewSem/2023/1/</span>
+                    <span class="arrow-icon">&rarr;</span>
+                    <span class="new">/committees/2023/1/</span>
+                </div>
+                <div class="url-row">
+                    <span class="old">/createCom/</span>
+                    <span class="arrow-icon">&rarr;</span>
+                    <span class="new">/committees/create/</span>
+                </div>
+                <div class="url-row">
+                    <span class="old">/addRole/2023/1/</span>
+                    <span class="arrow-icon">&rarr;</span>
+                    <span class="new">/committees/2023/1/roles/</span>
+                </div>
+                <div class="url-row">
+                    <span class="old">/createCourse/2023/1/</span>
+                    <span class="arrow-icon">&rarr;</span>
+                    <span class="new">/courses/2023/1/create/</span>
+                </div>
+                <div class="url-row">
+                    <span class="old">/indBill/2023/1/5/</span>
+                    <span class="arrow-icon">&rarr;</span>
+                    <span class="new">/billing/teacher/2023/1/</span>
+                </div>
+                <div class="url-row">
+                    <span class="old">/pdf_view/2023/1/5/</span>
+                    <span class="arrow-icon">&rarr;</span>
+                    <span class="new">/billing/teacher/2023/1/pdf/</span>
+                </div>
+                <div class="url-row">
+                    <span class="old">/semBill/2023/1/</span>
+                    <span class="arrow-icon">&rarr;</span>
+                    <span class="new">/billing/semester/2023/1/</span>
+                </div>
+            </div>
+
+            <div class="code-block" style="margin-top:2rem;">
+                <div class="code-header">
+                    <span class="filename">In views: string concat &rarr; reverse()</span>
+                    <span class="lang">Before / After</span>
+                </div>
+<pre><span class="cm"># Before (fragile, error-prone):</span>
+response = <span class="str">'/viewSem/'</span> + <span class="fn">str</span>(id) + <span class="str">'/'</span> + <span class="fn">str</span>(id2)
+<span class="kw">return</span> redirect(response)
+
+<span class="cm"># After (safe, refactor-friendly):</span>
+<span class="kw">return</span> redirect(reverse(<span class="str">'committee:semester-detail'</span>, args=[year, sem_id]))</pre>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ==================== DATA FLOW ==================== -->
+    <section id="flow">
+        <div class="container">
+            <div class="section-label">Section 07</div>
+            <h2 class="section-title">Data Flow Comparison</h2>
+            <p class="section-desc">How "Teacher views their bill" works before and after the redesign.</p>
+
+            <div class="flow-comparison">
+                <div class="flow-card before">
+                    <h4>&#10060; Before (Current)</h4>
+                    <div class="flow-step"><p>Browser POST hits <code>views.indBill()</code></p></div>
+                    <div class="flow-step"><p>Raw <code>request.POST.get('session')</code> &mdash; no validation</p></div>
+                    <div class="flow-step"><p>15x for-loops over all courses inline</p></div>
+                    <div class="flow-step"><p>Inline <code>class bill(...)</code> defined inside the view</p></div>
+                    <div class="flow-step"><p>Hardcoded rates: <code>115</code>, <code>2700</code>, <code>2150</code> scattered in code</p></div>
+                    <div class="flow-step"><p>Manual string building: <code>"1st Year 1st Semester"</code></p></div>
+                    <div class="flow-step"><p><code>render('indBill.html', cont)</code></p></div>
+                    <div style="margin-top:1.5rem; padding:1rem; background:rgba(244,63,94,0.08); border-radius:10px; font-size:0.85rem; color:var(--accent5);">
+                        120+ lines per view. Duplicated 4 times = ~480 lines.
+                    </div>
+                </div>
+                <div class="flow-card after">
+                    <h4>&#9989; After (Proposed)</h4>
+                    <div class="flow-step"><p>Browser POST hits <code>BillSearchForm.is_valid()</code></p></div>
+                    <div class="flow-step"><p>Form validates all input automatically</p></div>
+                    <div class="flow-step"><p><code>views.teacher_bill()</code> &mdash; 10 lines, thin</p></div>
+                    <div class="flow-step"><p><code>get_object_or_404()</code> &mdash; safe DB lookup</p></div>
+                    <div class="flow-step"><p><code>BillCalculator(session, semester, faculty)</code> &mdash; service layer</p></div>
+                    <div class="flow-step"><p>Rates from <code>rates.py</code> &mdash; centralized constants</p></div>
+                    <div class="flow-step"><p><code>semester.get_display_name()</code> &mdash; model method</p></div>
+                    <div style="margin-top:1.5rem; padding:1rem; background:rgba(16,185,129,0.08); border-radius:10px; font-size:0.85rem; color:var(--accent4);">
+                        1 class (~80 lines). Used by all 4 views. Zero duplication.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ==================== SECURITY ==================== -->
+    <section id="security">
+        <div class="container">
+            <div class="section-label">Section 08</div>
+            <h2 class="section-title">Security Fixes</h2>
+            <p class="section-desc">Seven security issues fixed in the new architecture.</p>
+
+            <div class="security-grid">
+                <div class="security-row">
+                    <div class="issue"><span class="icon">&#9888;</span> Plain-text passwords</div>
+                    <div class="fix"><span class="icon">&#9989;</span> Django User model &mdash; PBKDF2 hashing</div>
+                </div>
+                <div class="security-row">
+                    <div class="issue"><span class="icon">&#9888;</span> Hardcoded chairman@gmail.com</div>
+                    <div class="fix"><span class="icon">&#9989;</span> @chairman_required decorator checks semester.chairman</div>
+                </div>
+                <div class="security-row">
+                    <div class="issue"><span class="icon">&#9888;</span> No @login_required (21/22 views)</div>
+                    <div class="fix"><span class="icon">&#9989;</span> @login_required on all views except login</div>
+                </div>
+                <div class="security-row">
+                    <div class="issue"><span class="icon">&#9888;</span> No CSRF on some flows</div>
+                    <div class="fix"><span class="icon">&#9989;</span> Django Forms handle CSRF automatically</div>
+                </div>
+                <div class="security-row">
+                    <div class="issue"><span class="icon">&#9888;</span> SECRET_KEY exposed in settings.py</div>
+                    <div class="fix"><span class="icon">&#9989;</span> Moved to environment variable</div>
+                </div>
+                <div class="security-row">
+                    <div class="issue"><span class="icon">&#9888;</span> No input validation anywhere</div>
+                    <div class="fix"><span class="icon">&#9989;</span> Django Forms validate before business logic</div>
+                </div>
+                <div class="security-row">
+                    <div class="issue"><span class="icon">&#9888;</span> Bare .objects.get() &mdash; 500 errors</div>
+                    <div class="fix"><span class="icon">&#9989;</span> get_object_or_404() everywhere</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ==================== MIGRATION PLAN ==================== -->
+    <section id="migration">
+        <div class="container">
+            <div class="section-label">Section 09</div>
+            <h2 class="section-title">Phased Migration Strategy</h2>
+            <p class="section-desc">Six incremental phases. Each phase is independently deployable and testable.</p>
+
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-dot">1</div>
+                    <div class="timeline-card">
+                        <h4 style="color:var(--accent);">Phase 1 &mdash; Foundation</h4>
+                        <ul>
+                            <li>Create proper .gitignore, remove venv from git</li>
+                            <li>Split settings into base.py / development.py / production.py</li>
+                            <li>Move SECRET_KEY to environment variable</li>
+                            <li>Remove all junk imports (tkinter, turtle, pyexpat)</li>
+                            <li>Create requirements.txt with pinned versions</li>
+                            <li>Fix ROOT_URLCONF to point to config.urls</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-dot">2</div>
+                    <div class="timeline-card">
+                        <h4 style="color:var(--accent2);">Phase 2 &mdash; Extract Apps + Models</h4>
+                        <ul>
+                            <li>Create 5 app directories under apps/</li>
+                            <li>Refactor models: PascalCase names, snake_case fields</li>
+                            <li>Add choices for semester IDs and course types</li>
+                            <li>Migrate faculty to Django User + Faculty profile</li>
+                            <li>Run makemigrations + migrate</li>
+                            <li>Data migration to hash existing plain-text passwords</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-dot">3</div>
+                    <div class="timeline-card">
+                        <h4 style="color:var(--accent3);">Phase 3 &mdash; Forms + Service Layer</h4>
+                        <ul>
+                            <li>Create forms.py for each app with ModelForms</li>
+                            <li>Extract bill calculation into billing/services.py</li>
+                            <li>Extract committee validation into committee/services.py</li>
+                            <li>Create billing/rates.py for all rate constants</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-dot">4</div>
+                    <div class="timeline-card">
+                        <h4 style="color:var(--accent4);">Phase 4 &mdash; Views + URLs</h4>
+                        <ul>
+                            <li>Rewrite views as thin wrappers calling forms and services</li>
+                            <li>Add @login_required to all views</li>
+                            <li>Add @chairman_required custom decorator</li>
+                            <li>Replace all string-concatenated URLs with reverse()</li>
+                            <li>Set up URL namespaces for each app</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-dot">5</div>
+                    <div class="timeline-card">
+                        <h4 style="color:var(--accent6);">Phase 5 &mdash; Templates + Static</h4>
+                        <ul>
+                            <li>Create base.html with proper template inheritance</li>
+                            <li>Extract all inline CSS into static/css/styles.css</li>
+                            <li>Create reusable alert/modal components</li>
+                            <li>Namespace all template directories</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-dot">6</div>
+                    <div class="timeline-card">
+                        <h4 style="color:var(--accent5);">Phase 6 &mdash; Tests + Hardening</h4>
+                        <ul>
+                            <li>Write tests for BillCalculator (12 rate rules)</li>
+                            <li>Write tests for committee validation logic</li>
+                            <li>Write tests for authentication flow</li>
+                            <li>Add get_object_or_404() everywhere</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ==================== METRICS ==================== -->
+    <section id="metrics">
+        <div class="container">
+            <div class="section-label">Section 10</div>
+            <h2 class="section-title">Impact Metrics</h2>
+            <p class="section-desc">Quantified improvements after the full migration.</p>
+
+            <div class="metrics-grid">
+                <div class="metrics-header">
+                    <span>Metric</span>
+                    <span>Before</span>
+                    <span>After</span>
+                </div>
+                <div class="metrics-row">
+                    <span>views.py size</span>
+                    <span class="before-val">1,210 lines (1 file)</span>
+                    <span class="after-val">~50-80 lines (5 files)</span>
+                </div>
+                <div class="metrics-row">
+                    <span>Bill calculation code</span>
+                    <span class="before-val">4 copies (~480 lines)</span>
+                    <span class="after-val">1 class (~80 lines)</span>
+                </div>
+                <div class="metrics-row">
+                    <span>Django Forms</span>
+                    <span class="before-val">0</span>
+                    <span class="after-val">8 forms</span>
+                </div>
+                <div class="metrics-row">
+                    <span>Test files</span>
+                    <span class="before-val">0 (empty)</span>
+                    <span class="after-val">5 test suites</span>
+                </div>
+                <div class="metrics-row">
+                    <span>CSS duplication</span>
+                    <span class="before-val">~100 lines x 22 templates</span>
+                    <span class="after-val">1 shared stylesheet</span>
+                </div>
+                <div class="metrics-row">
+                    <span>Password security</span>
+                    <span class="before-val">Plain text</span>
+                    <span class="after-val">PBKDF2 hashed</span>
+                </div>
+                <div class="metrics-row">
+                    <span>@login_required coverage</span>
+                    <span class="before-val">1 of 22 views</span>
+                    <span class="after-val">21 of 22 views</span>
+                </div>
+                <div class="metrics-row">
+                    <span>Hardcoded magic numbers</span>
+                    <span class="before-val">12+ scattered values</span>
+                    <span class="after-val">1 file (rates.py)</span>
+                </div>
+            </div>
+
+            <div style="text-align:center; margin-top:5rem; padding:3rem; color:var(--text-dim);">
+                <p style="font-size:0.9rem;">Architecture plan generated for <strong style="color:var(--text);">Exam Bill Management System</strong></p>
+                <p style="font-size:0.8rem; margin-top:0.5rem;">Django MVT Redesign &mdash; 2026</p>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Collapsible sections
+        function toggleCollapsible(header) {
+            const parent = header.parentElement;
+            parent.classList.toggle('open');
+        }
+
+        // File tree toggle
+        function toggleTree(id) {
+            const el = document.getElementById(id);
+            el.classList.toggle('collapsed');
+        }
+
+        // Side nav active state
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('.side-nav a');
+
+        function updateNav() {
+            let current = '';
+            sections.forEach(section => {
+                const top = section.offsetTop - 200;
+                if (window.scrollY >= top) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', updateNav);
+        updateNav();
+
+        // Animate elements on scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.problem-item, .domain-card, .arch-layer, .collapsible, .security-row, .timeline-item, .metrics-row, .url-row').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            observer.observe(el);
+        });
+
+        // Stagger animation for list items
+        document.querySelectorAll('.problem-list, .domain-map, .security-grid, .metrics-grid, .url-comparison, .timeline').forEach(container => {
+            const items = container.children;
+            Array.from(items).forEach((item, i) => {
+                item.style.transitionDelay = `${i * 0.07}s`;
+            });
+        });
+    </script>
+</body>
+</html>

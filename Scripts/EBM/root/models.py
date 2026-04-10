@@ -1,19 +1,5 @@
-from tkinter import CASCADE
-from turtle import title
-from unittest.util import _MAX_LENGTH
-from urllib.parse import MAX_CACHE_SIZE
 from django.db import models
-from contextlib import nullcontext
-from email.policy import default
-from enum import unique
-from operator import mod
-from pyexpat import model
-
-from unicodedata import decimal
 from django.contrib.auth.models import Group, User
-from statistics import mode
-import uuid
-from django.core.validators import MinLengthValidator, MaxValueValidator
 class faculty(models.Model):
     username = models.CharField(max_length=100, null=True, blank=True)
     email = models.EmailField(blank=True,null=True)
