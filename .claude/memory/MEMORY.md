@@ -3,3 +3,4 @@
 - [Confirm Remote Ops](feedback_confirm_remote.md) — Always ask before any git command that changes the remote
 - [Confirm Commit Before Push](feedback_confirm_commit_before_push.md) — Always show commit message and get approval before pushing
 - [Delete Branch After Merge](feedback_delete_branch_after_merge.md) — After PR merge, ask user before deleting the feature branch
+- [Review Before Merge](feedback_review_before_merge.md) — Always review PR diff before merging, never merge without review
