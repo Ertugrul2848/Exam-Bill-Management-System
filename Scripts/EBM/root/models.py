@@ -26,7 +26,19 @@ class Session(models.Model):
 
 
 class Semester(models.Model):
-    semId = models.IntegerField()
+    SEMESTER_CHOICES = [
+        (1, "1st Year 1st Semester"),
+        (2, "1st Year 2nd Semester"),
+        (3, "2nd Year 1st Semester"),
+        (4, "2nd Year 2nd Semester"),
+        (5, "3rd Year 1st Semester"),
+        (6, "3rd Year 2nd Semester"),
+        (7, "4th Year 1st Semester"),
+        (8, "4th Year 2nd Semester"),
+        (9, "Masters 1st Semester"),
+        (10, "Masters 2nd Semester"),
+    ]
+    semId = models.IntegerField(choices=SEMESTER_CHOICES)
     session = models.ForeignKey(Session, on_delete=models.CASCADE)
     chairman = models.OneToOneField(
         faculty, related_name='chairman', on_delete=models.CASCADE)
@@ -35,6 +47,9 @@ class Semester(models.Model):
     tabular2 = models.ForeignKey(
         faculty, related_name="tabular2", on_delete=models.CASCADE)
     external = models.ForeignKey(External, on_delete=models.CASCADE)
+
+    def get_display_name(self):
+        return self.get_semId_display()
 
     def __str__(self):
         return str(str(self.session)+" "+str(self.semId))
