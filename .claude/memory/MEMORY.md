@@ -1,0 +1,5 @@
+- [No Co-Authored-By](feedback_no_coauthor.md) — Never add Co-Authored-By Claude line to git commits
+- [No Auto-Merge](feedback_no_auto_merge.md) — Only create PRs, never merge unless user explicitly says "merge"
+- [Confirm Remote Ops](feedback_confirm_remote.md) — Always ask before any git command that changes the remote
+- [Confirm Commit Before Push](feedback_confirm_commit_before_push.md) — Always show commit message and get approval before pushing
+- [Delete Branch After Merge](feedback_delete_branch_after_merge.md) — After PR merge, ask user before deleting the feature branch
