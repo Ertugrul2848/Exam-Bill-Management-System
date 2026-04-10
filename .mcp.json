@@ -5,8 +5,8 @@
       "command": "cmd",
       "args": ["/c", "npx", "-y", "@nexus2520/jira-mcp-server"],
       "env": {
-        "JIRA_HOST": "https://ertugrul28.atlassian.net",
-        "JIRA_EMAIL": "jucse28.373@gmail.com",
+        "JIRA_HOST": "${JIRA_HOST}",
+        "JIRA_EMAIL": "${JIRA_EMAIL}",
         "JIRA_API_TOKEN": "${JIRA_API_TOKEN}"
       }
     },
