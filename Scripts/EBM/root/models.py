@@ -68,6 +68,11 @@ class SemesterBill(models.Model):
 
 
 class Course(models.Model):
+    COURSE_TYPE_CHOICES = [
+        (1, "Theory"),
+        (2, "Lab"),
+        (3, "Viva"),
+    ]
     courseName = models.CharField(max_length=100)
     courseCode = models.IntegerField()
     paperNo = models.IntegerField(default=0)
@@ -82,7 +87,7 @@ class Course(models.Model):
     session = models.ForeignKey(Session, on_delete=models.CASCADE)
     semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
     credit = models.IntegerField(null=True)
-    type = models.IntegerField(default=1)
+    type = models.IntegerField(choices=COURSE_TYPE_CHOICES, default=1)
     vivaExternal = models.ForeignKey(
         External, on_delete=models.CASCADE, null=True)
     def __str__(self):
