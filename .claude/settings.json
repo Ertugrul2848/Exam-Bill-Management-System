@@ -1,0 +1,28 @@
+{
+  "project": {
+    "name": "Exam Bill Management System",
+    "type": "django",
+    "language": "python"
+  },
+  "permissions": {
+    "allow": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Bash(python manage.py *)",
+      "Bash(pip *)",
+      "Bash(git status*)",
+      "Bash(git log*)",
+      "Bash(git diff*)",
+      "Bash(git add*)",
+      "Bash(ls *)"
+    ],
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(git push --force*)",
+      "Bash(git reset --hard*)",
+      "Bash(DROP TABLE*)",
+      "Bash(DELETE FROM*)"
+    ]
+  }
+}
