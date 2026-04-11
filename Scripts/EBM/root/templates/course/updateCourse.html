@@ -65,50 +65,68 @@
         </div>
         {% endif %}
 
+        <button class="btn btn-primary btn-block" name="theory" type="submit" id="theoryBtn">
+          <span class="glyphicon glyphicon-save"></span> Update
+        </button>
+      </form>
+
         <hr />
         <h4>Additional External Examiners</h4>
         {% for ex in course_external_examiners %}
         <div class="panel panel-default" style="padding: 10px;">
           <strong>{{ ex.faculty.name }}</strong> — {{ ex.paper_count }} papers
-          <a href="?delete_examiner={{ ex.id }}" class="btn btn-xs btn-danger pull-right" onclick="return confirm('Remove this examiner?')">Remove</a>
+          <form method="POST" style="display:inline;">
+            {% csrf_token %}
+            <input type="hidden" name="examiner_pk" value="{{ ex.id }}" />
+            <button type="submit" name="remove_examiner" class="btn btn-xs btn-danger pull-right"
+              onclick="return confirm('Remove this examiner?')">Remove</button>
+          </form>
         </div>
         {% empty %}
         <p class="text-muted">No additional external examiners assigned.</p>
         {% endfor %}
-        <div class="well well-sm">
+        <form method="POST" class="well well-sm">
+          {% csrf_token %}
           <label>Add External Examiner</label>
           <select class="form-control" name="new_external_examiner" style="margin-bottom:8px;">
             <option value="">— Select faculty —</option>
             {% for o in ob %}<option value="{{ o.email }}">{{ o.name }}</option>{% endfor %}
           </select>
           <label>Paper Count</label>
-          <input class="form-control" type="number" name="new_external_paper_count" value="0" min="0" />
-        </div>
+          <input class="form-control" type="number" name="new_external_paper_count" value="0" min="0" style="margin-bottom:8px;" />
+          <button type="submit" name="add_external" class="btn btn-default btn-block">
+            <span class="glyphicon glyphicon-plus"></span> Add External Examiner
+          </button>
+        </form>
 
         <hr />
         <h4>Additional Third Examiners</h4>
         {% for tx in course_third_examiners %}
         <div class="panel panel-default" style="padding: 10px;">
           <strong>{{ tx.faculty.name }}</strong> — {{ tx.paper_count }} papers
-          <a href="?delete_examiner={{ tx.id }}" class="btn btn-xs btn-danger pull-right" onclick="return confirm('Remove this examiner?')">Remove</a>
+          <form method="POST" style="display:inline;">
+            {% csrf_token %}
+            <input type="hidden" name="examiner_pk" value="{{ tx.id }}" />
+            <button type="submit" name="remove_examiner" class="btn btn-xs btn-danger pull-right"
+              onclick="return confirm('Remove this examiner?')">Remove</button>
+          </form>
         </div>
         {% empty %}
         <p class="text-muted">No additional third examiners assigned.</p>
         {% endfor %}
-        <div class="well well-sm">
+        <form method="POST" class="well well-sm">
+          {% csrf_token %}
           <label>Add Third Examiner</label>
           <select class="form-control" name="new_third_examiner" style="margin-bottom:8px;">
             <option value="">— Select faculty —</option>
             {% for o in ob %}<option value="{{ o.email }}">{{ o.name }}</option>{% endfor %}
           </select>
           <label>Paper Count</label>
-          <input class="form-control" type="number" name="new_third_paper_count" value="0" min="0" />
-        </div>
-
-        <button class="btn btn-primary btn-block" name="theory" type="submit" id="theoryBtn">
-          <span class="glyphicon glyphicon-save"></span> Update
-        </button>
-      </form>
+          <input class="form-control" type="number" name="new_third_paper_count" value="0" min="0" style="margin-bottom:8px;" />
+          <button type="submit" name="add_third" class="btn btn-default btn-block">
+            <span class="glyphicon glyphicon-plus"></span> Add Third Examiner
+          </button>
+        </form>
     </div>
   </div>
   {% endif %}

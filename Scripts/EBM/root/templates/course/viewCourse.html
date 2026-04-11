@@ -35,7 +35,7 @@
             <th>Credit</th>
             <th>Internal Examiner</th>
             <th>External Examiner</th>
-            <th style="width: 120px; text-align: center;">Actions</th>
+            {% if flag %}<th style="width: 120px; text-align: center;">Actions</th>{% endif %}
           </tr>
         </thead>
         <tbody>
@@ -73,8 +73,8 @@
                 <span class="text-muted">—</span>
               {% endif %}
             </td>
+            {% if flag %}
             <td style="text-align: center;">
-              {% if flag %}
               <form method="POST" style="display: inline;">
                 {% csrf_token %}
                 <button class="btn btn-warning btn-xs" type="submit" value="{{ o.courseCode }}" name="update" title="Edit">
@@ -84,8 +84,8 @@
                   <span class="glyphicon glyphicon-trash"></span>
                 </button>
               </form>
-              {% endif %}
             </td>
+            {% endif %}
           </tr>
           {% endfor %}
         </tbody>

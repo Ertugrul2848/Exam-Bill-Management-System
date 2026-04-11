@@ -108,10 +108,35 @@ def updateCourse(request, id, id2, id3):
         viva = True
     ex = External.objects.filter()
 
-    # Handle delete of a CourseExaminer via GET param
-    delete_examiner_id = request.GET.get('delete_examiner')
-    if delete_examiner_id:
-        CourseExaminer.objects.filter(id=delete_examiner_id, course=course).delete()
+    # Handle remove examiner via POST
+    if 'remove_examiner' in request.POST:
+        examiner_pk = request.POST.get('examiner_pk')
+        if examiner_pk:
+            CourseExaminer.objects.filter(pk=examiner_pk, course=course).delete()
+        return redirect(reverse('updateCourse', args=[id, id2, id3]))
+
+    # Handle add external examiner via POST
+    if 'add_external' in request.POST:
+        new_ext_email = request.POST.get('new_external_examiner', '').strip()
+        new_ext_count = int(request.POST.get('new_external_paper_count', 0) or 0)
+        if new_ext_email:
+            new_ext_fac = get_object_or_404(faculty, email=new_ext_email)
+            CourseExaminer.objects.get_or_create(
+                course=course, faculty=new_ext_fac, role='external',
+                defaults={'paper_count': new_ext_count}
+            )
+        return redirect(reverse('updateCourse', args=[id, id2, id3]))
+
+    # Handle add third examiner via POST
+    if 'add_third' in request.POST:
+        new_third_email = request.POST.get('new_third_examiner', '').strip()
+        new_third_count = int(request.POST.get('new_third_paper_count', 0) or 0)
+        if new_third_email:
+            new_third_fac = get_object_or_404(faculty, email=new_third_email)
+            CourseExaminer.objects.get_or_create(
+                course=course, faculty=new_third_fac, role='third',
+                defaults={'paper_count': new_third_count}
+            )
         return redirect(reverse('updateCourse', args=[id, id2, id3]))
 
     # CourseExaminer querysets for theory template context
@@ -167,26 +192,6 @@ def updateCourse(request, id, id2, id3):
             )
         else:
             CourseExaminer.objects.filter(course=course, role='acting_first').delete()
-
-        # Add new external examiner if provided
-        new_ext_email = request.POST.get('new_external_examiner', '').strip()
-        new_ext_count = int(request.POST.get('new_external_paper_count', 0) or 0)
-        if new_ext_email:
-            new_ext_fac = faculty.objects.get(email=new_ext_email)
-            CourseExaminer.objects.get_or_create(
-                course=course, faculty=new_ext_fac, role='external',
-                defaults={'paper_count': new_ext_count}
-            )
-
-        # Add new third examiner if provided
-        new_third_email = request.POST.get('new_third_examiner', '').strip()
-        new_third_count = int(request.POST.get('new_third_paper_count', 0) or 0)
-        if new_third_email:
-            new_third_fac = faculty.objects.get(email=new_third_email)
-            CourseExaminer.objects.get_or_create(
-                course=course, faculty=new_third_fac, role='third',
-                defaults={'paper_count': new_third_count}
-            )
 
         return redirect(reverse('viewCourse', args=[id, id2]))
     if 'lab' in request.POST:

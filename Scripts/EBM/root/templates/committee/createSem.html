@@ -18,7 +18,7 @@
         <tr>
           <th>Semester</th>
           <th>Chairman</th>
-          <th style="width: 120px; text-align: right;">Action</th>
+          {% if is_chairman %}<th style="width: 120px; text-align: right;">Action</th>{% endif %}
         </tr>
       </thead>
       <tbody>
@@ -26,11 +26,13 @@
         <tr>
           <td><strong>{{ o.st }}</strong></td>
           <td>{{ o.qd.chairman.name }}</td>
+          {% if is_chairman %}
           <td style="text-align: right;">
             <a href="{% url 'viewCourse' session o.qd.semId %}" class="btn btn-success btn-sm">
               <span class="glyphicon glyphicon-book"></span> Courses
             </a>
           </td>
+          {% endif %}
         </tr>
         {% endfor %}
       </tbody>
