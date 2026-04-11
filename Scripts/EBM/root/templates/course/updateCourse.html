@@ -223,6 +223,36 @@ $(function() {
   watchForm('theory-field', '#theoryBtn');
   watchForm('lab-field', '#labBtn');
   watchForm('viva-field', '#vivaBtn');
+
+  // Examiner uniqueness validation on submit
+  $('#theoryForm').on('submit', function(e) {
+    var internal = $('select[name="internal"]', this).val();
+    var external = $('select[name="external"]', this).val();
+    var third    = $('select[name="third"]', this).val();
+    if (internal && external && internal === external) {
+      e.preventDefault();
+      alert('Internal and external examiner cannot be the same person.');
+      return;
+    }
+    if (internal && third && internal === third) {
+      e.preventDefault();
+      alert('Internal and third examiner cannot be the same person.');
+      return;
+    }
+    if (external && third && external === third) {
+      e.preventDefault();
+      alert('External and third examiner cannot be the same person.');
+    }
+  });
+
+  $('#labForm').on('submit', function(e) {
+    var internal = $('select[name="internal"]', this).val();
+    var external = $('select[name="external"]', this).val();
+    if (internal && external && internal === external) {
+      e.preventDefault();
+      alert('Internal and external examiner cannot be the same person.');
+    }
+  });
 });
 </script>
 {% endblock extra_js %}

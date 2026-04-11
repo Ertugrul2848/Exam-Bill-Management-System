@@ -5,7 +5,7 @@ from .models import (
     faculty, External, Session, Semester,
     SemesterBill, Course, CourseExaminer, courseBill,
     ThesisPaper, ThesisSupervisor, RegistrationRequest,
-    CourseCodeMaster, ModeratorRole,
+    CourseCodeMaster, ModeratorRole, AcceptedCredit,
 )
 
 
@@ -88,6 +88,12 @@ class CourseCodeMasterAdmin(admin.ModelAdmin):
     list_display = ('code', 'name', 'created_by', 'updated_at')
     search_fields = ('code', 'name')
     ordering = ('code',)
+
+
+@admin.register(AcceptedCredit)
+class AcceptedCreditAdmin(admin.ModelAdmin):
+    list_display = ('value', 'created_at')
+    ordering = ('value',)
 
 
 @admin.register(ModeratorRole)

@@ -3,7 +3,7 @@
 from django.urls import path
 from ..views import (
     home, log, logOut,
-    register, pending_registrations, approve_registration, reject_registration, add_teacher_direct,
+    register, pending_registrations, approve_registration, reject_registration, add_teacher_direct, complete_profile,
     manage_moderators, edit_moderator, remove_moderator,
 )
 
@@ -17,6 +17,7 @@ urlpatterns = [
     path('approve-registration/<int:pk>/', approve_registration, name='approve_registration'),
     path('reject-registration/<int:pk>/', reject_registration, name='reject_registration'),
     path('add-teacher/', add_teacher_direct, name='add_teacher_direct'),
+    path('complete-profile/', complete_profile, name='complete_profile'),
     path('moderators/', manage_moderators, name='manage_moderators'),
     path('moderators/<int:pk>/edit/', edit_moderator, name='edit_moderator'),
     path('moderators/<int:pk>/remove/', remove_moderator, name='remove_moderator'),

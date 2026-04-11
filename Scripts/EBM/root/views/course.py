@@ -20,10 +20,12 @@ def createCourse(request, id, id2):
     semester = get_object_or_404(Semester, session=session, semId=int(id2))
     ob = faculty.objects.filter()
     course_codes = CourseCodeMaster.objects.all()
+    accepted_credits = AcceptedCredit.objects.all()
     cont = {'ob': ob,
             'session':session.year,
             'semester':semester.semId,
             'course_codes': course_codes,
+            'accepted_credits': accepted_credits,
             }
     if request.method == 'POST':
         name = request.POST['name']
@@ -36,6 +38,9 @@ def createCourse(request, id, id2):
         if type == 1 or type == 2:
             internal = faculty.objects.get(email=request.POST['internal'])
             external = faculty.objects.get(email=request.POST['external'])
+            if internal == external:
+                messages.error(request, 'Internal and external examiner cannot be the same person.')
+                return render(request, 'course/createCourse.html', cont)
         course = Course.objects.filter(
             session=session, semester=semester, courseCode=int(code))
         if not course:
@@ -133,6 +138,15 @@ def updateCourse(request, id, id2, id3):
         internal = faculty.objects.get(email=request.POST.get('internal'))
         external = faculty.objects.get(email=request.POST.get('external'))
         third = faculty.objects.get(email=request.POST.get('third'))
+        if internal == external:
+            messages.error(request, 'Internal and external examiner cannot be the same person.')
+            return render(request, 'course/updateCourse.html', cont)
+        if internal == third:
+            messages.error(request, 'Internal and third examiner cannot be the same person.')
+            return render(request, 'course/updateCourse.html', cont)
+        if external == third:
+            messages.error(request, 'External and third examiner cannot be the same person.')
+            return render(request, 'course/updateCourse.html', cont)
         paperNo = request.POST['paperNo']
         tPaperNo = request.POST['tpaperNo']
         course.internal = internal
@@ -178,6 +192,9 @@ def updateCourse(request, id, id2, id3):
     if 'lab' in request.POST:
         internal = faculty.objects.get(email=request.POST.get('internal'))
         external = faculty.objects.get(email=request.POST.get('external'))
+        if internal == external:
+            messages.error(request, 'Internal and external examiner cannot be the same person.')
+            return render(request, 'course/updateCourse.html', cont)
         duration = request.POST['duration']
         course.internal = internal
         course.external = external

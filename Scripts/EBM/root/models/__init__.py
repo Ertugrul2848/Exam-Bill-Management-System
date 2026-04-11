@@ -10,7 +10,7 @@ from .academic import Session, Semester
 from .course import Course, CourseExaminer, ThesisPaper, ThesisSupervisor
 from .billing import SemesterBill, courseBill
 from .registration import RegistrationRequest
-from .course_code import CourseCodeMaster
+from .course_code import CourseCodeMaster, AcceptedCredit
 from .moderator import ModeratorRole
 
 __all__ = [
@@ -20,5 +20,6 @@ __all__ = [
     'SemesterBill', 'courseBill',
     'RegistrationRequest',
     'CourseCodeMaster',
+    'AcceptedCredit',
     'ModeratorRole',
 ]

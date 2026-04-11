@@ -7,9 +7,10 @@ class faculty(models.Model):
     """Faculty member (teacher/instructor) profile."""
     username = models.CharField(max_length=100, null=True, blank=True)
     email = models.EmailField(blank=True, null=True)
-    name = models.CharField(max_length=100)
-    title = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, blank=True)
+    title = models.CharField(max_length=100, blank=True)
     password = models.CharField(max_length=15, blank=True)
+    is_profile_complete = models.BooleanField(default=True)
 
     class Meta:
         app_label = 'root'

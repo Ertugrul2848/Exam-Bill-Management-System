@@ -5,6 +5,7 @@ from ..views import (
     createCourse, viewCourse, updateCourse, deleteCourse,
     addInvigilator, indCourse, thesis, supervising,
     manage_course_codes, edit_course_code, sync_course_name, course_code_api,
+    manage_credits,
 )
 
 urlpatterns = [
@@ -20,4 +21,5 @@ urlpatterns = [
     path('course-codes/<int:pk>/edit/', edit_course_code, name='edit_course_code'),
     path('course-codes/<int:pk>/sync/', sync_course_name, name='sync_course_name'),
     path('api/course-codes/', course_code_api, name='course_code_api'),
+    path('credits/', manage_credits, name='manage_credits'),
 ]

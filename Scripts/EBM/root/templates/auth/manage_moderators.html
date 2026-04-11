@@ -4,6 +4,13 @@
 <div class="container" style="margin-top: 40px;">
   <h2 class="text-center" style="font-weight: 300; margin-bottom: 30px;">Moderator Role Management</h2>
 
+  {% if not is_system %}
+  <div class="alert alert-info">
+    <span class="glyphicon glyphicon-info-sign"></span>
+    <strong>Semester Chairman View:</strong> You can only manage moderators for semesters you chair.
+  </div>
+  {% endif %}
+
   <div style="margin-bottom: 20px;">
     <a href="{% url 'home' %}" class="btn btn-default">
       <span class="glyphicon glyphicon-arrow-left"></span> Back
@@ -32,6 +39,8 @@
               </select>
             </div>
           </div>
+
+          {% if is_system %}
           <div class="col-sm-3">
             <div class="form-group">
               <label for="scope">Scope</label>
@@ -53,6 +62,22 @@
               </select>
             </div>
           </div>
+          {% else %}
+          {# Semester chairman: scope is always 'semester', pick from their semesters #}
+          <input type="hidden" name="scope" value="semester">
+          <div class="col-sm-4">
+            <div class="form-group">
+              <label for="semester">Semester</label>
+              <select name="semester" id="semester" class="form-control" required>
+                <option value="">-- Select Semester --</option>
+                {% for s in semesters %}
+                <option value="{{ s.pk }}">{{ s.session.year }} — Sem {{ s.semId }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          {% endif %}
+
           <div class="col-sm-2" style="padding-top: 25px;">
             <button type="submit" class="btn btn-primary btn-block">
               <span class="glyphicon glyphicon-plus"></span> Add
@@ -69,6 +94,7 @@
     <div class="panel-heading">
       <h3 class="panel-title">
         <span class="badge">{{ moderators|length }}</span> Active Moderators
+        {% if not is_system %}<small class="text-muted"> (your semesters only)</small>{% endif %}
       </h3>
     </div>
     <table class="table table-hover" style="margin-bottom: 0;">
@@ -108,10 +134,13 @@
             <a href="{% url 'edit_moderator' m.pk %}" class="btn btn-warning btn-sm">
               <span class="glyphicon glyphicon-pencil"></span> Edit
             </a>
-            <a href="{% url 'remove_moderator' m.pk %}" class="btn btn-danger btn-sm"
-               onclick="return confirm('Remove moderator role for {{ m.user.name }}?')">
-              <span class="glyphicon glyphicon-trash"></span> Remove
-            </a>
+            <form method="post" action="{% url 'remove_moderator' m.pk %}" style="display:inline;"
+                  onsubmit="return confirm('Remove moderator role for {{ m.user.name }}?')">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger btn-sm">
+                <span class="glyphicon glyphicon-trash"></span> Remove
+              </button>
+            </form>
           </td>
         </tr>
         {% endfor %}

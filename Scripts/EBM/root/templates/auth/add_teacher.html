@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Add Teacher Directly{% endblock title %}
+{% block title %}Add Teacher{% endblock title %}
 {% block content %}
 <div class="container" style="margin-top: 40px;">
   <div class="row">
@@ -13,36 +13,18 @@
 
       <div class="panel panel-default">
         <div class="panel-heading">
-          <h3 class="panel-title">Add Teacher Directly</h3>
+          <h3 class="panel-title">Add Teacher by Email</h3>
         </div>
         <div class="panel-body">
+          <p class="text-muted" style="margin-bottom: 20px;">
+            Enter the teacher's email address. They will be prompted to complete their profile (name, title, password) on first login.
+          </p>
           <form method="post">
             {% csrf_token %}
 
             <div class="form-group">
-              <label for="name">Full Name</label>
-              <input type="text" class="form-control" id="name" name="name" placeholder="Enter full name" required>
-            </div>
-
-            <div class="form-group">
-              <label for="email">Email</label>
-              <input type="email" class="form-control" id="email" name="email" placeholder="Enter email address" required>
-            </div>
-
-            <div class="form-group">
-              <label for="title">Title</label>
-              <select class="form-control" id="title" name="title" required>
-                <option value="">-- Select Title --</option>
-                <option value="Professor">Professor</option>
-                <option value="Associate Professor">Associate Professor</option>
-                <option value="Assistant Professor">Assistant Professor</option>
-                <option value="Lecturer">Lecturer</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label for="password">Password</label>
-              <input type="password" class="form-control" id="password" name="password" placeholder="Set a password" required>
+              <label for="email">Email Address</label>
+              <input type="email" class="form-control" id="email" name="email" placeholder="Enter teacher's email address" required>
             </div>
 
             <button type="submit" class="btn btn-primary btn-block">
