@@ -10,7 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import Group, User
 from xhtml2pdf import pisa
-from ..models import *
+from ..models import faculty, Session, Semester
 from ..services import BillCalculator, get_semester_display
 
 @login_required(login_url='/log')
@@ -28,22 +28,26 @@ def home(request):
 
 def log(request):
     """
-    Login view. Authenticates faculty via email + plaintext password.
+    Login view. Authenticates faculty via email + password using Django auth.
 
-    Flow: POST with email/pass → lookup faculty → compare password →
-    Django authenticate() + login() → redirect to home.
+    Flow: POST with email/pass → lookup faculty by email →
+    Django authenticate() with username+password → login() → redirect to home.
     """
     if 'log' in request.POST:
-        ia=faculty.objects.filter(email=request.POST.get('email'))
-        if not ia:
-            messages.error(request,'Account does not exist',extra_tags='log')
+        email = request.POST.get('email', '').strip()
+        password = request.POST.get('pass', '')
+        try:
+            fac = faculty.objects.get(email=email)
+        except faculty.DoesNotExist:
+            messages.error(request, 'Account does not exist', extra_tags='log')
+            return render(request, 'log.html')
+
+        user = authenticate(request, username=fac.username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect(reverse('home'))
         else:
-            ib=faculty.objects.get(email=request.POST.get('email'))
-            if ib.password==request.POST.get('pass'):
-                login(request,authenticate(username=ib.username,email=ib.email,password=ib.password))
-                return redirect(reverse('home'))
-            else:
-                messages.error(request,'Passwords do not match',extra_tags='log')
+            messages.error(request, 'Passwords do not match', extra_tags='log')
     return render(request, 'log.html')
 
 

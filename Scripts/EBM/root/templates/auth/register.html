@@ -3,9 +3,9 @@
 {% block navbar %}{% endblock navbar %}
 {% block content %}
 <div class="container" style="margin-top: 80px; max-width: 450px;">
-  <div class="panel panel-success">
-    <div class="panel-heading"><h3 class="panel-title">Register as Teacher</h3></div>
-    <div class="panel-body">
+  <div class="card border-success">
+    <div class="card-header"><h3 class="card-title">Register as Teacher</h3></div>
+    <div class="card-body">
       <form method="POST">
         {% csrf_token %}
         <div class="form-group">
@@ -31,7 +31,7 @@
           <input class="form-control" type="password" name="password" placeholder="Create a password" required />
         </div>
         <button class="btn btn-success btn-block" type="submit">
-          <span class="glyphicon glyphicon-send"></span> Submit Application
+          <span class="bi bi-send"></span> Submit Application
         </button>
       </form>
       <hr />

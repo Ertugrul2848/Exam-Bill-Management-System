@@ -10,7 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import Group, User
 from xhtml2pdf import pisa
-from ..models import *
+from ..models import faculty, External, Session, Semester, Course, courseBill, ThesisPaper, ThesisSupervisor, CourseExaminer, CourseCodeMaster, AcceptedCredit
 from ..services import BillCalculator, get_semester_display
 
 @login_required(login_url='/log')

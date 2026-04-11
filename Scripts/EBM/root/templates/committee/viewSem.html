@@ -9,19 +9,43 @@
 <div class="container" style="margin-top: 40px;">
   <h2 class="text-center" style="font-weight: 300; margin-bottom: 30px;">Semester Committee</h2>
 
-  <a href="javascript:history.back()" class="btn btn-default" style="margin-bottom: 20px;">
-    <span class="glyphicon glyphicon-arrow-left"></span> Back
+  <a href="javascript:history.back()" class="btn btn-secondary" style="margin-bottom: 20px;">
+    <span class="bi bi-arrow-left"></span> Back
   </a>
+
+  {% if sem.is_locked %}
+  <div class="alert alert-danger" style="margin-bottom: 20px;">
+    <span class="bi bi-lock"></span>
+    <strong>This semester is locked. No modifications allowed.</strong>
+  </div>
+  {% endif %}
+
+  {% if flag %}
+  <div style="margin-bottom: 20px;">
+    <form method="POST" action="{% url 'toggle_lock' session_id sem_id %}" style="display: inline;">
+      {% csrf_token %}
+      {% if sem.is_locked %}
+      <button type="submit" class="btn btn-warning btn-sm">
+        <span class="bi bi-lock"></span> Unlock Semester
+      </button>
+      {% else %}
+      <button type="submit" class="btn btn-danger btn-sm">
+        <span class="bi bi-lock"></span> Lock Semester
+      </button>
+      {% endif %}
+    </form>
+  </div>
+  {% endif %}
 
   <div class="row">
     <!-- Left: Committee Members + Add Roles -->
     <div class="col-md-6">
       <!-- Committee Members -->
-      <div class="panel panel-primary">
-        <div class="panel-heading">
-          <h3 class="panel-title">Committee Members</h3>
+      <div class="card border-primary">
+        <div class="card-header">
+          <h3 class="card-title">Committee Members</h3>
         </div>
-        <div class="panel-body">
+        <div class="card-body">
           <form method="POST" id="committeeForm">
             {% csrf_token %}
             <div class="form-group">
@@ -69,22 +93,22 @@
                 {% endfor %}
               </select>
             </div>
-            {% if flag %}
+            {% if flag and not sem.is_locked %}
             <button class="btn btn-primary btn-block" type="submit" name="update" id="updateBtn" disabled>
-              <span class="glyphicon glyphicon-save"></span> Update Committee
+              <span class="bi bi-floppy"></span> Update Committee
             </button>
             {% endif %}
           </form>
         </div>
       </div>
 
-      {% if flag %}
+      {% if flag and not sem.is_locked %}
       <!-- Acting Chairman Section -->
-      <div class="panel panel-warning">
-        <div class="panel-heading">
-          <h3 class="panel-title">Acting Chairman</h3>
+      <div class="card border-warning">
+        <div class="card-header">
+          <h3 class="card-title">Acting Chairman</h3>
         </div>
-        <div class="panel-body">
+        <div class="card-body">
           <form method="POST" action="{% url 'assign_acting' session_id sem_id %}">
             {% csrf_token %}
             <div class="input-group">
@@ -96,9 +120,9 @@
                 {% endif %}
                 {% endfor %}
               </select>
-              <span class="input-group-btn">
+              <span class="input-group-append">
                 <button class="btn btn-warning" type="submit">
-                  <span class="glyphicon glyphicon-user"></span> Assign
+                  <span class="bi bi-person"></span> Assign
                 </button>
               </span>
             </div>
@@ -107,7 +131,7 @@
           <form method="POST" action="{% url 'remove_acting' session_id sem_id %}" style="margin-top: 10px;">
             {% csrf_token %}
             <button class="btn btn-danger btn-sm" type="submit">
-              <span class="glyphicon glyphicon-remove"></span> Remove Acting Chairman
+              <span class="bi bi-x"></span> Remove Acting Chairman
             </button>
           </form>
           {% endif %}
@@ -115,13 +139,13 @@
       </div>
       {% endif %}
 
-      {% if flag %}
+      {% if flag and not sem.is_locked %}
       <!-- Add Roles Section -->
-      <div class="panel panel-success">
-        <div class="panel-heading">
-          <h3 class="panel-title">Add Roles</h3>
+      <div class="card border-success">
+        <div class="card-header">
+          <h3 class="card-title">Add Roles</h3>
         </div>
-        <div class="panel-body">
+        <div class="card-body">
           <!-- Add Moderator -->
           <form method="POST" style="margin-bottom: 15px;">
             {% csrf_token %}
@@ -134,9 +158,9 @@
                 {% endfor %}
               </select>
               <input type="hidden" name="role" value="1" />
-              <span class="input-group-btn">
+              <span class="input-group-append">
                 <button class="btn btn-success" type="submit" name="add_role">
-                  <span class="glyphicon glyphicon-plus"></span>
+                  <span class="bi bi-plus-lg"></span>
                 </button>
               </span>
             </div>
@@ -154,9 +178,9 @@
                 {% endfor %}
               </select>
               <input type="hidden" name="role" value="2" />
-              <span class="input-group-btn">
+              <span class="input-group-append">
                 <button class="btn btn-success" type="submit" name="add_role">
-                  <span class="glyphicon glyphicon-plus"></span>
+                  <span class="bi bi-plus-lg"></span>
                 </button>
               </span>
             </div>
@@ -174,9 +198,9 @@
                 {% endfor %}
               </select>
               <input type="hidden" name="role" value="3" />
-              <span class="input-group-btn">
+              <span class="input-group-append">
                 <button class="btn btn-success" type="submit" name="add_role">
-                  <span class="glyphicon glyphicon-plus"></span>
+                  <span class="bi bi-plus-lg"></span>
                 </button>
               </span>
             </div>
@@ -188,22 +212,22 @@
 
     <!-- Right: Current Roles -->
     <div class="col-md-6">
-      <div class="panel panel-info">
-        <div class="panel-heading">
-          <h3 class="panel-title">Assigned Roles</h3>
+      <div class="card border-info">
+        <div class="card-header">
+          <h3 class="card-title">Assigned Roles</h3>
         </div>
-        <div class="panel-body">
+        <div class="card-body">
           <form method="POST">
             {% csrf_token %}
 
             <!-- Moderators -->
-            <h4><span class="label label-primary">Moderator</span></h4>
+            <h4><span class="badge bg-primary">Moderator</span></h4>
             {% for o in moderator %}
-            <div class="well well-sm" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <div class="card bg-light p-2" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
               <span>{{ o.teacher.name }}</span>
-              {% if flag %}
-              <button class="btn btn-danger btn-xs" type="submit" name="moderator" value="{{ o.teacher.email }}">
-                <span class="glyphicon glyphicon-remove"></span> Remove
+              {% if flag and not sem.is_locked %}
+              <button class="btn btn-danger btn-sm" type="submit" name="moderator" value="{{ o.teacher.email }}">
+                <span class="bi bi-x"></span> Remove
               </button>
               {% endif %}
             </div>
@@ -212,13 +236,13 @@
             {% endfor %}
 
             <!-- Translators -->
-            <h4><span class="label label-success">Translator</span></h4>
+            <h4><span class="badge bg-success">Translator</span></h4>
             {% for o in translator %}
-            <div class="well well-sm" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <div class="card bg-light p-2" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
               <span>{{ o.teacher.name }}</span>
-              {% if flag %}
-              <button class="btn btn-danger btn-xs" type="submit" name="translator" value="{{ o.teacher.email }}">
-                <span class="glyphicon glyphicon-remove"></span> Remove
+              {% if flag and not sem.is_locked %}
+              <button class="btn btn-danger btn-sm" type="submit" name="translator" value="{{ o.teacher.email }}">
+                <span class="bi bi-x"></span> Remove
               </button>
               {% endif %}
             </div>
@@ -227,13 +251,13 @@
             {% endfor %}
 
             <!-- Stencil-Cutters -->
-            <h4><span class="label label-warning">Stencil-Cutter</span></h4>
+            <h4><span class="badge bg-warning">Stencil-Cutter</span></h4>
             {% for o in typist %}
-            <div class="well well-sm" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <div class="card bg-light p-2" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
               <span>{{ o.teacher.name }}</span>
-              {% if flag %}
-              <button class="btn btn-danger btn-xs" type="submit" name="typist" value="{{ o.teacher.email }}">
-                <span class="glyphicon glyphicon-remove"></span> Remove
+              {% if flag and not sem.is_locked %}
+              <button class="btn btn-danger btn-sm" type="submit" name="typist" value="{{ o.teacher.email }}">
+                <span class="bi bi-x"></span> Remove
               </button>
               {% endif %}
             </div>

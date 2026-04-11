@@ -4,23 +4,23 @@
 <div class="container" style="margin-top: 40px;">
   <h2 class="text-center" style="font-weight: 300; margin-bottom: 30px;">Courses</h2>
   <div style="margin-bottom: 20px;">
-    <a href="javascript:history.back()" class="btn btn-default">
-      <span class="glyphicon glyphicon-arrow-left"></span> Back
+    <a href="javascript:history.back()" class="btn btn-secondary">
+      <span class="bi bi-arrow-left"></span> Back
     </a>
     {% if flag %}
     <form method="POST" style="display: inline;">
       {% csrf_token %}
       <button class="btn btn-success" name="add" type="submit">
-        <span class="glyphicon glyphicon-plus"></span> Add Course
+        <span class="bi bi-plus-lg"></span> Add Course
       </button>
     </form>
     {% endif %}
   </div>
 
   {% if ob %}
-  <div class="panel panel-default">
-    <div class="panel-heading">
-      <h3 class="panel-title">
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">
         Course List
         <span class="badge" style="margin-left: 8px;">{{ ob|length }}</span>
       </h3>
@@ -49,13 +49,13 @@
             <td>{{ o.courseCode }}</td>
             <td>
               {% if o.type == 1 %}
-                <span class="label label-primary">Theory</span>
+                <span class="badge bg-primary">Theory</span>
               {% elif o.type == 2 %}
-                <span class="label label-success">Lab</span>
+                <span class="badge bg-success">Lab</span>
               {% elif o.type == 3 %}
-                <span class="label label-warning">Viva</span>
+                <span class="badge bg-warning">Viva</span>
               {% else %}
-                <span class="label label-default">{{ o.get_type_display }}</span>
+                <span class="badge bg-secondary">{{ o.get_type_display }}</span>
               {% endif %}
             </td>
             <td>{{ o.credit }}</td>
@@ -77,11 +77,11 @@
             <td style="text-align: center;">
               <form method="POST" style="display: inline;">
                 {% csrf_token %}
-                <button class="btn btn-warning btn-xs" type="submit" value="{{ o.courseCode }}" name="update" title="Edit">
-                  <span class="glyphicon glyphicon-edit"></span>
+                <button class="btn btn-warning btn-sm" type="submit" value="{{ o.courseCode }}" name="update" title="Edit">
+                  <span class="bi bi-pencil"></span>
                 </button>
-                <button class="btn btn-danger btn-xs" type="submit" value="{{ o.courseCode }}" name="delete" title="Delete" onclick="return confirm('Delete this course?')">
-                  <span class="glyphicon glyphicon-trash"></span>
+                <button class="btn btn-danger btn-sm" type="submit" value="{{ o.courseCode }}" name="delete" title="Delete" onclick="return confirm('Delete this course?')">
+                  <span class="bi bi-trash"></span>
                 </button>
               </form>
             </td>
@@ -94,7 +94,7 @@
   </div>
   {% else %}
   <div class="alert alert-info text-center">
-    <span class="glyphicon glyphicon-info-sign"></span> No courses yet.
+    <span class="bi bi-info-circle"></span> No courses yet.
     {% if flag %}Add one using the button above.{% endif %}
   </div>
   {% endif %}

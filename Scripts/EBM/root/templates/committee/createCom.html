@@ -12,11 +12,11 @@
 {% endblock extra_css %}
 {% block content %}
 <div class="container create-com">
-  <div class="panel panel-primary">
-    <div class="panel-heading">
-      <h3 class="panel-title">Create Exam Committee</h3>
+  <div class="card border-primary">
+    <div class="card-header">
+      <h3 class="card-title">Create Exam Committee</h3>
     </div>
-    <div class="panel-body">
+    <div class="card-body">
       {% if ob %}
       <form method="POST">
         {% csrf_token %}
@@ -78,15 +78,15 @@
         </div>
 
         <button class="btn btn-primary btn-block" type="submit">
-          <span class="glyphicon glyphicon-ok"></span> Create Committee
+          <span class="bi bi-check"></span> Create Committee
         </button>
       </form>
       {% else %}
       <div class="alert alert-danger">
         <strong>Access Denied!</strong> Only the chairman can create committees.
       </div>
-      <a href="{% url 'committee' %}" class="btn btn-default">
-        <span class="glyphicon glyphicon-arrow-left"></span> Back
+      <a href="{% url 'committee' %}" class="btn btn-secondary">
+        <span class="bi bi-arrow-left"></span> Back
       </a>
       {% endif %}
     </div>

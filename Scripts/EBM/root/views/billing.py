@@ -10,7 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import Group, User
 from xhtml2pdf import pisa
-from ..models import *
+from ..models import faculty, Session, Semester, SemesterBill, Course, courseBill
 from ..services import BillCalculator, get_semester_display
 
 @login_required(login_url='/log')
@@ -141,10 +141,10 @@ def examBill2(request):
                 request, 'Session Or Semester Does not Exist !!')
         else:
             ca = faculty.objects.get(email=request.user.email)
-            da = faculty.objects.get(email="chairman@gmail.com")
+            is_system_chairman = User.objects.filter(username='chairman', pk=request.user.pk).exists()
             semester = Semester.objects.get(
                 session=session, semId=int(request.POST['semester']))
-            if not (ca == semester.chairman or da == ca):
+            if not (ca == semester.chairman or is_system_chairman):
                 flag = True
             if flag:
                 messages.error(request, 'Access Denied !!')
@@ -218,32 +218,29 @@ def indBill2(request, id, id2, id3):
 
 @login_required(login_url='/log')
 def all_bills(request):
-    """Chairman-only view: all teachers across all semesters with their total bill amounts."""
+    """Chairman-only view: archived semester bills with search and pagination."""
+    from django.core.paginator import Paginator
+
     is_chairman = User.objects.filter(username='chairman', pk=request.user.pk).exists()
     if not is_chairman:
         messages.error(request, 'Access Denied — chairman only.')
         return redirect(reverse('home'))
 
-    rows = []
-    all_semesters = Semester.objects.all().select_related('session').order_by('-session__year', 'semId')
-    all_faculty_qs = faculty.objects.all()
+    bills = SemesterBill.objects.filter(
+        semester__is_archived=True
+    ).select_related('teacher', 'semester', 'semester__session').order_by(
+        '-semester__session__year', 'semester__semId', 'teacher__name'
+    )
 
-    for sem in all_semesters:
-        for fac in all_faculty_qs:
-            try:
-                calc = BillCalculator(sem.session.year, sem.semId, fac)
-                items = calc.calculate(include_amounts=True)
-                if items:
-                    total = sum(item.bill for item in items)
-                    rows.append({
-                        'session': sem.session.year,
-                        'semester': get_semester_display(sem.semId),
-                        'semId': sem.semId,
-                        'teacher': fac,
-                        'total': total,
-                        'fac_id': fac.id,
-                    })
-            except Exception:
-                pass
+    q = request.GET.get('q', '').strip()
+    if q:
+        bills = bills.filter(teacher__name__icontains=q)
 
-    return render(request, 'billing/all_bills.html', {'rows': rows})
+    paginator = Paginator(bills, 25)
+    page = request.GET.get('page')
+    bills_page = paginator.get_page(page)
+
+    return render(request, 'billing/all_bills.html', {
+        'bills_page': bills_page,
+        'q': q,
+    })
