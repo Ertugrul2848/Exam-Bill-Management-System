@@ -77,9 +77,8 @@
 
     .signature-line {
       border-top: 1px solid black;
-      display: inline-block;
       width: 200px;
-      margin-bottom: 5px;
+      margin: 0 auto 5px auto;
     }
   </style>
 </head>
@@ -107,12 +106,13 @@
   <table>
     <thead>
       <tr>
-        <th style="width: 25%;">Role</th>
-        <th style="width: 10%;">Dept</th>
-        <th style="width: 12%;">Course Code</th>
-        <th style="width: 12%;">Paper No</th>
-        <th style="width: 12%;">Duration</th>
-        <th style="width: 15%;">Amount (BDT)</th>
+        <th style="width: 22%;">Role</th>
+        <th style="width: 8%;">Dept</th>
+        <th style="width: 10%;">Course Code</th>
+        <th style="width: 10%;">Student No</th>
+        <th style="width: 10%;">Paper No</th>
+        <th style="width: 10%;">Duration</th>
+        <th style="width: 14%;">Amount (BDT)</th>
       </tr>
     </thead>
     <tbody>
@@ -121,13 +121,14 @@
         <td>{{ o.role }}</td>
         <td>{{ o.course_name }}</td>
         <td>{% if o.course_code %}{{ o.course_code }}{% else %}—{% endif %}</td>
+        <td>{% if o.st %}{{ o.st }}{% else %}—{% endif %}</td>
         <td>{% if o.paper_no %}{{ o.paper_no }}{% else %}—{% endif %}</td>
         <td>{% if o.duration %}{{ o.duration }}{% else %}—{% endif %}</td>
         <td>{{ o.bill }}</td>
       </tr>
       {% endfor %}
       <tr class="total-row">
-        <td colspan="5" style="text-align: right;">Total</td>
+        <td colspan="6" style="text-align: right;">Total</td>
         <td>{{ total }}</td>
       </tr>
     </tbody>
