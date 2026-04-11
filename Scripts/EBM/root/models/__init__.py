@@ -11,6 +11,7 @@ from .course import Course, ThesisPaper, ThesisSupervisor
 from .billing import SemesterBill, courseBill
 from .registration import RegistrationRequest
 from .course_code import CourseCodeMaster
+from .moderator import ModeratorRole
 
 __all__ = [
     'faculty', 'External',
@@ -19,4 +20,5 @@ __all__ = [
     'SemesterBill', 'courseBill',
     'RegistrationRequest',
     'CourseCodeMaster',
+    'ModeratorRole',
 ]

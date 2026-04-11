@@ -15,6 +15,7 @@
             <tr>
               <th>Teacher Name</th>
               <th>Papers</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -23,6 +24,12 @@
               <td>{{ o.faculty.name }}</td>
               <td>
                 <input class="form-control thesis-field" type="number" min="0" value="{{ o.paperNo }}" name="paper" data-original="{{ o.paperNo }}" />
+              </td>
+              <td>
+                <button class="btn btn-danger btn-xs" type="submit" name="delete_thesis" value="{{ o.faculty.pk }}"
+                  onclick="return confirm('Remove {{ o.faculty.name }} from this thesis evaluation?')">
+                  <span class="glyphicon glyphicon-trash"></span> Delete
+                </button>
               </td>
             </tr>
             {% endfor %}

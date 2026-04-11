@@ -214,12 +214,18 @@ def thesis(request, id, id2, id3):
     tea=ThesisPaper.objects.filter(session=session,semester=semester,course=course)
     if not tea:
         for o in tec:
-            cc=ThesisPaper(
-                session=session,semester=semester,course=course,
-                faculty=faculty.objects.get(email=o.email)
-            )
-            cc.save()
+            if not ThesisPaper.objects.filter(session=session,semester=semester,course=course,faculty=o).exists():
+                ThesisPaper(
+                    session=session,semester=semester,course=course,
+                    faculty=faculty.objects.get(email=o.email)
+                ).save()
     ff=ThesisPaper.objects.filter(session=session,semester=semester,course=course)
+    if 'delete_thesis' in request.POST:
+        faculty_pk = request.POST['delete_thesis']
+        ThesisPaper.objects.filter(
+            session=session,semester=semester,course=course,faculty__pk=faculty_pk
+        ).delete()
+        return redirect(reverse('thesis', args=[id, id2, id3]))
     if 'save' in request.POST:
         for o,i in zip(request.POST.getlist('paper'),ff):
             dd=ThesisPaper.objects.get(
@@ -235,14 +241,15 @@ def thesis(request, id, id2, id3):
         return redirect(res)
 
     cont={
-
         'session':session.year,
         'semester':semester.semId,
+        'course':course.courseCode,
         'tea':ff
     }
     return render(request,'course/thesis.html',cont)
 
 
+@login_required(login_url='/log')
 def supervising(request, id, id2, id3):
     """Manage thesis supervisor assignments (id=year, id2=semId, id3=courseCode)."""
     session=get_object_or_404(Session, year=int(id))
@@ -252,12 +259,18 @@ def supervising(request, id, id2, id3):
     tea=ThesisSupervisor.objects.filter(session=session,semester=semester,course=course)
     if not tea:
         for o in tec:
-            cc=ThesisSupervisor(
-                session=session,semester=semester,course=course,
-                faculty=faculty.objects.get(email=o.email)
-            )
-            cc.save()
+            if not ThesisSupervisor.objects.filter(session=session,semester=semester,course=course,faculty=o).exists():
+                ThesisSupervisor(
+                    session=session,semester=semester,course=course,
+                    faculty=faculty.objects.get(email=o.email)
+                ).save()
     ff=ThesisSupervisor.objects.filter(session=session,semester=semester,course=course)
+    if 'delete_supervisor' in request.POST:
+        faculty_pk = request.POST['delete_supervisor']
+        ThesisSupervisor.objects.filter(
+            session=session,semester=semester,course=course,faculty__pk=faculty_pk
+        ).delete()
+        return redirect(reverse('supervising', args=[id, id2, id3]))
     if 'save' in request.POST:
         for o,i in zip(request.POST.getlist('student'),ff):
             dd=ThesisSupervisor.objects.get(
@@ -273,9 +286,9 @@ def supervising(request, id, id2, id3):
         return redirect(res)
 
     cont={
-
         'session':session.year,
         'semester':semester.semId,
+        'course':course.courseCode,
         'tea':ff
     }
     return render(request,'course/supervising.html',cont)
