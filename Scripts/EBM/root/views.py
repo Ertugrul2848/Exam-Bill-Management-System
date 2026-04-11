@@ -214,6 +214,14 @@ def viewSem(request, id, id2):
     flag = False
     if ob == semester.chairman:
         flag = True
+    # Build filtered teacher lists — exclude those who already have each role
+    moderator_emails = [sb.teacher.email for sb in moderator]
+    translator_emails = [sb.teacher.email for sb in translator]
+    typist_emails = [sb.teacher.email for sb in typist]
+    available_moderators = oc.exclude(email__in=moderator_emails).order_by('name')
+    available_translators = oc.exclude(email__in=translator_emails).order_by('name')
+    available_typists = oc.exclude(email__in=typist_emails).order_by('name')
+
     cont = {
         'sem': semester,
         'flag': flag,
@@ -221,7 +229,12 @@ def viewSem(request, id, id2):
         'oc': od,
         'moderator': moderator,
         'typist': typist,
-        'translator': translator
+        'translator': translator,
+        'available_moderators': available_moderators,
+        'available_translators': available_translators,
+        'available_typists': available_typists,
+        'session_id': id,
+        'sem_id': id2,
     }
 
     if 'update' in request.POST:
@@ -245,6 +258,33 @@ def viewSem(request, id, id2):
             semester.save()
             messages.success(
                 request, 'Committee Updated Successfully !')
+    if 'add_role' in request.POST:
+        tea = faculty.objects.get(email=request.POST['teacher'])
+        role_val = request.POST['role']
+        sb, created = SemesterBill.objects.get_or_create(
+            session=session, semester=semester, teacher=tea)
+        if role_val == "1":
+            if sb.moderator == 1:
+                messages.error(request, 'This teacher is already a moderator!')
+            else:
+                sb.moderator = 1
+                sb.save()
+                messages.success(request, f'{tea.name} added as Moderator')
+        elif role_val == "2":
+            if sb.translator == 1:
+                messages.error(request, 'This teacher is already a translator!')
+            else:
+                sb.translator = 1
+                sb.save()
+                messages.success(request, f'{tea.name} added as Translator')
+        elif role_val == "3":
+            if sb.typist == 1:
+                messages.error(request, 'This teacher is already a stencil-cutter!')
+            else:
+                sb.typist = 1
+                sb.save()
+                messages.success(request, f'{tea.name} added as Stencil-Cutter')
+        return redirect(reverse('viewSem', args=[id, id2]))
     if 'add' in request.POST:
         return redirect(reverse('addRole', args=[id, id2]))
     if 'moderator' in request.POST:
