@@ -34,6 +34,8 @@ class BillCalculator:
         self.sem_bills = SemesterBill.objects.filter(session=self.session, semester=self.semester)
         self.thesis_papers = ThesisPaper.objects.filter(session=self.session, semester=self.semester)
         self.thesis_supervisors = ThesisSupervisor.objects.filter(session=self.session, semester=self.semester)
+        # Prefetch all courseBill records to avoid N+1 queries in course role methods
+        self.course_bills = courseBill.objects.filter(session=self.session, semester=self.semester)
 
     def calculate(self, include_amounts=True):
         """
@@ -198,8 +200,7 @@ class BillCalculator:
                 bill=course.duration * rates.LAB_VIVA_PER_HOUR if include_amounts else 0,
                 teacher=self.fac.email,
             ))
-        extras = courseBill.objects.filter(
-            session=self.session, semester=self.semester, course=course)
+        extras = [cb for cb in self.course_bills if cb.course_id == course.id]
         for ex in extras:
             if ex.extra == self.fac:
                 items.append(BillItem(
@@ -213,8 +214,7 @@ class BillCalculator:
 
     def _viva_course_roles(self, course, include_amounts):
         items = []
-        extras = courseBill.objects.filter(
-            session=self.session, semester=self.semester, course=course)
+        extras = [cb for cb in self.course_bills if cb.course_id == course.id]
         for ex in extras:
             if ex.extra == self.fac:
                 items.append(BillItem(
@@ -231,9 +231,12 @@ def get_semester_display(sem_id):
     """Convert semester ID to human-readable string."""
     year = int((sem_id + 1) / 2)
     year_labels = {1: "1st Year", 2: "2nd Year", 3: "3rd Year", 4: "4th Year", 5: "Masters"}
-    sem_labels = {1: "1st Semester", 2: "2nd Semester", 3: "3rd Semester"}
+
+    # Determine 1st or 2nd semester within the year
+    sem_in_year = 1 if sem_id % 2 == 1 else 2
+    sem_labels = {1: "1st Semester", 2: "2nd Semester"}
 
     year_str = year_labels.get(year, f"{year}th Year")
-    sem_str = sem_labels.get(sem_id, f"{sem_id}th Semester")
+    sem_str = sem_labels.get(sem_in_year, f"{sem_in_year}th Semester")
 
     return f"{year_str} {sem_str}"
