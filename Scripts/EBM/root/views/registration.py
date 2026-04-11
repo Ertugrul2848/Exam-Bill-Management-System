@@ -57,8 +57,11 @@ def pending_registrations(request):
         messages.error(request, 'Access Denied!')
         return redirect(reverse('home'))
 
-    pending = RegistrationRequest.objects.filter(status='pending')
-    return render(request, 'auth/pending_registrations.html', {'pending': pending})
+    # Invitations: sent by chairman (no name yet), awaiting teacher to complete registration
+    invitations = RegistrationRequest.objects.filter(status='pending', name='').order_by('-created_at')
+    # Applications: self-registered by teacher, awaiting chairman approval
+    pending = RegistrationRequest.objects.filter(status='pending').exclude(name='').order_by('-created_at')
+    return render(request, 'auth/pending_registrations.html', {'pending': pending, 'invitations': invitations})
 
 
 @login_required(login_url='/log')
@@ -100,7 +103,7 @@ def approve_registration(request, pk):
 
 @login_required(login_url='/log')
 def add_teacher_direct(request):
-    """Chairman-only: add teacher directly — email only, teacher completes profile on first login."""
+    """Chairman-only: invite teacher by email — teacher completes profile via the invitation link."""
     is_chairman = User.objects.filter(username='chairman', pk=request.user.pk).exists()
     if not is_chairman:
         messages.error(request, 'Access Denied!')
@@ -299,6 +302,59 @@ def register_with_token(request, token):
         return redirect(reverse('log'))
 
     return render(request, 'auth/register_token.html', {'reg': reg, 'title_choices': TITLE_CHOICES})
+
+
+@login_required(login_url='/log')
+def resend_invitation(request, pk):
+    """Chairman-only: regenerate the invitation token and resend the email."""
+    is_chairman = User.objects.filter(username='chairman', pk=request.user.pk).exists()
+    if not is_chairman:
+        messages.error(request, 'Access Denied!')
+        return redirect(reverse('home'))
+
+    reg = get_object_or_404(RegistrationRequest, pk=pk, status='pending')
+
+    # Regenerate token and reset expiry
+    reg.invitation_token = uuid.uuid4()
+    reg.token_expires_at = timezone.now() + timedelta(days=7)
+    reg.save()
+
+    # Build invitation link and resend email
+    invite_url = request.build_absolute_uri(
+        reverse('register_with_token', kwargs={'token': reg.invitation_token})
+    )
+    send_mail(
+        subject='You have been invited to join the EBM System (resent)',
+        message=(
+            f'Hello,\n\n'
+            f'Your invitation to register as a teacher in the Exam Bill Management System has been resent.\n\n'
+            f'Please click the link below to complete your registration (valid for 7 days):\n\n'
+            f'{invite_url}\n\n'
+            f'If you did not expect this invitation, please ignore this email.\n\n'
+            f'Regards,\nEBM System'
+        ),
+        from_email=None,
+        recipient_list=[reg.email],
+        fail_silently=False,
+    )
+    messages.success(request, f'Invitation resent to {reg.email}.')
+    return redirect(reverse('pending_registrations'))
+
+
+@login_required(login_url='/log')
+def cancel_invitation(request, pk):
+    """Chairman-only: cancel (delete) a pending invitation."""
+    is_chairman = User.objects.filter(username='chairman', pk=request.user.pk).exists()
+    if not is_chairman:
+        messages.error(request, 'Access Denied!')
+        return redirect(reverse('home'))
+
+    reg = get_object_or_404(RegistrationRequest, pk=pk, status='pending')
+    email = reg.email
+    reg.delete()
+
+    messages.success(request, f'Invitation for {email} has been cancelled.')
+    return redirect(reverse('pending_registrations'))
 
 
 @login_required(login_url='/log')
