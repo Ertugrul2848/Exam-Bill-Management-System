@@ -1,14 +1,48 @@
 {% extends 'base.html' %}
+{% block title %}Session {{ session }} — Semesters{% endblock title %}
+{% block extra_css %}
+<style>
+  .create-sem { margin-top: 40px; }
+  .create-sem h2 { font-weight: 300; margin-bottom: 30px; }
+  .semester-card { margin-bottom: 15px; transition: box-shadow 0.2s; }
+  .semester-card:hover { box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
+  .semester-card .panel-body { display: flex; justify-content: space-between; align-items: center; }
+  .semester-info h4 { margin: 0 0 5px 0; }
+  .semester-info p { margin: 0; color: #777; font-size: 13px; }
+</style>
+{% endblock extra_css %}
 {% block content %}
-<div class="con">
-      <h1>{{session}} session</h1>
-      {%for o in ob%}
-      <button>
-        <a
-          onclick="window.location.href='/viewCourse/{{session}}/{{o.qd.semId}}'"
-          >{{o.st}}</a
-        >
-      </button>
-      {%endfor%}
+<div class="container create-sem">
+  <h2 class="text-center">Session {{ session }} — Semesters</h2>
+
+  <a href="{% url 'committee' %}" class="btn btn-default" style="margin-bottom: 20px;">
+    <span class="glyphicon glyphicon-arrow-left"></span> Back to Dashboard
+  </a>
+
+  {% if ob %}
+  <div class="row">
+    {% for o in ob %}
+    <div class="col-md-6">
+      <div class="panel panel-default semester-card">
+        <div class="panel-body">
+          <div class="semester-info">
+            <h4>{{ o.st }}</h4>
+            <p><strong>Chairman:</strong> {{ o.qd.chairman.name }}</p>
+          </div>
+          <a href="{% url 'viewCourse' session o.qd.semId %}" class="btn btn-success btn-sm">
+            <span class="glyphicon glyphicon-book"></span> Courses
+          </a>
+        </div>
+      </div>
     </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="alert alert-info text-center">
+    <span class="glyphicon glyphicon-info-sign"></span>
+    No semesters found for session {{ session }}.
+    <a href="{% url 'createCom' %}" class="alert-link">Create a committee first</a>.
+  </div>
+  {% endif %}
+</div>
 {% endblock content %}
