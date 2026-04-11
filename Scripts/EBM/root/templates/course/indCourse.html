@@ -1,58 +1,96 @@
 {% extends 'base.html' %}
-{% block extra_css %}
-<style>
-.con {
-  background: whitesmoke;
-  padding: 20px;
-}
-.el {
-  text-align: center;
-}
-</style>
-{% endblock extra_css %}
+{% block title %}Course Details{% endblock title %}
 {% block content %}
-{%if theory%}
-    <div class="con">
-      <h2>{{course.courseName}}</h2>
-      <h3><strong>Course Code</strong> : {{course.courseCode}}</h3>
-      <label for="">Course Internal</label>
-      <h3>{{course.internal.name}}</h3>
-      <label for="">Course External</label>
-      <h3>{{course.external.name}}</h3>
-      <label for="">Third Examiner</label>
-      <h3>{{course.thirdExaminer.name}}</h3>
-      <h3><strong>Paper No : </strong>{{course.paperNo}}</h3>
-      <h3><strong>Third Examiner Paper No : </strong>{{course.tPaperNo}}</h3>
-      <h3><strong>Duration : </strong>{{course.duration}}</h3>
+<div class="container" style="margin-top: 40px; max-width: 700px;">
+  <a href="javascript:history.back()" class="btn btn-default" style="margin-bottom: 20px;">
+    <span class="glyphicon glyphicon-arrow-left"></span> Back
+  </a>
+
+  {% if theory %}
+  <div class="panel panel-primary">
+    <div class="panel-heading"><h3 class="panel-title">Course Details — Theory</h3></div>
+    <div class="panel-body">
+      <dl class="dl-horizontal">
+        <dt>Course Name</dt>
+        <dd>{{ course.courseName }}</dd>
+        <dt>Course Code</dt>
+        <dd>{{ course.courseCode }}</dd>
+        <dt>Type</dt>
+        <dd>Theory</dd>
+        <dt>Internal Examiner</dt>
+        <dd>{{ course.internal.name }}</dd>
+        <dt>External Examiner</dt>
+        <dd>{{ course.external.name }}</dd>
+        <dt>Third Examiner</dt>
+        <dd>{{ course.thirdExaminer.name }}</dd>
+        <dt>Paper No</dt>
+        <dd>{{ course.paperNo }}</dd>
+        <dt>Third Examiner Paper No</dt>
+        <dd>{{ course.tPaperNo }}</dd>
+        <dt>Duration</dt>
+        <dd>{{ course.duration }}</dd>
+      </dl>
     </div>
-    {%endif%} {%if lab%}
-    <div class="con">
-      <h2>{{course.courseName}}</h2>
-      <h3><strong>Course Code</strong> : {{course.courseCode}}</h3>
-      <label for="">Course Internal</label>
-      <h3>{{course.internal.name}}</h3>
-      <label for="">Course External</label>
-      <h3>{{course.external.name}}</h3>
-      <label for="">Invigilators</label>
-      <div class="el">
-        {%for o in extra%}
-        <h3>{{o.extra.name}}</h3>
-        {%endfor%}
-      </div>
+  </div>
+  {% endif %}
+
+  {% if lab %}
+  <div class="panel panel-primary">
+    <div class="panel-heading"><h3 class="panel-title">Course Details — Lab</h3></div>
+    <div class="panel-body">
+      <dl class="dl-horizontal">
+        <dt>Course Name</dt>
+        <dd>{{ course.courseName }}</dd>
+        <dt>Course Code</dt>
+        <dd>{{ course.courseCode }}</dd>
+        <dt>Type</dt>
+        <dd>Lab</dd>
+        <dt>Internal Examiner</dt>
+        <dd>{{ course.internal.name }}</dd>
+        <dt>External Examiner</dt>
+        <dd>{{ course.external.name }}</dd>
+      </dl>
+      {% if extra %}
+      <hr>
+      <h4>Invigilators</h4>
+      <ul class="list-group">
+        {% for o in extra %}
+        <li class="list-group-item">{{ o.extra.name }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
     </div>
-    {%endif%} {%if viva%}
-    <div class="con">
-      <h2>{{course.courseName}}</h2>
-      <h3><strong>Course Code</strong> : {{course.courseCode}}</h3>
-      <label for="">Viva Internal</label>
-      <div class="el">
-        {%for o in extra%}
-        <h3>{{o.extra.name}}</h3>
-        {%endfor%}
-      </div>
-      <label for="">Viva External</label>
-      <h3>{{course.vivaExternal.name}}</h3>
-      <h3><strong>Duration : </strong>{{course.duration}}</h3>
+  </div>
+  {% endif %}
+
+  {% if viva %}
+  <div class="panel panel-primary">
+    <div class="panel-heading"><h3 class="panel-title">Course Details — Viva</h3></div>
+    <div class="panel-body">
+      <dl class="dl-horizontal">
+        <dt>Course Name</dt>
+        <dd>{{ course.courseName }}</dd>
+        <dt>Course Code</dt>
+        <dd>{{ course.courseCode }}</dd>
+        <dt>Type</dt>
+        <dd>Viva</dd>
+        <dt>External Examiner</dt>
+        <dd>{{ course.vivaExternal.name }}</dd>
+        <dt>Duration</dt>
+        <dd>{{ course.duration }}</dd>
+      </dl>
+      {% if extra %}
+      <hr>
+      <h4>Viva Internal Examiners</h4>
+      <ul class="list-group">
+        {% for o in extra %}
+        <li class="list-group-item">{{ o.extra.name }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
     </div>
-    {%endif%}
+  </div>
+  {% endif %}
+
+</div>
 {% endblock content %}
