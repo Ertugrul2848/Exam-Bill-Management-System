@@ -218,13 +218,8 @@ def indBill2(request, id, id2, id3):
 
 @login_required(login_url='/log')
 def all_bills(request):
-    """Chairman-only view: archived semester bills with search and pagination."""
+    """Archived semester bills with search, session filter, and pagination. Visible to all users."""
     from django.core.paginator import Paginator
-
-    is_chairman = User.objects.filter(username='chairman', pk=request.user.pk).exists()
-    if not is_chairman:
-        messages.error(request, 'Access Denied — chairman only.')
-        return redirect(reverse('home'))
 
     bills = SemesterBill.objects.filter(
         semester__is_archived=True
@@ -236,11 +231,27 @@ def all_bills(request):
     if q:
         bills = bills.filter(teacher__name__icontains=q)
 
+    session_filter = request.GET.get('session', '').strip()
+    if session_filter:
+        bills = bills.filter(semester__session__year=session_filter)
+
+    sessions = Session.objects.order_by('-year')
+
     paginator = Paginator(bills, 25)
     page = request.GET.get('page')
     bills_page = paginator.get_page(page)
 
+    # Build a windowed page range (±3 pages around current)
+    current = bills_page.number
+    page_range = [
+        n for n in bills_page.paginator.page_range
+        if abs(n - current) <= 3
+    ]
+
     return render(request, 'billing/all_bills.html', {
         'bills_page': bills_page,
         'q': q,
+        'session_filter': session_filter,
+        'sessions': sessions,
+        'page_range': page_range,
     })
