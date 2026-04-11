@@ -2,7 +2,7 @@
 
 from django.urls import path
 from ..views import (
-    home, log, logOut, profile,
+    home, log, logOut, profile, change_password,
     register, pending_registrations, approve_registration, reject_registration, add_teacher_direct, complete_profile,
     register_with_token,
     manage_moderators, edit_moderator, remove_moderator,
@@ -24,4 +24,5 @@ urlpatterns = [
     path('moderators/<int:pk>/edit/', edit_moderator, name='edit_moderator'),
     path('moderators/<int:pk>/remove/', remove_moderator, name='remove_moderator'),
     path('profile/', profile, name='profile'),
+    path('change-password/', change_password, name='change_password'),
 ]
