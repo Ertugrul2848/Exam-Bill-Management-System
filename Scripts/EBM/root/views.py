@@ -41,7 +41,7 @@ URL Parameters Convention:
 """
 
 from django.http import HttpResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.template.loader import get_template
 from django.urls import reverse
 from django.contrib import messages
@@ -119,10 +119,9 @@ def createCom(request):
     Creates a Session (if new), a Semester with committee members,
     and a SemesterBill record for every faculty member.
     """
-    us = User.objects.get(username=request.user.username)
-    chairman = User.objects.get(username='chairman')
     cont = None
-    if not us == chairman:
+    is_chairman = User.objects.filter(username='chairman', pk=request.user.pk).exists()
+    if not is_chairman:
         messages.error(request, 'Access Denied !!!')
     else:
         ob = faculty.objects.filter()
@@ -137,15 +136,15 @@ def createCom(request):
             if not oo:
                 aa = Session(year=session_year)
                 aa.save()
-            ca = Session.objects.get(year=int(request.POST['session']))
+            ca = Session.objects.get(year=session_year)
             aa = Semester.objects.filter(
                 session=ca, semId=int(request.POST['year']))
             if not aa:
-                chairman = faculty.objects.get(email=request.POST['chairman'])
+                selected_chairman = faculty.objects.get(email=request.POST['chairman'])
                 sob = Semester.objects.filter(session=ca)
                 flag = False
                 for o in sob:
-                    if o.chairman == chairman:
+                    if o.chairman == selected_chairman:
                         flag = True
                 if flag:
                     messages.error(
@@ -155,14 +154,14 @@ def createCom(request):
                     tea2 = faculty.objects.get(email=request.POST['tabular2'])
                     tea3 = External.objects.get(email=request.POST['external'])
                     flag = False
-                    if tea1 == tea2 or tea2 == chairman or tea1 == chairman:
+                    if tea1 == tea2 or tea2 == selected_chairman or tea1 == selected_chairman:
                         flag = True
                     if flag:
                         messages.error(
                             request, 'Faculty can not be selected more than once !!')
                     else:
                         bb = Semester(semId=int(
-                            request.POST['year']), session=ca, chairman=chairman, tabular1=tea1, tabular2=tea2, external=tea3)
+                            request.POST['year']), session=ca, chairman=selected_chairman, tabular1=tea1, tabular2=tea2, external=tea3)
                         bb.save()
                         for o in ob:
                             tea = faculty.objects.get(email=o.email)
@@ -180,39 +179,9 @@ def createCom(request):
 @login_required(login_url='/log')
 def viewCom(request, id):
     """List all semesters for a given session year (id=year)."""
-    session = Session.objects.get(year=int(id))
+    session = get_object_or_404(Session, year=int(id))
     semester = Semester.objects.filter(session=session).order_by('semId')
-
-    class Class:
-        def __init__(self, qd, st):
-            self.qd = qd
-            self.st = st
-            if qd.semId == 1:
-                st = "1st Year 1st Semseter"
-            if qd.semId == 2:
-                st = "1st Year 2nd Semseter"
-            if qd.semId == 3:
-                st = "2nd Year 1st Semseter"
-            if qd.semId == 4:
-                st = "2nd Year 2nd Semseter"
-            if qd.semId == 5:
-                st = "3rd Year 1st Semseter"
-            if qd.semId == 6:
-                st = "3rd Year 2nd Semseter"
-            if qd.semId == 7:
-                st = "4th Year 1st Semseter"
-            if qd.semId == 8:
-                st = "4th Year 2nd Semseter"
-            if qd.semId == 9:
-                st = "Masters 1st Semseter"
-            if qd.semId == 10:
-                st = "Masters 2nd Semseter"
-            self.st = st
-    ar = []
-    for o in semester:
-        a = Class(qd=o, st=" ")
-        ar.append(a)
-
+    ar = [{'qd': o, 'st': o.get_display_name()} for o in semester]
     cont = {
         'ob': ar,
         'session': id
@@ -226,8 +195,8 @@ def viewSem(request, id, id2):
     ob = faculty.objects.get(email=request.user.email)
     oc = faculty.objects.filter()
     od = External.objects.filter()
-    session = Session.objects.get(year=int(id))
-    semester = Semester.objects.get(session=session, semId=int(id2))
+    session = get_object_or_404(Session, year=int(id))
+    semester = get_object_or_404(Semester, session=session, semId=int(id2))
     moderator = SemesterBill.objects.filter(
         session=session, semester=semester, moderator=1)
     typist = SemesterBill.objects.filter(
@@ -253,7 +222,7 @@ def viewSem(request, id, id2):
         tea3 = External.objects.get(email=request.POST['external'])
         flag = False
 
-        if tea1 == tea2:
+        if tea1 == tea2 or tea1 == semester.chairman or tea2 == semester.chairman:
             flag = True
         if flag:
             messages.error(
@@ -268,7 +237,6 @@ def viewSem(request, id, id2):
             semester.save()
             messages.success(
                 request, 'Committee Updated Successfully !')
-    con = None
     if 'add' in request.POST:
         return redirect(reverse('addRole', args=[id, id2]))
     if 'moderator' in request.POST:
@@ -279,7 +247,6 @@ def viewSem(request, id, id2):
         oc.save()
         return redirect(reverse('viewSem', args=[id, id2]))
     if 'translator' in request.POST:
-        print(request.POST.get('translator'))
         mod = faculty.objects.get(email=request.POST.get('translator'))
         oc = SemesterBill.objects.get(
             session=session, semester=semester, teacher=mod)
@@ -287,22 +254,21 @@ def viewSem(request, id, id2):
         oc.save()
         return redirect(reverse('viewSem', args=[id, id2]))
     if 'typist' in request.POST:
-        print('ss')
         mod = faculty.objects.get(email=request.POST.get('typist'))
         oc = SemesterBill.objects.get(
             session=session, semester=semester, teacher=mod)
         oc.typist = 0
         oc.save()
         return redirect(reverse('viewSem', args=[id, id2]))
-    return render(request, 'viewSem.html', cont, con)
+    return render(request, 'viewSem.html', cont)
 
 
 @login_required(login_url='/log')
 def addRole(request, id, id2):
     """Assign moderator/translator/typist role to a faculty member (id=year, id2=semId)."""
     ob = faculty.objects.filter()
-    session = Session.objects.get(year=int(id))
-    semester = Semester.objects.get(session=session, semId=int(id2))
+    session = get_object_or_404(Session, year=int(id))
+    semester = get_object_or_404(Semester, session=session, semId=int(id2))
     tea = faculty.objects.get(email=request.user.email)
     chairman = semester.chairman
     flag = False
@@ -312,8 +278,8 @@ def addRole(request, id, id2):
             'flag': flag
             }
     if request.method == 'POST':
-        session = Session.objects.get(year=int(id))
-        semester = Semester.objects.get(session=session, semId=int(id2))
+        session = get_object_or_404(Session, year=int(id))
+        semester = get_object_or_404(Semester, session=session, semId=int(id2))
         oo = SemesterBill.objects.filter(session=session, semester=semester)
         tea = faculty.objects.get(email=request.POST['teacher'])
         oa = SemesterBill.objects.filter(
@@ -325,12 +291,23 @@ def addRole(request, id, id2):
             session=session, semester=semester, teacher=tea)
         val = request.POST['role']
         if val == "1":
-            ca.moderator = 1
+            if ca.moderator == 1:
+                messages.error(request, 'This teacher is already a moderator!')
+            else:
+                ca.moderator = 1
+                ca.save()
         elif val == "2":
-            ca.translator = 1
+            if ca.translator == 1:
+                messages.error(request, 'This teacher is already a translator!')
+            else:
+                ca.translator = 1
+                ca.save()
         elif val == "3":
-            ca.typist = 1
-        ca.save()
+            if ca.typist == 1:
+                messages.error(request, 'This teacher is already a stencil-cutter!')
+            else:
+                ca.typist = 1
+                ca.save()
         return redirect(reverse('viewSem', args=[id, id2]))
     return render(request, 'addRole.html', cont)
 
@@ -338,39 +315,9 @@ def addRole(request, id, id2):
 @login_required(login_url='/log')
 def createSem(request, id):
     """Display semester creation options for a session (id=year)."""
-    session = Session.objects.get(year=int(id))
+    session = get_object_or_404(Session, year=int(id))
     semester = Semester.objects.filter(session=session)
-
-    class Class:
-        def __init__(self, qd, st):
-            self.qd = qd
-            self.st = st
-            if qd.semId == 1:
-                st = "1st Year 1st Semseter"
-            if qd.semId == 2:
-                st = "1st Year 2nd Semseter"
-            if qd.semId == 3:
-                st = "2nd Year 1st Semseter"
-            if qd.semId == 4:
-                st = "2nd Year 2nd Semseter"
-            if qd.semId == 5:
-                st = "3rd Year 1st Semseter"
-            if qd.semId == 6:
-                st = "3rd Year 2nd Semseter"
-            if qd.semId == 7:
-                st = "4th Year 1st Semseter"
-            if qd.semId == 8:
-                st = "4th Year 2nd Semseter"
-            if qd.semId == 9:
-                st = "Masters 1st Semseter"
-            if qd.semId == 10:
-                st = "Masters 2nd Semseter"
-            self.st = st
-    ar = []
-    for o in semester:
-        a = Class(qd=o, st=" ")
-        ar.append(a)
-
+    ar = [{'qd': o, 'st': o.get_display_name()} for o in semester]
     cont = {
         'ob': ar,
         'session': id
@@ -381,8 +328,8 @@ def createSem(request, id):
 @login_required(login_url='/log')
 def createCourse(request, id, id2):
     """Add a new course to a semester (id=year, id2=semId). Supports Theory/Lab/Viva types."""
-    session = Session.objects.get(year=int(id))
-    semester = Semester.objects.get(session=session, semId=int(id2))
+    session = get_object_or_404(Session, year=int(id))
+    semester = get_object_or_404(Semester, session=session, semId=int(id2))
     ob = faculty.objects.filter()
     cont = {'ob': ob,
             'session':session.year,
@@ -421,8 +368,8 @@ def createCourse(request, id, id2):
 def viewCourse(request, id, id2):
     """List all courses in a semester with add/update/delete actions (id=year, id2=semId)."""
     tea = faculty.objects.get(email=request.user.email)
-    session = Session.objects.get(year=int(id))
-    semester = Semester.objects.get(session=session, semId=int(id2))
+    session = get_object_or_404(Session, year=int(id))
+    semester = get_object_or_404(Semester, session=session, semId=int(id2))
     course = Course.objects.filter(session=session, semester=semester)
     flag = False
     if tea == semester.chairman:
@@ -437,7 +384,6 @@ def viewCourse(request, id, id2):
     if 'update' in request.POST:
         return redirect(reverse('updateCourse', args=[id, id2, request.POST['update']]))
     if 'delete' in request.POST:
-        print('ok')
         co = Course.objects.get(
             session=session, semester=semester, courseCode=int(request.POST['delete']))
         co.delete()
@@ -448,8 +394,8 @@ def viewCourse(request, id, id2):
 @login_required(login_url='/log')
 def updateCourse(request, id, id2, id3):
     """Edit course examiners and details (id=year, id2=semId, id3=courseCode)."""
-    session = Session.objects.get(year=int(id))
-    semester = Semester.objects.get(session=session, semId=int(id2))
+    session = get_object_or_404(Session, year=int(id))
+    semester = get_object_or_404(Semester, session=session, semId=int(id2))
     ob = faculty.objects.filter()
     theory = False
     lab = False
@@ -516,8 +462,8 @@ def updateCourse(request, id, id2, id3):
 @login_required(login_url='/log')
 def addInvigilator(request, id, id2, id3):
     """Assign an extra invigilator to a lab/viva course (id=year, id2=semId, id3=courseCode)."""
-    session = Session.objects.get(year=int(id))
-    semester = Semester.objects.get(session=session, semId=int(id2))
+    session = get_object_or_404(Session, year=int(id))
+    semester = get_object_or_404(Semester, session=session, semId=int(id2))
     course = Course.objects.get(
         session=session, semester=semester, courseCode=int(id3))
     ob = faculty.objects.filter()
@@ -535,8 +481,8 @@ def addInvigilator(request, id, id2, id3):
 @login_required(login_url='/log')
 def indCourse(request, id, id2, id3):
     """View individual course details and examiners (id=year, id2=semId, id3=courseCode)."""
-    session = Session.objects.get(year=int(id))
-    semester = Semester.objects.get(session=session, semId=int(id2))
+    session = get_object_or_404(Session, year=int(id))
+    semester = get_object_or_404(Semester, session=session, semId=int(id2))
     course = Course.objects.get(
         session=session, semester=semester, courseCode=int(id3))
     theory = False
@@ -695,7 +641,7 @@ def semBill(request, id, id2):
 @login_required(login_url='/log')
 def indBill2(request, id, id2, id3):
     """Individual teacher bill — roles only, no amounts (id=year, id2=semId, id3=facultyId). Uses BillCalculator."""
-    fac = faculty.objects.get(id=int(id3))
+    fac = get_object_or_404(faculty, id=int(id3))
     calc = BillCalculator(id, id2, fac)
     ar = calc.calculate(include_amounts=False)
     ss = get_semester_display(int(id2))
@@ -709,7 +655,7 @@ def indBill2(request, id, id2, id3):
 @login_required(login_url='/log')
 def thesis(request, id, id2, id3):
     """Manage thesis paper evaluation assignments (id=year, id2=semId, id3=courseCode)."""
-    session=Session.objects.get(year=int(id))
+    session=get_object_or_404(Session, year=int(id))
     semester=Semester.objects.get(session=session,semId=int(id2))
     course=Course.objects.get(session=session,semester=semester,courseCode=int(id3))
     tec=faculty.objects.filter().order_by('name')
@@ -745,7 +691,7 @@ def thesis(request, id, id2, id3):
     return render(request,'thesis.html',cont)
 def supervising(request, id, id2, id3):
     """Manage thesis supervisor assignments (id=year, id2=semId, id3=courseCode)."""
-    session=Session.objects.get(year=int(id))
+    session=get_object_or_404(Session, year=int(id))
     semester=Semester.objects.get(session=session,semId=int(id2))
     course=Course.objects.get(session=session,semester=semester,courseCode=int(id3))
     tec=faculty.objects.filter().order_by('name')
