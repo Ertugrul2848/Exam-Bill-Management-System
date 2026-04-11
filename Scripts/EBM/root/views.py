@@ -89,22 +89,25 @@ def logOut(request):
 def committee(request):
     """Committee dashboard. Allows viewing an existing session or creating a new semester."""
     if 'sess' in request.POST:
-        print('ok')
-        sess = request.POST['session']
-        sess = int(sess)
-        ob = Session.objects.filter(year=sess)
-        if not ob:
-            messages.error(request, 'Session Does not Exist !!')
+        sess = int(request.POST['session'])
+        if sess < 1900 or sess > 2100:
+            messages.error(request, 'Session year must be between 1900 and 2100!')
         else:
-            return redirect(reverse('viewCom', args=[request.POST['session']]))
+            ob = Session.objects.filter(year=sess)
+            if not ob:
+                messages.error(request, 'Session Does not Exist !!')
+            else:
+                return redirect(reverse('viewCom', args=[sess]))
     if 'sem' in request.POST:
-        sess = request.POST['session']
-        sess = int(sess)
-        ob = Session.objects.filter(year=sess)
-        if not ob:
-            messages.error(request, 'Session Does not Exist !!')
+        sess = int(request.POST['session'])
+        if sess < 1900 or sess > 2100:
+            messages.error(request, 'Session year must be between 1900 and 2100!')
         else:
-            return redirect(reverse('createSem', args=[sess]))
+            ob = Session.objects.filter(year=sess)
+            if not ob:
+                messages.error(request, 'Session Does not Exist !!')
+            else:
+                return redirect(reverse('createSem', args=[sess]))
     return render(request, 'committee.html')
 
 
@@ -126,9 +129,13 @@ def createCom(request):
         oc = External.objects.filter()
         cont = {'ob': ob, 'oc': oc}
         if request.method == 'POST':
-            oo = Session.objects.filter(year=int(request.POST['session']))
+            session_year = int(request.POST['session'])
+            if session_year < 1900 or session_year > 2100:
+                messages.error(request, 'Session year must be between 1900 and 2100!')
+                return render(request, 'createCom.html', cont)
+            oo = Session.objects.filter(year=session_year)
             if not oo:
-                aa = Session(year=int(request.POST['session']))
+                aa = Session(year=session_year)
                 aa.save()
             ca = Session.objects.get(year=int(request.POST['session']))
             aa = Semester.objects.filter(
@@ -562,7 +569,11 @@ def deleteCourse(request, id, id2, id3):
 def examBill(request):
     """Teacher's own bill lookup. Enter session/semester to view personal bill."""
     if request.method == 'POST':
-        session = Session.objects.filter(year=int(request.POST['session']))
+        session_year = int(request.POST['session'])
+        if session_year < 1900 or session_year > 2100:
+            messages.error(request, 'Session year must be between 1900 and 2100!')
+            return render(request, 'examBill.html')
+        session = Session.objects.filter(year=session_year)
         flag = False
         if not session:
             flag = True
@@ -628,7 +639,11 @@ def pdf_view(request, id, id2, id3):
 def examBill2(request):
     """Chairman's semester-wide bill lookup. Only chairman can access semester bills."""
     if request.method == 'POST':
-        session = Session.objects.filter(year=int(request.POST['session']))
+        session_year = int(request.POST['session'])
+        if session_year < 1900 or session_year > 2100:
+            messages.error(request, 'Session year must be between 1900 and 2100!')
+            return render(request, 'examBill2.html')
+        session = Session.objects.filter(year=session_year)
         flag = False
         if not session:
             flag = True

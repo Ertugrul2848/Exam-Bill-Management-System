@@ -15,6 +15,7 @@ Model Relationships:
 """
 
 from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.auth.models import Group, User
 
 
@@ -72,7 +73,10 @@ class Session(models.Model):
     Attributes:
         year: The academic year (e.g., 2025). Serves as the primary key.
     """
-    year = models.IntegerField(primary_key=True)
+    year = models.IntegerField(
+        primary_key=True,
+        validators=[MinValueValidator(1900), MaxValueValidator(2100)],
+    )
 
     def __str__(self):
         return str(self.year)
