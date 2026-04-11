@@ -80,3 +80,39 @@ def profile(request):
 
 
 
+@login_required(login_url='/log')
+def change_password(request):
+    """Change the current user's password with current password verification."""
+    if request.method == 'POST':
+        current = request.POST.get('current_password', '')
+        new_pass = request.POST.get('new_password', '')
+        confirm = request.POST.get('confirm_password', '')
+
+        if not request.user.check_password(current):
+            messages.error(request, 'Current password is incorrect!')
+            return render(request, 'auth/change_password.html')
+        if new_pass != confirm:
+            messages.error(request, 'New passwords do not match!')
+            return render(request, 'auth/change_password.html')
+        if len(new_pass) < 8:
+            messages.error(request, 'Password must be at least 8 characters!')
+            return render(request, 'auth/change_password.html')
+
+        request.user.set_password(new_pass)
+        request.user.save()
+        # Update faculty password too
+        try:
+            fac = faculty.objects.get(email=request.user.email)
+            fac.password = new_pass
+            fac.save()
+        except:
+            pass
+        # Keep user logged in after password change
+        from django.contrib.auth import update_session_auth_hash
+        update_session_auth_hash(request, request.user)
+        messages.success(request, 'Password changed successfully!')
+        return redirect(reverse('profile'))
+    return render(request, 'auth/change_password.html')
+
+
+
