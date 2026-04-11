@@ -5,6 +5,7 @@ from .models import (
     faculty, External, Session, Semester,
     SemesterBill, Course, courseBill,
     ThesisPaper, ThesisSupervisor, RegistrationRequest,
+    CourseCodeMaster,
 )
 
 
@@ -73,3 +74,10 @@ class RegistrationRequestAdmin(admin.ModelAdmin):
     list_display = ('name', 'email', 'title', 'status', 'created_at')
     list_filter = ('status',)
     search_fields = ('name', 'email')
+
+
+@admin.register(CourseCodeMaster)
+class CourseCodeMasterAdmin(admin.ModelAdmin):
+    list_display = ('code', 'name', 'created_by', 'updated_at')
+    search_fields = ('code', 'name')
+    ordering = ('code',)

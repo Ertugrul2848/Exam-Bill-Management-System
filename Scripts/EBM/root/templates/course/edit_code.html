@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Edit Course Code {{ code.code }}{% endblock title %}
+{% block content %}
+<div class="container" style="margin-top: 40px; max-width: 500px;">
+  <a href="{% url 'manage_course_codes' %}" class="btn btn-default" style="margin-bottom: 20px;">
+    <span class="glyphicon glyphicon-arrow-left"></span> Back
+  </a>
+  <div class="panel panel-primary">
+    <div class="panel-heading"><h3 class="panel-title">Edit Course Code {{ code.code }}</h3></div>
+    <div class="panel-body">
+      <form method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+          <label>Course Code</label>
+          <input class="form-control" type="number" value="{{ code.code }}" disabled />
+        </div>
+        <div class="form-group">
+          <label>Course Name</label>
+          <input class="form-control" type="text" name="name" value="{{ code.name }}" required />
+        </div>
+        <button class="btn btn-primary btn-block" type="submit">
+          <span class="glyphicon glyphicon-save"></span> Save
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock content %}
