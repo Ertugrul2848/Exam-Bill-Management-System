@@ -43,9 +43,9 @@ form {
         <h1>Create Committee</h1>
         {%csrf_token%}
         <label for="">Select Session</label>
-        <input type="number" name="session" id="" />
+        <input class="form-control" type="number" name="session" id="" />
         <label for="">Select Semester</label>
-        <select name="year">
+        <select class="form-control" name="year">
           <option selected disabled></option>
           <option value="10">5-2</option>
           <option value="9">5-1</option>
@@ -59,34 +59,34 @@ form {
           <option value="1">1-1</option>
         </select>
         <label>Select Chairman</label>
-        <select name="chairman">
+        <select class="form-control" name="chairman">
           <option selected disabled></option>
           {%for o in ob%}
           <option value="{{o.email}}">{{o.name}}</option>
           {%endfor%}
         </select>
         <label>Select Tabular1</label>
-        <select name="tabular1">
+        <select class="form-control" name="tabular1">
           <option selected disabled></option>
           {%for o in ob%}
           <option value="{{o.email}}">{{o.name}}</option>
           {%endfor%}
         </select>
         <label>Select Tabular2</label>
-        <select name="tabular2">
+        <select class="form-control" name="tabular2">
           <option selected disabled></option>
           {%for o in ob%}
           <option value="{{o.email}}">{{o.name}}</option>
           {%endfor%}
         </select>
         <label for="">Select External</label>
-        <select name="external" id="">
+        <select class="form-control" name="external" id="">
           <option selected disabled></option>
           {%for o in oc%}
           <option value="{{o.email}}">{{o.name}}</option>
           {%endfor%}
         </select>
-        <button type="submit">Create</button>
+        <button class="btn btn-primary" type="submit">Create</button>
       </form>
     </div>
 {% endblock content %}

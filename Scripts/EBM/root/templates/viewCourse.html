@@ -47,10 +47,10 @@
           <h3>{{o.courseName}}</h3>
           {%if flag%}
           <div class="button">
-            <button type="submit" value="{{o.courseCode}}" name="update">
+            <button class="btn btn-primary" type="submit" value="{{o.courseCode}}" name="update">
               Update
             </button>
-            <button type="submit" value="{{o.courseCode}}" name="delete">
+            <button class="btn btn-primary" type="submit" value="{{o.courseCode}}" name="delete">
               Delete
             </button>
           </div>
@@ -60,7 +60,7 @@
       {%endfor%}
       <form method="POST">
         {%csrf_token%} {%if flag%}
-        <button name="add" type="submit">Add Course</button>
+        <button class="btn btn-primary" name="add" type="submit">Add Course</button>
         {%endif%}
       </form>
     </div>

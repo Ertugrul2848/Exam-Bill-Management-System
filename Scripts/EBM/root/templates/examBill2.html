@@ -4,13 +4,13 @@
     <div class="con">
       <form method="POST">
         {%csrf_token%}
-        <input
+        <input class="form-control"
           type="number"
           name="session"
           placeholder="Enter Session"
           required
         />
-        <select name="semester" id="">
+        <select class="form-control" name="semester" id="">
           <option selected disabled>Selct Semester</option>
           <option value="10">Masters 2nd Semester</option>
           <option value="9">Masters 1st Semester</option>
@@ -23,7 +23,7 @@
           <option value="2">1st Year 2nd Semester</option>
           <option value="1">1st Year 1st Semester</option>
         </select>
-        <button type="submit">View</button>
+        <button class="btn btn-primary" type="submit">View</button>
       </form>
     </div>
 {% endblock content %}
