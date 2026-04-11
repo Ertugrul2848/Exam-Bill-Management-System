@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+{% block title %}My Assignments{% endblock title %}
+{% block content %}
+<div class="container" style="margin-top: 40px;">
+
+  <h2>My Assignments</h2>
+  <p class="text-muted">{{ fac.name }} &mdash; {{ fac.email }}</p>
+  <hr>
+
+  {# Committee Roles #}
+  {% if chairman_of or tabular1_of or tabular2_of %}
+  <div class="panel panel-primary">
+    <div class="panel-heading"><h3 class="panel-title">Committee Roles</h3></div>
+    <div class="panel-body">
+      {% if chairman_of %}
+      <h4>Chairman</h4>
+      <ul class="list-group" style="margin-bottom: 16px;">
+        {% for sem in chairman_of %}
+        <li class="list-group-item">
+          <strong>{{ sem.session.year }}</strong> &mdash; {{ sem.get_semId_display }}
+          {% if sem.is_archived %}<span class="label label-default" style="margin-left: 6px;">Archived</span>{% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+
+      {% if tabular1_of %}
+      <h4>Tabulator 1</h4>
+      <ul class="list-group" style="margin-bottom: 16px;">
+        {% for sem in tabular1_of %}
+        <li class="list-group-item">
+          <strong>{{ sem.session.year }}</strong> &mdash; {{ sem.get_semId_display }}
+          {% if sem.is_archived %}<span class="label label-default" style="margin-left: 6px;">Archived</span>{% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+
+      {% if tabular2_of %}
+      <h4>Tabulator 2</h4>
+      <ul class="list-group" style="margin-bottom: 16px;">
+        {% for sem in tabular2_of %}
+        <li class="list-group-item">
+          <strong>{{ sem.session.year }}</strong> &mdash; {{ sem.get_semId_display }}
+          {% if sem.is_archived %}<span class="label label-default" style="margin-left: 6px;">Archived</span>{% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+  {# Course Examiner Roles #}
+  {% if internal_courses or external_courses or third_courses %}
+  <div class="panel panel-success">
+    <div class="panel-heading"><h3 class="panel-title">Course Examiner Roles</h3></div>
+    <div class="table-responsive">
+      <table class="table table-hover table-striped" style="margin-bottom: 0;">
+        <thead>
+          <tr>
+            <th>Session</th>
+            <th>Semester</th>
+            <th>Course</th>
+            <th>Code</th>
+            <th>Role</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in internal_courses %}
+          <tr>
+            <td>{{ c.session.year }}</td>
+            <td>{{ c.semester.get_semId_display }}</td>
+            <td>{{ c.courseName }}</td>
+            <td>{{ c.courseCode }}</td>
+            <td><span class="label label-success">Internal Examiner</span></td>
+          </tr>
+          {% endfor %}
+          {% for c in external_courses %}
+          <tr>
+            <td>{{ c.session.year }}</td>
+            <td>{{ c.semester.get_semId_display }}</td>
+            <td>{{ c.courseName }}</td>
+            <td>{{ c.courseCode }}</td>
+            <td><span class="label label-info">External Examiner</span></td>
+          </tr>
+          {% endfor %}
+          {% for c in third_courses %}
+          <tr>
+            <td>{{ c.session.year }}</td>
+            <td>{{ c.semester.get_semId_display }}</td>
+            <td>{{ c.courseName }}</td>
+            <td>{{ c.courseCode }}</td>
+            <td><span class="label label-warning">Third Examiner</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+  {# Semester Roles #}
+  {% if moderator_roles or translator_roles or typist_roles %}
+  <div class="panel panel-info">
+    <div class="panel-heading"><h3 class="panel-title">Semester Roles</h3></div>
+    <div class="table-responsive">
+      <table class="table table-hover table-striped" style="margin-bottom: 0;">
+        <thead>
+          <tr>
+            <th>Session</th>
+            <th>Semester</th>
+            <th>Role</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in moderator_roles %}
+          <tr>
+            <td>{{ r.semester.session.year }}</td>
+            <td>{{ r.semester.get_semId_display }}</td>
+            <td><span class="label label-success">Moderator</span></td>
+          </tr>
+          {% endfor %}
+          {% for r in translator_roles %}
+          <tr>
+            <td>{{ r.semester.session.year }}</td>
+            <td>{{ r.semester.get_semId_display }}</td>
+            <td><span class="label label-info">Translator</span></td>
+          </tr>
+          {% endfor %}
+          {% for r in typist_roles %}
+          <tr>
+            <td>{{ r.semester.session.year }}</td>
+            <td>{{ r.semester.get_semId_display }}</td>
+            <td><span class="label label-warning">Typist</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+  {# Thesis Duties #}
+  {% if thesis_evals or thesis_supervising %}
+  <div class="panel panel-warning">
+    <div class="panel-heading"><h3 class="panel-title">Thesis Duties</h3></div>
+    <div class="table-responsive">
+      <table class="table table-hover table-striped" style="margin-bottom: 0;">
+        <thead>
+          <tr>
+            <th>Session</th>
+            <th>Semester</th>
+            <th>Course</th>
+            <th>Duty</th>
+            <th class="text-right">Count</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in thesis_evals %}
+          <tr>
+            <td>{{ t.session.year }}</td>
+            <td>{{ t.semester.get_semId_display }}</td>
+            <td>{{ t.course.courseName }}</td>
+            <td><span class="label label-danger">Evaluator</span></td>
+            <td class="text-right">{{ t.paperNo }} paper{{ t.paperNo|pluralize }}</td>
+          </tr>
+          {% endfor %}
+          {% for s in thesis_supervising %}
+          <tr>
+            <td>{{ s.session.year }}</td>
+            <td>{{ s.semester.get_semId_display }}</td>
+            <td>{{ s.course.courseName }}</td>
+            <td><span class="label label-primary">Supervisor</span></td>
+            <td class="text-right">{{ s.studentNo }} student{{ s.studentNo|pluralize }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+  {# No assignments at all #}
+  {% if not chairman_of and not tabular1_of and not tabular2_of and not internal_courses and not external_courses and not third_courses and not moderator_roles and not translator_roles and not typist_roles and not thesis_evals and not thesis_supervising %}
+  <div class="alert alert-info">
+    <span class="glyphicon glyphicon-info-sign"></span>
+    You have no assignments recorded in the system at this time.
+  </div>
+  {% endif %}
+
+  <a href="{% url 'home' %}" class="btn btn-default">
+    <span class="glyphicon glyphicon-arrow-left"></span> Back to Home
+  </a>
+
+</div>
+{% endblock content %}

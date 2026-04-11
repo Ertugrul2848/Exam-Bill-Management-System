@@ -11,6 +11,7 @@ class faculty(models.Model):
     title = models.CharField(max_length=100, blank=True)
     password = models.CharField(max_length=15, blank=True)
     is_profile_complete = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True)
 
     class Meta:
         app_label = 'root'

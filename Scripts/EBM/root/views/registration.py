@@ -61,7 +61,13 @@ def pending_registrations(request):
     invitations = RegistrationRequest.objects.filter(status='pending', name='').order_by('-created_at')
     # Applications: self-registered by teacher, awaiting chairman approval
     pending = RegistrationRequest.objects.filter(status='pending').exclude(name='').order_by('-created_at')
-    return render(request, 'auth/pending_registrations.html', {'pending': pending, 'invitations': invitations})
+    # Active teachers (exclude the chairman themselves)
+    active_teachers = faculty.objects.filter(is_active=True).exclude(username='chairman').order_by('name')
+    return render(request, 'auth/pending_registrations.html', {
+        'pending': pending,
+        'invitations': invitations,
+        'active_teachers': active_teachers,
+    })
 
 
 @login_required(login_url='/log')
@@ -370,6 +376,60 @@ def reject_registration(request, pk):
     reg.save()
 
     messages.success(request, f'{reg.name} has been rejected.')
+    return redirect(reverse('pending_registrations'))
+
+
+def accept_invitation(request):
+    """Public view: teacher enters email to look up their pending invitation."""
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
+
+        if not email:
+            messages.error(request, 'Please enter your email address.')
+            return render(request, 'auth/accept_invitation.html')
+
+        try:
+            validate_email(email)
+        except ValidationError:
+            messages.error(request, 'Please enter a valid email address.')
+            return render(request, 'auth/accept_invitation.html')
+
+        reg = RegistrationRequest.objects.filter(email=email, status='pending', name='').first()
+        if reg is None:
+            messages.error(request, 'No pending invitation found for this email address.')
+            return render(request, 'auth/accept_invitation.html')
+
+        # Valid invitation — redirect to the token-based registration page
+        return redirect(reverse('register_with_token', kwargs={'token': reg.invitation_token}))
+
+    return render(request, 'auth/accept_invitation.html')
+
+
+@login_required(login_url='/log')
+def delete_teacher(request, pk):
+    """Chairman-only (POST): soft-delete a teacher by deactivating their account."""
+    is_chairman = User.objects.filter(username='chairman', pk=request.user.pk).exists()
+    if not is_chairman:
+        messages.error(request, 'Access Denied!')
+        return redirect(reverse('home'))
+
+    if request.method != 'POST':
+        return redirect(reverse('pending_registrations'))
+
+    teacher = get_object_or_404(faculty, pk=pk)
+
+    # Soft-delete: deactivate faculty record and Django user
+    teacher.is_active = False
+    teacher.save()
+
+    try:
+        user = User.objects.get(username=teacher.username)
+        user.is_active = False
+        user.save()
+    except User.DoesNotExist:
+        pass
+
+    messages.success(request, f'{teacher.name} has been deactivated. Their bill history is preserved.')
     return redirect(reverse('pending_registrations'))
 
 

@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Login — EBM System{% endblock title %}
+{% block title %}Accept Invitation — EBM System{% endblock title %}
 {% block navbar %}{% endblock navbar %}
 {% block extra_css %}
 <style>
@@ -14,53 +14,53 @@
     justify-content: center;
     min-height: 100vh;
   }
-  .login-card {
+  .card {
     background: #fff;
     border-radius: 12px;
     box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3);
     padding: 45px 40px 35px;
     width: 100%;
-    max-width: 400px;
+    max-width: 420px;
     margin: 20px;
   }
-  .login-card .logo-icon {
+  .card .logo-icon {
     width: 64px;
     height: 64px;
-    background: #0f3460;
+    background: #27ae60;
     border-radius: 50%;
     margin: 0 auto 20px;
     display: flex;
     align-items: center;
     justify-content: center;
   }
-  .login-card .logo-icon .bi {
+  .card .logo-icon .glyphicon {
     color: #fff;
     font-size: 28px;
   }
-  .login-card h2 {
+  .card h2 {
     text-align: center;
     color: #1a1a2e;
     font-weight: 700;
     margin: 0 0 6px;
   }
-  .login-card .subtitle {
+  .card .subtitle {
     text-align: center;
     color: #888;
     font-size: 14px;
     margin-bottom: 30px;
   }
-  .login-card .form-group {
+  .card .form-group {
     margin-bottom: 20px;
     position: relative;
   }
-  .login-card .form-group .bi {
+  .card .form-group .glyphicon {
     position: absolute;
     left: 12px;
-    top: 11px;
+    top: 13px;
     color: #aaa;
     font-size: 15px;
   }
-  .login-card .form-control {
+  .card .form-control {
     padding-left: 38px;
     height: 44px;
     border-radius: 8px;
@@ -68,14 +68,14 @@
     font-size: 14px;
     transition: border-color 0.2s;
   }
-  .login-card .form-control:focus {
-    border-color: #0f3460;
-    box-shadow: 0 0 0 3px rgba(15, 52, 96, 0.12);
+  .card .form-control:focus {
+    border-color: #27ae60;
+    box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.12);
   }
-  .login-card .btn-login {
+  .card .btn-submit {
     width: 100%;
     height: 46px;
-    background: #0f3460;
+    background: #27ae60;
     border: none;
     border-radius: 8px;
     color: #fff;
@@ -85,15 +85,15 @@
     transition: background 0.2s;
     margin-top: 5px;
   }
-  .login-card .btn-login:hover {
-    background: #1a1a2e;
+  .card .btn-submit:hover {
+    background: #1e8449;
   }
-  .login-card .alert {
+  .card .alert {
     border-radius: 8px;
     font-size: 13px;
     margin-bottom: 20px;
   }
-  .login-card .footer-text {
+  .card .footer-text {
     text-align: center;
     color: #aaa;
     font-size: 12px;
@@ -102,45 +102,33 @@
 </style>
 {% endblock extra_css %}
 {% block content %}
-<div class="login-card">
+<div class="card">
   <div class="logo-icon">
-    <span class="glyphicon glyphicon-education"></span>
+    <span class="glyphicon glyphicon-envelope"></span>
   </div>
-  <h2>EBM System</h2>
-  <p class="subtitle">Exam Bill Management — Sign in to continue</p>
+  <h2>Accept Invitation</h2>
+  <p class="subtitle">Enter your email to look up your invitation</p>
 
-  {% for msg in messages %}
-    {% if 'log' in msg.tags %}
-    <div class="alert alert-danger alert-dismissible fade in" role="alert">
+  {% for message in messages %}
+    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade in" role="alert">
       <button type="button" class="close" data-dismiss="alert" aria-label="Close">
         <span aria-hidden="true">&times;</span>
       </button>
-      <span class="bi bi-exclamation-circle"></span>&nbsp; {{ msg }}
+      {{ message }}
     </div>
-    {% endif %}
   {% endfor %}
 
   <form method="POST">
     {% csrf_token %}
     <div class="form-group">
-      <span class="bi bi-envelope"></span>
-      <input type="email" name="email" class="form-control" placeholder="Email address" required />
+      <span class="glyphicon glyphicon-envelope"></span>
+      <input type="email" name="email" class="form-control" placeholder="Your email address" required autofocus />
     </div>
-    <div class="form-group">
-      <span class="glyphicon glyphicon-lock"></span>
-      <input type="password" name="pass" class="form-control" placeholder="Password" required />
-    </div>
-    <button type="submit" name="log" class="btn btn-login">Sign In</button>
+    <button type="submit" class="btn btn-submit">Find Invitation</button>
   </form>
 
   <p style="text-align: center; margin-top: 15px;">
-    <a href="{% url 'forgot_password' %}" style="color: #888; font-size: 13px;">Forgot password?</a>
-  </p>
-  <p style="text-align: center; margin-top: 8px;">
-    New teacher? <a href="{% url 'register' %}" style="color: #3498db;">Register here</a>
-  </p>
-  <p style="text-align: center; margin-top: 8px;">
-    Got an invitation? <a href="{% url 'accept_invitation' %}" style="color: #27ae60;">Accept Invitation</a>
+    <a href="{% url 'log' %}" style="color: #888; font-size: 13px;">&larr; Back to Login</a>
   </p>
   <p class="footer-text">Exam Bill Management System &copy; 2026</p>
 </div>

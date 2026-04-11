@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block title %}Pending Registrations{% endblock title %}
 {% block content %}
-<div class="container" style="margin-top: 40px;">
+<div class="container" style="margin-top: 40px; margin-bottom: 60px;">
   <h2 class="text-center" style="font-weight: 300; margin-bottom: 30px;">Pending Teacher Registrations</h2>
 
   {% if messages %}
@@ -108,6 +108,49 @@
   {% else %}
   <div class="alert alert-info">
     <span class="glyphicon glyphicon-info-sign"></span> No pending applications.
+  </div>
+  {% endif %}
+
+  <!-- Active Teachers -->
+  <h4 style="margin-top: 40px; margin-bottom: 12px; color: #555;">
+    <span class="glyphicon glyphicon-user"></span> Active Teachers
+    <span class="badge">{{ active_teachers|length }}</span>
+  </h4>
+
+  {% if active_teachers %}
+  <div class="panel panel-default">
+    <table class="table table-hover" style="margin-bottom: 0;">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Title</th>
+          <th style="width: 120px; text-align: right;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for t in active_teachers %}
+        <tr>
+          <td><strong>{{ t.name }}</strong></td>
+          <td>{{ t.email }}</td>
+          <td>{{ t.title }}</td>
+          <td style="text-align: right;">
+            <form method="POST" action="{% url 'delete_teacher' t.pk %}" style="display: inline;"
+                  onsubmit="return confirm('Deactivate {{ t.name }}? Their bill history will be preserved.')">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger btn-sm">
+                <span class="glyphicon glyphicon-ban-circle"></span> Deactivate
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="alert alert-info">
+    <span class="glyphicon glyphicon-info-sign"></span> No active teachers.
   </div>
   {% endif %}
 </div>
