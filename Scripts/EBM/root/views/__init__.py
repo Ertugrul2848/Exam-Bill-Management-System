@@ -7,6 +7,7 @@ from .course import (
     addInvigilator, indCourse, thesis, supervising,
 )
 from .billing import examBill, indBill, pdf_view, examBill2, semBill, indBill2
+from .registration import register, pending_registrations, approve_registration, reject_registration
 
 __all__ = [
     'home', 'log', 'logOut',

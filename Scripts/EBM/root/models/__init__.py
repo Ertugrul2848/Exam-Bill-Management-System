@@ -9,10 +9,12 @@ from .faculty import faculty, External
 from .academic import Session, Semester
 from .course import Course, ThesisPaper, ThesisSupervisor
 from .billing import SemesterBill, courseBill
+from .registration import RegistrationRequest
 
 __all__ = [
     'faculty', 'External',
     'Session', 'Semester',
     'Course', 'ThesisPaper', 'ThesisSupervisor',
     'SemesterBill', 'courseBill',
+    'RegistrationRequest',
 ]
