@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}EBM System{% endblock title %}</title>
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+    />
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    {% block extra_css %}{% endblock extra_css %}
+  </head>
+  <body>
+    {% block navbar %}
+    <nav class="navbar navbar-inverse">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="/">Home</a>
+        </div>
+        <ul class="nav navbar-nav">
+          <li><a href="/committee">Exam Committee</a></li>
+          <li><a href="/examBill">Teacher Bill</a></li>
+          <li><a href="/examBill2">Semester Bill</a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <li>
+            <a href="/logOut"
+              ><span class="glyphicon glyphicon-log-in"></span> Logout</a
+            >
+          </li>
+        </ul>
+      </div>
+    </nav>
+    {% endblock navbar %}
+
+    {% block content %}{% endblock content %}
+
+    {% block extra_js %}{% endblock extra_js %}
+  </body>
+</html>
