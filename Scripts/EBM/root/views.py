@@ -16,7 +16,6 @@ from .services import BillCalculator, get_semester_display
 
 # Create your views here.
 
-@login_required(login_url='/log')
 def home(request):
     return render(request, 'home.html')
 
