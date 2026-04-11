@@ -35,9 +35,11 @@ def committee(request):
                         return redirect(reverse('createSem', args=[sess]))
     sessions = Session.objects.all().order_by('-year')
     current_year = datetime.now().year
+    is_chairman = User.objects.filter(username='chairman', pk=request.user.pk).exists()
     return render(request, 'committee/committee.html', {
         'sessions': sessions,
         'current_year': current_year,
+        'is_chairman': is_chairman,
     })
 
 
