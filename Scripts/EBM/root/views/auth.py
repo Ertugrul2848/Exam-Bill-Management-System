@@ -59,3 +59,24 @@ def logOut(request):
 
 
 
+TITLE_CHOICES = [
+    ('Professor', 'Professor'),
+    ('Associate Professor', 'Associate Professor'),
+    ('Assistant Professor', 'Assistant Professor'),
+    ('Lecturer', 'Lecturer'),
+]
+
+@login_required(login_url='/log')
+def profile(request):
+    """View and update the current user's faculty profile."""
+    fac = get_object_or_404(faculty, email=request.user.email)
+    if request.method == 'POST':
+        fac.name = request.POST.get('name', fac.name)
+        fac.title = request.POST.get('title', fac.title)
+        fac.save()
+        messages.success(request, 'Profile updated successfully.')
+        return redirect(reverse('profile'))
+    return render(request, 'auth/profile.html', {'fac': fac, 'title_choices': TITLE_CHOICES})
+
+
+

@@ -1,6 +1,6 @@
 """Views package — re-exports all views for URL routing."""
 
-from .auth import home, log, logOut
+from .auth import home, log, logOut, profile
 from .committee import committee, createCom, viewCom, viewSem, addRole, createSem, assign_acting_chairman, remove_acting_chairman, toggle_archive, toggle_lock
 from .course import (
     createCourse, viewCourse, updateCourse, deleteCourse,
@@ -12,7 +12,7 @@ from .course_code import manage_course_codes, edit_course_code, sync_course_name
 from .moderator import manage_moderators, edit_moderator, remove_moderator
 
 __all__ = [
-    'home', 'log', 'logOut',
+    'home', 'log', 'logOut', 'profile',
     'committee', 'createCom', 'viewCom', 'viewSem', 'addRole', 'createSem', 'assign_acting_chairman', 'remove_acting_chairman',
     'createCourse', 'viewCourse', 'updateCourse', 'deleteCourse',
     'addInvigilator', 'indCourse', 'thesis', 'supervising',
