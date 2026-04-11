@@ -89,26 +89,23 @@ def logOut(request):
 @login_required(login_url='/log')
 def committee(request):
     """Committee dashboard. Allows viewing an existing session or creating a new semester."""
-    if 'sess' in request.POST:
-        sess = int(request.POST['session'])
-        if sess < 1900:
-            messages.error(request, 'Session year must be 1900 or later!')
+    if 'sess' in request.POST or 'sem' in request.POST:
+        session_val = request.POST.get('session', '').strip()
+        if not session_val:
+            messages.error(request, 'Please select a session!')
         else:
-            ob = Session.objects.filter(year=sess)
-            if not ob:
-                messages.error(request, 'Session Does not Exist !!')
+            sess = int(session_val)
+            if sess < 1900:
+                messages.error(request, 'Session year must be 1900 or later!')
             else:
-                return redirect(reverse('viewCom', args=[sess]))
-    if 'sem' in request.POST:
-        sess = int(request.POST['session'])
-        if sess < 1900:
-            messages.error(request, 'Session year must be 1900 or later!')
-        else:
-            ob = Session.objects.filter(year=sess)
-            if not ob:
-                messages.error(request, 'Session Does not Exist !!')
-            else:
-                return redirect(reverse('createSem', args=[sess]))
+                ob = Session.objects.filter(year=sess)
+                if not ob:
+                    messages.error(request, 'Session Does not Exist !!')
+                else:
+                    if 'sess' in request.POST:
+                        return redirect(reverse('viewCom', args=[sess]))
+                    else:
+                        return redirect(reverse('createSem', args=[sess]))
     sessions = Session.objects.all().order_by('-year')
     current_year = datetime.now().year
     return render(request, 'committee.html', {
