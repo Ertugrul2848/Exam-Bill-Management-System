@@ -1,12 +1,11 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
-
-from .models import (
+from ..models import (
     faculty, External, Session, Semester, SemesterBill, Course, courseBill,
     ThesisPaper, ThesisSupervisor,
 )
-from .services import BillCalculator, get_semester_display
-from . import rates
+from ..services import BillCalculator, get_semester_display
+from .. import rates
 
 
 class BillCalculatorTestCase(TestCase):
@@ -226,38 +225,3 @@ class BillCalculatorTestCase(TestCase):
         calc = BillCalculator(2025, 1, no_role_fac)
         items = calc.calculate(include_amounts=True)
         self.assertEqual(len(items), 0)
-
-
-class GetSemesterDisplayTestCase(TestCase):
-    """Tests for get_semester_display helper."""
-
-    def test_first_year_first_semester(self):
-        result = get_semester_display(1)
-        self.assertIn('1st', result)
-
-    def test_fourth_year_second_semester(self):
-        result = get_semester_display(8)
-        self.assertIn('4th Year', result)
-        self.assertIn('2nd Semester', result)
-
-    def test_second_year_first_semester(self):
-        result = get_semester_display(3)
-        self.assertIn('2nd Year', result)
-        self.assertIn('1st Semester', result)
-
-    def test_masters(self):
-        result = get_semester_display(9)
-        self.assertIn('Masters', result)
-        self.assertIn('1st Semester', result)
-
-
-class RatesTestCase(TestCase):
-    """Tests for rates module."""
-
-    def test_tabulation_rate_junior(self):
-        self.assertEqual(rates.get_tabulation_rate(1), rates.TABULATION_RATE_JUNIOR)
-        self.assertEqual(rates.get_tabulation_rate(3), rates.TABULATION_RATE_JUNIOR)
-
-    def test_tabulation_rate_senior(self):
-        self.assertEqual(rates.get_tabulation_rate(4), rates.TABULATION_RATE_SENIOR)
-        self.assertEqual(rates.get_tabulation_rate(8), rates.TABULATION_RATE_SENIOR)
