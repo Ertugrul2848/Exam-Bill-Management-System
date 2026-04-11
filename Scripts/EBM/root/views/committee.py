@@ -292,7 +292,7 @@ def addRole(request, id, id2):
 @login_required(login_url='/log')
 def assign_acting_chairman(request, id, id2):
     """Assign an acting chairman to a semester. Chairman-only (id=year, id2=semId)."""
-    ob = faculty.objects.get(email=request.user.email)
+    ob = get_object_or_404(faculty, email=request.user.email)
     session = get_object_or_404(Session, year=int(id))
     semester = get_object_or_404(Semester, session=session, semId=int(id2))
     if ob != semester.chairman:
@@ -313,7 +313,7 @@ def assign_acting_chairman(request, id, id2):
 @login_required(login_url='/log')
 def remove_acting_chairman(request, id, id2):
     """Remove the acting chairman from a semester. Chairman-only (id=year, id2=semId)."""
-    ob = faculty.objects.get(email=request.user.email)
+    ob = get_object_or_404(faculty, email=request.user.email)
     session = get_object_or_404(Session, year=int(id))
     semester = get_object_or_404(Semester, session=session, semId=int(id2))
     if ob != semester.chairman:

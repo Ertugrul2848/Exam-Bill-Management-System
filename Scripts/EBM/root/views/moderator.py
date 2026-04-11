@@ -84,10 +84,13 @@ def edit_moderator(request, pk):
 
 @login_required(login_url='/log')
 def remove_moderator(request, pk):
-    """Delete a moderator role."""
+    """Delete a moderator role. Requires POST."""
     if not _is_chairman(request.user):
         messages.error(request, 'Access Denied!')
         return redirect(reverse('home'))
+
+    if request.method != 'POST':
+        return redirect(reverse('manage_moderators'))
 
     role = get_object_or_404(ModeratorRole, pk=pk)
     name = role.user.name
