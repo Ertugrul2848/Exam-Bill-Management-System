@@ -1,26 +1,70 @@
-from email import message
-from xmlrpc.client import FastParser
+"""
+Views for the Exam Bill Management System.
+
+This module contains all view functions organized into four groups:
+
+Authentication Views:
+    home        — Landing page (requires login)
+    log         — Login page (email + password)
+    logOut      — Logout and redirect to login
+
+Committee Management Views:
+    committee   — Dashboard: view existing or create new semester
+    createCom   — Create exam committee (chairman-only)
+    viewCom     — List all semesters in a session
+    viewSem     — View/edit semester committee details and roles
+    addRole     — Assign moderator/translator/typist to a faculty member
+    createSem   — Create new semester with courses
+
+Course Management Views:
+    createCourse    — Add a new course to a semester
+    viewCourse      — List courses in a semester
+    updateCourse    — Edit course examiners and details
+    deleteCourse    — Remove a course
+    addInvigilator  — Assign extra invigilator to a lab/viva course
+    indCourse       — View individual course details
+    thesis          — Manage thesis paper evaluation assignments
+    supervising     — Manage thesis supervision assignments
+
+Billing Views:
+    examBill    — Teacher's own bill lookup form
+    indBill     — Individual teacher bill with amounts (uses BillCalculator)
+    pdf_view    — PDF export of individual teacher bill (uses BillCalculator)
+    examBill2   — Chairman's semester-wide bill lookup form
+    semBill     — List all teachers with bills in a semester (uses BillCalculator)
+    indBill2    — Individual teacher bill without amounts (uses BillCalculator)
+
+URL Parameters Convention:
+    id  = Session year (e.g., 2025)
+    id2 = Semester ID (1-10)
+    id3 = Course code or faculty ID (context-dependent)
+"""
+
 from django.http import HttpResponse
-from django.shortcuts import render
-from django.http import HttpResponse
-from django.template.loader import get_template,render_to_string
-from .models import *
-from xhtml2pdf import pisa
 from django.shortcuts import render, redirect
+from django.template.loader import get_template
 from django.urls import reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import Group, User
+from xhtml2pdf import pisa
+from .models import *
 from .services import BillCalculator, get_semester_display
-
-# Create your views here.
 
 @login_required(login_url='/log')
 def home(request):
+    """Landing page. Requires authentication."""
     return render(request, 'home.html')
 
+
 def log(request):
+    """
+    Login view. Authenticates faculty via email + plaintext password.
+
+    Flow: POST with email/pass → lookup faculty → compare password →
+    Django authenticate() + login() → redirect to home.
+    """
     if 'log' in request.POST:
         ia=faculty.objects.filter(email=request.POST.get('email'))
         if not ia:
@@ -36,12 +80,14 @@ def log(request):
 
 
 def logOut(request):
+    """Log out the current user and redirect to login page."""
     logout(request)
     return redirect(reverse('log'))
 
 
 @login_required(login_url='/log')
 def committee(request):
+    """Committee dashboard. Allows viewing an existing session or creating a new semester."""
     if 'sess' in request.POST:
         print('ok')
         sess = request.POST['session']
@@ -66,6 +112,12 @@ def committee(request):
 
 @login_required(login_url='/log')
 def createCom(request):
+    """
+    Create a new exam committee. Chairman-only access.
+
+    Creates a Session (if new), a Semester with committee members,
+    and a SemesterBill record for every faculty member.
+    """
     us = User.objects.get(username=request.user.username)
     chairman = User.objects.get(username='chairman')
     cont = None
@@ -122,6 +174,7 @@ def createCom(request):
 
 @login_required(login_url='/log')
 def viewCom(request, id):
+    """List all semesters for a given session year (id=year)."""
     session = Session.objects.get(year=int(id))
     semester = Semester.objects.filter(session=session).order_by('semId')
 
@@ -164,6 +217,7 @@ def viewCom(request, id):
 
 @login_required(login_url='/log')
 def viewSem(request, id, id2):
+    """View/edit semester committee. Chairman can update members and assign roles (id=year, id2=semId)."""
     ob = faculty.objects.get(email=request.user.email)
     oc = faculty.objects.filter()
     od = External.objects.filter()
@@ -240,6 +294,7 @@ def viewSem(request, id, id2):
 
 @login_required(login_url='/log')
 def addRole(request, id, id2):
+    """Assign moderator/translator/typist role to a faculty member (id=year, id2=semId)."""
     ob = faculty.objects.filter()
     session = Session.objects.get(year=int(id))
     semester = Semester.objects.get(session=session, semId=int(id2))
@@ -277,6 +332,7 @@ def addRole(request, id, id2):
 
 @login_required(login_url='/log')
 def createSem(request, id):
+    """Display semester creation options for a session (id=year)."""
     session = Session.objects.get(year=int(id))
     semester = Semester.objects.filter(session=session)
 
@@ -319,6 +375,7 @@ def createSem(request, id):
 
 @login_required(login_url='/log')
 def createCourse(request, id, id2):
+    """Add a new course to a semester (id=year, id2=semId). Supports Theory/Lab/Viva types."""
     session = Session.objects.get(year=int(id))
     semester = Semester.objects.get(session=session, semId=int(id2))
     ob = faculty.objects.filter()
@@ -358,6 +415,7 @@ def createCourse(request, id, id2):
 
 @login_required(login_url='/log')
 def viewCourse(request, id, id2):
+    """List all courses in a semester with add/update/delete actions (id=year, id2=semId)."""
     tea = faculty.objects.get(email=request.user.email)
     session = Session.objects.get(year=int(id))
     semester = Semester.objects.get(session=session, semId=int(id2))
@@ -385,7 +443,7 @@ def viewCourse(request, id, id2):
 
 @login_required(login_url='/log')
 def updateCourse(request, id, id2, id3):
-
+    """Edit course examiners and details (id=year, id2=semId, id3=courseCode)."""
     session = Session.objects.get(year=int(id))
     semester = Semester.objects.get(session=session, semId=int(id2))
     ob = faculty.objects.filter()
@@ -453,6 +511,7 @@ def updateCourse(request, id, id2, id3):
 
 @login_required(login_url='/log')
 def addInvigilator(request, id, id2, id3):
+    """Assign an extra invigilator to a lab/viva course (id=year, id2=semId, id3=courseCode)."""
     session = Session.objects.get(year=int(id))
     semester = Semester.objects.get(session=session, semId=int(id2))
     course = Course.objects.get(
@@ -471,6 +530,7 @@ def addInvigilator(request, id, id2, id3):
 
 @login_required(login_url='/log')
 def indCourse(request, id, id2, id3):
+    """View individual course details and examiners (id=year, id2=semId, id3=courseCode)."""
     session = Session.objects.get(year=int(id))
     semester = Semester.objects.get(session=session, semId=int(id2))
     course = Course.objects.get(
@@ -497,11 +557,13 @@ def indCourse(request, id, id2, id3):
     return render(request, 'indCourse.html', cont)
 @login_required(login_url='/log')
 def deleteCourse(request, id, id2, id3):
+    """Delete a course from a semester (id=year, id2=semId, id3=courseCode)."""
     return render(request, 'deleteCourse.html')
 
 
 @login_required(login_url='/log')
 def examBill(request):
+    """Teacher's own bill lookup. Enter session/semester to view personal bill."""
     if request.method == 'POST':
         session = Session.objects.filter(year=int(request.POST['session']))
         flag = False
@@ -523,6 +585,7 @@ def examBill(request):
 
 @login_required(login_url='/log')
 def indBill(request, id, id2, id3):
+    """Individual teacher bill with amounts (id=year, id2=semId, id3=facultyId). Uses BillCalculator."""
     fac = faculty.objects.get(email=request.user.email)
     calc = BillCalculator(id, id2, fac)
     ar = calc.calculate(include_amounts=True)
@@ -541,6 +604,7 @@ def indBill(request, id, id2, id3):
     return render(request, 'indBill.html', cont)
 @login_required(login_url='/log')
 def pdf_view(request, id, id2, id3):
+    """Generate PDF export of individual teacher bill (id=year, id2=semId, id3=facultyId). Uses xhtml2pdf."""
     fac = faculty.objects.get(email=request.user.email)
     calc = BillCalculator(id, id2, fac)
     ar = calc.calculate(include_amounts=True)
@@ -565,6 +629,7 @@ def pdf_view(request, id, id2, id3):
 
 @login_required(login_url='/log')
 def examBill2(request):
+    """Chairman's semester-wide bill lookup. Only chairman can access semester bills."""
     if request.method == 'POST':
         session = Session.objects.filter(year=int(request.POST['session']))
         flag = False
@@ -595,6 +660,7 @@ def examBill2(request):
 
 @login_required(login_url='/log')
 def semBill(request, id, id2):
+    """List all faculty with billing roles in a semester (id=year, id2=semId). Uses BillCalculator."""
     all_faculty = faculty.objects.filter()
     ob = []
     for f in all_faculty:
@@ -616,6 +682,7 @@ def semBill(request, id, id2):
 
 @login_required(login_url='/log')
 def indBill2(request, id, id2, id3):
+    """Individual teacher bill — roles only, no amounts (id=year, id2=semId, id3=facultyId). Uses BillCalculator."""
     fac = faculty.objects.get(id=int(id3))
     calc = BillCalculator(id, id2, fac)
     ar = calc.calculate(include_amounts=False)
@@ -628,7 +695,8 @@ def indBill2(request, id, id2, id3):
     }
     return render(request, 'indBill.html', cont)
 @login_required(login_url='/log')
-def thesis(request,id,id2,id3):
+def thesis(request, id, id2, id3):
+    """Manage thesis paper evaluation assignments (id=year, id2=semId, id3=courseCode)."""
     session=Session.objects.get(year=int(id))
     semester=Semester.objects.get(session=session,semId=int(id2))
     course=Course.objects.get(session=session,semester=semester,courseCode=int(id3))
@@ -663,7 +731,8 @@ def thesis(request,id,id2,id3):
         'tea':ff
     }
     return render(request,'thesis.html',cont)
-def supervising(request,id,id2,id3):
+def supervising(request, id, id2, id3):
+    """Manage thesis supervisor assignments (id=year, id2=semId, id3=courseCode)."""
     session=Session.objects.get(year=int(id))
     semester=Semester.objects.get(session=session,semId=int(id2))
     course=Course.objects.get(session=session,semester=semester,courseCode=int(id3))
