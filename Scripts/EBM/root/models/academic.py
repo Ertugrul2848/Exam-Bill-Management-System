@@ -46,6 +46,7 @@ class Semester(models.Model):
         faculty, related_name='acting_chairman', on_delete=models.SET_NULL,
         null=True, blank=True
     )
+    is_archived = models.BooleanField(default=False)
 
     class Meta:
         app_label = 'root'

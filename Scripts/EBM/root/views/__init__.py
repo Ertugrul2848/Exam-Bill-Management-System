@@ -1,7 +1,7 @@
 """Views package — re-exports all views for URL routing."""
 
 from .auth import home, log, logOut
-from .committee import committee, createCom, viewCom, viewSem, addRole, createSem, assign_acting_chairman, remove_acting_chairman
+from .committee import committee, createCom, viewCom, viewSem, addRole, createSem, assign_acting_chairman, remove_acting_chairman, toggle_archive
 from .course import (
     createCourse, viewCourse, updateCourse, deleteCourse,
     addInvigilator, indCourse, thesis, supervising,

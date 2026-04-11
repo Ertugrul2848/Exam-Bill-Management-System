@@ -7,7 +7,7 @@ Re-exports all models so existing imports like
 
 from .faculty import faculty, External
 from .academic import Session, Semester
-from .course import Course, ThesisPaper, ThesisSupervisor
+from .course import Course, CourseExaminer, ThesisPaper, ThesisSupervisor
 from .billing import SemesterBill, courseBill
 from .registration import RegistrationRequest
 from .course_code import CourseCodeMaster
@@ -16,7 +16,7 @@ from .moderator import ModeratorRole
 __all__ = [
     'faculty', 'External',
     'Session', 'Semester',
-    'Course', 'ThesisPaper', 'ThesisSupervisor',
+    'Course', 'CourseExaminer', 'ThesisPaper', 'ThesisSupervisor',
     'SemesterBill', 'courseBill',
     'RegistrationRequest',
     'CourseCodeMaster',

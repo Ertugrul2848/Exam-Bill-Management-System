@@ -41,7 +41,71 @@
           <label>Third Examiner Paper No</label>
           <input class="form-control theory-field" type="number" name="tpaperNo" value="{{ course.tPaperNo }}" data-original="{{ course.tPaperNo }}" />
         </div>
-        <button class="btn btn-primary btn-block" name="theory" type="submit" id="theoryBtn" disabled>
+
+        <hr />
+        <h4>Acting First Examiner</h4>
+        <div class="form-group">
+          <label>Acting First Examiner</label>
+          <select class="form-control" name="acting_first_examiner">
+            <option value="">— None —</option>
+            {% for o in ob %}
+            <option value="{{ o.email }}" {% if acting_first_examiner and acting_first_examiner.faculty.email == o.email %}selected{% endif %}>{{ o.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        {% if acting_first_examiner %}
+        <div class="form-group">
+          <label>Acting First Examiner Paper Count</label>
+          <input class="form-control" type="number" name="acting_first_paper_count" value="{{ acting_first_examiner.paper_count }}" min="0" />
+        </div>
+        {% else %}
+        <div class="form-group">
+          <label>Acting First Examiner Paper Count</label>
+          <input class="form-control" type="number" name="acting_first_paper_count" value="0" min="0" />
+        </div>
+        {% endif %}
+
+        <hr />
+        <h4>Additional External Examiners</h4>
+        {% for ex in course_external_examiners %}
+        <div class="panel panel-default" style="padding: 10px;">
+          <strong>{{ ex.faculty.name }}</strong> — {{ ex.paper_count }} papers
+          <a href="?delete_examiner={{ ex.id }}" class="btn btn-xs btn-danger pull-right" onclick="return confirm('Remove this examiner?')">Remove</a>
+        </div>
+        {% empty %}
+        <p class="text-muted">No additional external examiners assigned.</p>
+        {% endfor %}
+        <div class="well well-sm">
+          <label>Add External Examiner</label>
+          <select class="form-control" name="new_external_examiner" style="margin-bottom:8px;">
+            <option value="">— Select faculty —</option>
+            {% for o in ob %}<option value="{{ o.email }}">{{ o.name }}</option>{% endfor %}
+          </select>
+          <label>Paper Count</label>
+          <input class="form-control" type="number" name="new_external_paper_count" value="0" min="0" />
+        </div>
+
+        <hr />
+        <h4>Additional Third Examiners</h4>
+        {% for tx in course_third_examiners %}
+        <div class="panel panel-default" style="padding: 10px;">
+          <strong>{{ tx.faculty.name }}</strong> — {{ tx.paper_count }} papers
+          <a href="?delete_examiner={{ tx.id }}" class="btn btn-xs btn-danger pull-right" onclick="return confirm('Remove this examiner?')">Remove</a>
+        </div>
+        {% empty %}
+        <p class="text-muted">No additional third examiners assigned.</p>
+        {% endfor %}
+        <div class="well well-sm">
+          <label>Add Third Examiner</label>
+          <select class="form-control" name="new_third_examiner" style="margin-bottom:8px;">
+            <option value="">— Select faculty —</option>
+            {% for o in ob %}<option value="{{ o.email }}">{{ o.name }}</option>{% endfor %}
+          </select>
+          <label>Paper Count</label>
+          <input class="form-control" type="number" name="new_third_paper_count" value="0" min="0" />
+        </div>
+
+        <button class="btn btn-primary btn-block" name="theory" type="submit" id="theoryBtn">
           <span class="glyphicon glyphicon-save"></span> Update
         </button>
       </form>
