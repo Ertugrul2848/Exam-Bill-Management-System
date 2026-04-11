@@ -23,7 +23,8 @@
   <h2 class="text-center">Exam Committee</h2>
 
   <div class="row">
-    <!-- Create Committee Card -->
+    <!-- Create Committee Card (chairman only) -->
+    {% if is_chairman %}
     <div class="col-md-4">
       <div class="panel panel-primary">
         <div class="panel-heading">
@@ -37,6 +38,7 @@
         </div>
       </div>
     </div>
+    {% endif %}
 
     <!-- View Committee Card -->
     <div class="col-md-4">
