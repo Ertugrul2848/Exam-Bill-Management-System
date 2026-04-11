@@ -7,6 +7,7 @@ from django.template.loader import get_template,render_to_string
 from .models import *
 from xhtml2pdf import pisa
 from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
@@ -28,7 +29,7 @@ def log(request):
             ib=faculty.objects.get(email=request.POST.get('email'))
             if ib.password==request.POST.get('pass'):
                 login(request,authenticate(username=ib.username,email=ib.email,password=ib.password))
-                return redirect('/')
+                return redirect(reverse('home'))
             else:
                 messages.error(request,'Passwords do not match',extra_tags='log')
     return render(request, 'log.html')
@@ -36,7 +37,7 @@ def log(request):
 
 def logOut(request):
     logout(request)
-    return redirect('/log')
+    return redirect(reverse('log'))
 
 
 @login_required(login_url='/log')
@@ -50,8 +51,7 @@ def committee(request):
             messages.error(request, 'Session Does not Exist !!',
                            extra_tags='session')
         else:
-            response = '/viewCom/'+str(request.POST['session'])
-            return redirect(response)
+            return redirect(reverse('viewCom', args=[request.POST['session']]))
     if 'sem' in request.POST:
         sess = request.POST['session']
         sess = int(sess)
@@ -60,8 +60,7 @@ def committee(request):
             messages.error(request, 'Session Does not Exist !!',
                            extra_tags='session')
         else:
-            response = '/createSem/'+str(sess)
-            return redirect(response)
+            return redirect(reverse('createSem', args=[sess]))
     return render(request, 'committee.html')
 
 
@@ -212,16 +211,14 @@ def viewSem(request, id, id2):
                 request, 'Committee Updated Successfully !', extra_tags='update')
     con = None
     if 'add' in request.POST:
-        response = '/addRole/'+str(id)+'/'+str(id2)
-        return redirect(response)
+        return redirect(reverse('addRole', args=[id, id2]))
     if 'moderator' in request.POST:
         mod = faculty.objects.get(email=request.POST.get('moderator'))
         oc = SemesterBill.objects.get(
             session=session, semester=semester, teacher=mod)
         oc.moderator = 0
         oc.save()
-        response = '/viewSem/'+str(id)+'/'+str(id2)
-        return redirect(response)
+        return redirect(reverse('viewSem', args=[id, id2]))
     if 'translator' in request.POST:
         print(request.POST.get('translator'))
         mod = faculty.objects.get(email=request.POST.get('translator'))
@@ -229,8 +226,7 @@ def viewSem(request, id, id2):
             session=session, semester=semester, teacher=mod)
         oc.translator = 0
         oc.save()
-        response = '/viewSem/'+str(id)+'/'+str(id2)
-        return redirect(response)
+        return redirect(reverse('viewSem', args=[id, id2]))
     if 'typist' in request.POST:
         print('ss')
         mod = faculty.objects.get(email=request.POST.get('typist'))
@@ -238,8 +234,7 @@ def viewSem(request, id, id2):
             session=session, semester=semester, teacher=mod)
         oc.typist = 0
         oc.save()
-        response = '/viewSem/'+str(id)+'/'+str(id2)
-        return redirect(response)
+        return redirect(reverse('viewSem', args=[id, id2]))
     return render(request, 'viewSem.html', cont, con)
 
 
@@ -276,8 +271,7 @@ def addRole(request, id, id2):
         elif val == "3":
             ca.typist = 1
         ca.save()
-        response = '/viewSem/'+str(id)+'/'+str(id2)
-        return redirect(response)
+        return redirect(reverse('viewSem', args=[id, id2]))
     return render(request, 'addRole.html', cont)
 
 
@@ -377,20 +371,15 @@ def viewCourse(request, id, id2):
             'semester': id2
             }
     if 'add' in request.POST:
-        response = '/createCourse/'+str(id)+'/'+str(id2)
-        return redirect(response)
+        return redirect(reverse('createCourse', args=[id, id2]))
     if 'update' in request.POST:
-        response = '/updateCourse/' + \
-            str(id)+'/'+str(id2)+'/'+str(request.POST['update'])
-        return redirect(response)
+        return redirect(reverse('updateCourse', args=[id, id2, request.POST['update']]))
     if 'delete' in request.POST:
         print('ok')
         co = Course.objects.get(
             session=session, semester=semester, courseCode=int(request.POST['delete']))
         co.delete()
-        response = '/viewCourse/' + \
-            str(id)+'/'+str(id2)
-        return redirect(response)
+        return redirect(reverse('viewCourse', args=[id, id2]))
     return render(request, 'viewCourse.html', cont)
 
 
@@ -439,8 +428,7 @@ def updateCourse(request, id, id2, id3):
         course.paperNo = paperNo
         course.tPaperNo = tPaperNo
         course.save()
-        response = '/viewCourse/'+str(id)+'/'+str(id2)
-        return redirect(response)
+        return redirect(reverse('viewCourse', args=[id, id2]))
     if 'lab' in request.POST:
         internal = faculty.objects.get(email=request.POST.get('internal'))
         external = faculty.objects.get(email=request.POST.get('external'))
@@ -449,19 +437,16 @@ def updateCourse(request, id, id2, id3):
         course.external = external
         course.duration = duration
         course.save()
-        response = '/viewCourse/'+str(id)+'/'+str(id2)
-        return redirect(response)
+        return redirect(reverse('viewCourse', args=[id, id2]))
     if 'viva' in request.POST:
         external = External.objects.get(email=request.POST.get('external'))
         duration = request.POST['duration']
         course.vivaExternal = external
         course.duration = duration
         course.save()
-        response = '/viewCourse/'+str(id)+'/'+str(id2)
-        return redirect(response)
+        return redirect(reverse('viewCourse', args=[id, id2]))
     if 'invigilator' in request.POST:
-        response = '/addInvigilator/'+str(id)+'/'+str(id2)+'/'+str(id3)
-        return redirect(response)
+        return redirect(reverse('addInvigilator', args=[id, id2, id3]))
 
     return render(request, 'updateCourse.html', cont)
 
@@ -480,8 +465,7 @@ def addInvigilator(request, id, id2, id3):
         oo = courseBill(session=session, semester=semester,
                         course=course, extra=tea)
         oo.save()
-        response = '/updateCourse/'+str(id)+'/'+str(id2)+'/'+str(id3)
-        return redirect(response)
+        return redirect(reverse('updateCourse', args=[id, id2, id3]))
     return render(request, 'addInvigilator.html', cont)
 
 
@@ -533,10 +517,7 @@ def examBill(request):
             messages.error(
                 request, 'Session Or Semester Does not Exist !!', extra_tags='nn')
         else:
-            response = '/indBill/' + \
-                request.POST['session']+'/' + \
-                request.POST['semester']+'/'+str(request.user.id)
-            return redirect(response)
+            return redirect(reverse('indBill', args=[request.POST['session'], request.POST['semester'], request.user.id]))
     return render(request, 'examBill.html')
 
 
@@ -555,7 +536,7 @@ def indBill(request, id, id2, id3):
         'total': total
     }
     if 'pdf' in request.POST:
-        res = '/pdf_view/' + str(id) + '/' + str(id2) + '/' + str(id3)
+        res = reverse('pdf_view', args=[id, id2, id3])
         return redirect(res)
     return render(request, 'indBill.html', cont)
 @login_required(login_url='/log')
@@ -608,10 +589,7 @@ def examBill2(request):
             if flag:
                 messages.error(request, 'Access Denied !!', extra_tags='chair')
             else:
-                response = '/semBill/' + \
-                    request.POST['session']+'/' + \
-                    request.POST['semester']+'/'
-                return redirect(response)
+                return redirect(reverse('semBill', args=[request.POST['session'], request.POST['semester']]))
     return render(request, 'examBill2.html')
 
 
@@ -632,8 +610,7 @@ def semBill(request, id, id2):
     if request.method == 'POST':
         aa = request.POST.get('teacher')
         oo = faculty.objects.get(email=aa)
-        response = '/indBill2/' + str(id) + '/' + str(id2) + '/' + str(oo.id)
-        return redirect(response)
+        return redirect(reverse('indBill2', args=[id, id2, oo.id]))
     return render(request, 'semBill.html', cont)
 
 
@@ -673,10 +650,10 @@ def thesis(request,id,id2,id3):
             )
             dd.paperNo=int(o)
             dd.save()
-        res='/updateCourse/'+str(id)+'/'+str(id2)+'/'+str(id3)
+        res = reverse('updateCourse', args=[id, id2, id3])
         return redirect(res)
     if 'cancel' in request.POST:
-        res='/updateCourse/'+str(id)+'/'+str(id2)+'/'+str(id3)
+        res = reverse('updateCourse', args=[id, id2, id3])
         return redirect(res)
 
     cont={
@@ -708,10 +685,10 @@ def supervising(request,id,id2,id3):
             )
             dd.studentNo=int(o)
             dd.save()
-        res='/updateCourse/'+str(id)+'/'+str(id2)+'/'+str(id3)
+        res = reverse('updateCourse', args=[id, id2, id3])
         return redirect(res)
     if 'cancel' in request.POST:
-        res='/updateCourse/'+str(id)+'/'+str(id2)+'/'+str(id3)
+        res = reverse('updateCourse', args=[id, id2, id3])
         return redirect(res)
 
     cont={
