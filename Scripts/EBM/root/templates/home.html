@@ -1,26 +1,72 @@
 {% extends 'base.html' %}
+{% block title %}Home — EBM System{% endblock title %}
 {% block extra_css %}
 <style>
-body {
-  width: 100%;
-  height: 105vh;
-  background-image: url("../../static/kk.jpg");
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: contain;
-}
-.con {
-  margin-top: 20%;
-  margin-left: 20%;
-  width: 1000px;
-  background: salmon;
-  border-radius: 10px;
-  border: 5px solid seagreen;
-}
+  .dashboard {
+    margin-top: 60px;
+    text-align: center;
+  }
+  .dashboard h1 {
+    margin-bottom: 10px;
+    font-weight: 300;
+  }
+  .dashboard p {
+    color: #777;
+    margin-bottom: 40px;
+  }
+  .dashboard .panel {
+    min-height: 150px;
+    cursor: pointer;
+    transition: box-shadow 0.2s;
+  }
+  .dashboard .panel:hover {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  }
+  .dashboard .panel .glyphicon {
+    font-size: 40px;
+    margin-bottom: 15px;
+    color: #337ab7;
+  }
 </style>
 {% endblock extra_css %}
 {% block content %}
-<div class="con">
-      <h1>Welcome to Exam Bill Management System</h1>
+<div class="container dashboard">
+  <h1>Exam Bill Management System</h1>
+  <p>Welcome, {{ request.user.username }}. Select an option below.</p>
+  <div class="row">
+    <div class="col-md-4">
+      <a href="{% url 'committee' %}" style="text-decoration: none; color: inherit;">
+        <div class="panel panel-default">
+          <div class="panel-body text-center">
+            <span class="glyphicon glyphicon-education"></span>
+            <h3>Exam Committee</h3>
+            <p>View or create exam committees and semesters</p>
+          </div>
+        </div>
+      </a>
     </div>
+    <div class="col-md-4">
+      <a href="{% url 'examBill' %}" style="text-decoration: none; color: inherit;">
+        <div class="panel panel-default">
+          <div class="panel-body text-center">
+            <span class="glyphicon glyphicon-list-alt"></span>
+            <h3>Teacher Bill</h3>
+            <p>View your individual examination bill</p>
+          </div>
+        </div>
+      </a>
+    </div>
+    <div class="col-md-4">
+      <a href="{% url 'examBill2' %}" style="text-decoration: none; color: inherit;">
+        <div class="panel panel-default">
+          <div class="panel-body text-center">
+            <span class="glyphicon glyphicon-usd"></span>
+            <h3>Semester Bill</h3>
+            <p>View all teacher bills for a semester</p>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>
 {% endblock content %}
