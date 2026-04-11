@@ -176,7 +176,7 @@ class BillCalculator:
                 role="Paper Evaluation",
                 course_code=course.courseCode, course_name="CSE",
                 paper_no=course.tPaperNo, duration=0,
-                bill=course.paperNo * rates.PAPER_EVALUATION_PER_PAPER if include_amounts else 0,
+                bill=course.tPaperNo * rates.PAPER_EVALUATION_PER_PAPER if include_amounts else 0,
                 teacher=self.fac.email,
             ))
         return items
