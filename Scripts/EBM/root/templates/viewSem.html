@@ -70,13 +70,13 @@
         <h1>Committee</h1>
         {%csrf_token%}
         <label> Chairman</label>
-        <select name="chairman">
+        <select class="form-control" name="chairman">
           <option value="{{sem.chairman.email}}" selected disabled>
             {{sem.chairman.name}}
           </option>
         </select>
         <label> Tabular1</label>
-        <select name="tabular1">
+        <select class="form-control" name="tabular1">
           <option value="{{sem.tabular1.email}}" selected>
             {{sem.tabular1.name}}
           </option>
@@ -85,7 +85,7 @@
           {%endfor%}
         </select>
         <label> Tabular2</label>
-        <select name="tabular2">
+        <select class="form-control" name="tabular2">
           <option value="{{sem.tabular2.email}}" selected>
             {{sem.tabular2.name}}
           </option>
@@ -94,7 +94,7 @@
           {%endfor%}
         </select>
         <label for=""> External</label>
-        <select name="external" id="">
+        <select class="form-control" name="external" id="">
           <option value="{{sem.external.email}}" selected>
             {{sem.external.name}}
           </option>
@@ -103,7 +103,7 @@
           {%endfor%}
         </select>
         {%if flag%}
-        <button type="submit" name="update">Update</button>
+        <button class="btn btn-primary" type="submit" name="update">Update</button>
         {%endif%}
       </form>
     </div>
@@ -113,14 +113,14 @@
         <h2>Moderator</h2>
         <div class="el">
           {%for o in moderator%}
-          <input
+          <input class="form-control"
             type="text"
             value="{{o.teacher.name}}"
             name="moderator"
             readonly
           />
           {%if flag%}
-          <button type="submit" name="moderator" value="{{o.teacher.email}}">
+          <button class="btn btn-primary" type="submit" name="moderator" value="{{o.teacher.email}}">
             Delete
           </button>
           {%endif%} {%endfor%}
@@ -128,14 +128,14 @@
         <h2>Translator</h2>
         <div class="el">
           {%for o in translator%}
-          <input
+          <input class="form-control"
             type="text"
             value="{{o.teacher.name}}"
             name="translator"
             readonly
           />
           {%if flag%}
-          <button type="submit" name="translator" value="{{o.teacher.email}}">
+          <button class="btn btn-primary" type="submit" name="translator" value="{{o.teacher.email}}">
             Delete
           </button>
           {%endif%} {%endfor%}
@@ -143,21 +143,21 @@
         <h2>Typist</h2>
         <div class="el">
           {%for o in typist%}
-          <input
+          <input class="form-control"
             type="text"
             value="{{o.teacher.name}}"
             name="typist"
             readonly
           />
           {%if flag%}
-          <button type="submit" name="typist" value="{{o.teacher.email}}">
+          <button class="btn btn-primary" type="submit" name="typist" value="{{o.teacher.email}}">
             Delete
           </button>
           {%endif%} {%endfor%}
         </div>
 
         {%if flag%}
-        <button type="submit" name="add">Add Role</button>
+        <button class="btn btn-primary" type="submit" name="add">Add Role</button>
         {%endif%}
       </form>
     </div>

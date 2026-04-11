@@ -45,14 +45,14 @@ h1 {
       <form method="POST">
         <h3>View Committee</h3>
         {%csrf_token%}
-        <input type="number" name="session" placeholder="Enter Session" />
-        <button type="submit" name="sess">Submit</button>
+        <input class="form-control" type="number" name="session" placeholder="Enter Session" />
+        <button class="btn btn-primary" type="submit" name="sess">Submit</button>
       </form>
       <form method="POST">
         <h3>View Semester</h3>
         {%csrf_token%}
-        <input type="number" name="session" placeholder="Enter Session" />
-        <button type="submit" name="sem">Submit</button>
+        <input class="form-control" type="number" name="session" placeholder="Enter Session" />
+        <button class="btn btn-primary" type="submit" name="sem">Submit</button>
       </form>
     </div>
 {% endblock content %}

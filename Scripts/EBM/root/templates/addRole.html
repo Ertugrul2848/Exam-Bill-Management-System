@@ -4,20 +4,20 @@
       <form method="POST">
         {%csrf_token%}
         <label>Select Teacher</label>
-        <select name="teacher" id="">
+        <select class="form-control" name="teacher" id="">
           <option selected disabled></option>
           {%for o in ob%}
           <option value="{{o.email}}">{{o.name}}</option>
           {%endfor%}
         </select>
         <label for="">Select Role</label>
-        <select name="role" id="">
+        <select class="form-control" name="role" id="">
           <option selected disabled></option>
           <option value="1">Moderator</option>
           <option value="2">Translator</option>
           <option value="3">Stencil Cutter</option>
         </select>
-        <button type="submit">Add</button>
+        <button class="btn btn-primary" type="submit">Add</button>
       </form>
     </div>
 {% endblock content %}

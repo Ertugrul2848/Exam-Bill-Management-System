@@ -4,13 +4,13 @@
       <form method="POST">
         {%csrf_token%}
         <label for="">Select Invigilator</label>
-        <select name="invigilator">
+        <select class="form-control" name="invigilator">
           <option selected disabled></option>
           {%for o in ob%}{
           <option value="{{o.email}}">{{o.name}}</option>
           {%endfor%}
         </select>
-        <button type="submit" name="add">ADD</button>
+        <button class="btn btn-primary" type="submit" name="add">ADD</button>
       </form>
     </div>
 {% endblock content %}

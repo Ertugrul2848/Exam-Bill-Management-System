@@ -52,7 +52,7 @@ form {
         {%csrf_token%} {%if theory%}
         <h2>Update Course</h2>
         <label for="">Select Internal</label>
-        <select name="internal">
+        <select class="form-control" name="internal">
           <option value="{{course.internal.email}}" selected>
             {{course.internal.name}}
           </option>
@@ -61,7 +61,7 @@ form {
           {%endfor%}
         </select>
         <label for="">Select External</label>
-        <select name="external">
+        <select class="form-control" name="external">
           <option value="{{course.external.email}}" selected>
             {{course.external.name}}
           </option>
@@ -70,7 +70,7 @@ form {
           {%endfor%}
         </select>
         <label for="">Select Third Examiner</label>
-        <select name="third" id="">
+        <select class="form-control" name="third" id="">
           <option value="{{course.thirdExaminer.email}}" selected>
             {{course.thirdExaminer.name}}
           </option>
@@ -79,16 +79,16 @@ form {
           {%endfor%}
         </select>
         <label for="">Enter Paper NO</label>
-        <input type="number" name="paperNo" value="{{course.paperNo}}" />
+        <input class="form-control" type="number" name="paperNo" value="{{course.paperNo}}" />
         <label for="">Enter Third Examiner Paper NO</label>
-        <input type="number" name="tpaperNo" value="{{course.tPaperNo}}" />
-        <button name="theory" type="submit">Update</button>
+        <input class="form-control" type="number" name="tpaperNo" value="{{course.tPaperNo}}" />
+        <button class="btn btn-primary" name="theory" type="submit">Update</button>
       </form>
       {%endif%} {%if lab%}
       <form method="POST">
         {%csrf_token%}
         <label for="">Lab Internal</label>
-        <select name="internal" id="">
+        <select class="form-control" name="internal" id="">
           <option value="{{course.internal.email}}" selected>
             {{course.internal.name}}
           </option>
@@ -97,7 +97,7 @@ form {
           {%endfor%}
         </select>
         <label for="">Lab External</label>
-        <select name="external" id="">
+        <select class="form-control" name="external" id="">
           <option value="{{course.external.email}}" selected>
             {{course.external.name}}
           </option>
@@ -109,21 +109,21 @@ form {
         {%for o in extra%}
         <h4>{{o.extra.name}}</h4>
         {%endfor%}
-        <button type="submit" name="invigilator">Add Invigilator</button>
+        <button class="btn btn-primary" type="submit" name="invigilator">Add Invigilator</button>
         <label for="">Enter Duration</label>
-        <input
+        <input class="form-control"
           type="number"
           value="{{course.duration}}"
           name="duration"
           placeholder="Enter Duration"
         />
-        <button type="submit" name="lab">Update</button>
+        <button class="btn btn-primary" type="submit" name="lab">Update</button>
       </form>
       {%endif%} {%if viva%}
       <form method="POST">
         {%csrf_token%}
         <label for="">Select External</label>
-        <select name="external" id="">
+        <select class="form-control" name="external" id="">
           <option value="{{course.vivaExternal.email}}" selected>
             {{course.vivaExternal.name}}
           </option>
@@ -135,15 +135,15 @@ form {
         {%for o in extra%}
         <h4>{{o.extra.name}}</h4>
         {%endfor%}
-        <button type="submit" name="invigilator">Add Internals</button>
+        <button class="btn btn-primary" type="submit" name="invigilator">Add Internals</button>
         <label>Enter Duration</label>
-        <input
+        <input class="form-control"
           type="number"
           value="{{course.duration}}"
           name="duration"
           placeholder="Enter Duration"
         />
-        <button type="submit" name="viva">Update</button>
+        <button class="btn btn-primary" type="submit" name="viva">Update</button>
       </form>
       {%endif%}
       <button
