@@ -38,6 +38,7 @@ def logOut(request):
     return redirect('/log')
 
 
+@login_required(login_url='/log')
 def committee(request):
     if 'sess' in request.POST:
         print('ok')
@@ -63,6 +64,7 @@ def committee(request):
     return render(request, 'committee.html')
 
 
+@login_required(login_url='/log')
 def createCom(request):
     us = User.objects.get(username=request.user.username)
     chairman = User.objects.get(username='chairman')
@@ -118,6 +120,7 @@ def createCom(request):
     return render(request, 'createCom.html', cont)
 
 
+@login_required(login_url='/log')
 def viewCom(request, id):
     session = Session.objects.get(year=int(id))
     semester = Semester.objects.filter(session=session).order_by('semId')
@@ -159,6 +162,7 @@ def viewCom(request, id):
     return render(request, 'viewCom.html', cont)
 
 
+@login_required(login_url='/log')
 def viewSem(request, id, id2):
     ob = faculty.objects.get(email=request.user.email)
     oc = faculty.objects.filter()
@@ -238,6 +242,7 @@ def viewSem(request, id, id2):
     return render(request, 'viewSem.html', cont, con)
 
 
+@login_required(login_url='/log')
 def addRole(request, id, id2):
     ob = faculty.objects.filter()
     session = Session.objects.get(year=int(id))
@@ -275,6 +280,7 @@ def addRole(request, id, id2):
     return render(request, 'addRole.html', cont)
 
 
+@login_required(login_url='/log')
 def createSem(request, id):
     session = Session.objects.get(year=int(id))
     semester = Semester.objects.filter(session=session)
@@ -316,6 +322,7 @@ def createSem(request, id):
     return render(request, 'createSem.html', cont)
 
 
+@login_required(login_url='/log')
 def createCourse(request, id, id2):
     session = Session.objects.get(year=int(id))
     semester = Semester.objects.get(session=session, semId=int(id2))
@@ -354,6 +361,7 @@ def createCourse(request, id, id2):
     return render(request, 'createCourse.html', cont)
 
 
+@login_required(login_url='/log')
 def viewCourse(request, id, id2):
     tea = faculty.objects.get(email=request.user.email)
     session = Session.objects.get(year=int(id))
@@ -385,6 +393,7 @@ def viewCourse(request, id, id2):
     return render(request, 'viewCourse.html', cont)
 
 
+@login_required(login_url='/log')
 def updateCourse(request, id, id2, id3):
 
     session = Session.objects.get(year=int(id))
@@ -456,6 +465,7 @@ def updateCourse(request, id, id2, id3):
     return render(request, 'updateCourse.html', cont)
 
 
+@login_required(login_url='/log')
 def addInvigilator(request, id, id2, id3):
     session = Session.objects.get(year=int(id))
     semester = Semester.objects.get(session=session, semId=int(id2))
@@ -474,6 +484,7 @@ def addInvigilator(request, id, id2, id3):
     return render(request, 'addInvigilator.html', cont)
 
 
+@login_required(login_url='/log')
 def indCourse(request, id, id2, id3):
     session = Session.objects.get(year=int(id))
     semester = Semester.objects.get(session=session, semId=int(id2))
@@ -499,10 +510,12 @@ def indCourse(request, id, id2, id3):
         'extra': extra
     }
     return render(request, 'indCourse.html', cont)
+@login_required(login_url='/log')
 def deleteCourse(request, id, id2, id3):
     return render(request, 'deleteCourse.html')
 
 
+@login_required(login_url='/log')
 def examBill(request):
     if request.method == 'POST':
         session = Session.objects.filter(year=int(request.POST['session']))
@@ -526,6 +539,7 @@ def examBill(request):
     return render(request, 'examBill.html')
 
 
+@login_required(login_url='/log')
 def indBill(request, id, id2, id3):
     session = Session.objects.get(year=int(id))
     semester = Semester.objects.get(session=session, semId=int(id2))
@@ -675,6 +689,7 @@ def indBill(request, id, id2, id3):
         res='/pdf_view/'+str(id)+'/'+str(id2)+'/'+str(id3)
         return redirect(res)
     return render(request, 'indBill.html', cont)
+@login_required(login_url='/log')
 def pdf_view(request,id,id2,id3):
     session = Session.objects.get(year=int(id))
     semester = Semester.objects.get(session=session, semId=int(id2))
@@ -835,6 +850,7 @@ def pdf_view(request,id,id2,id3):
        return HttpResponse('We had some errors <pre>' + html + '</pre>')
     return response
 
+@login_required(login_url='/log')
 def examBill2(request):
     if request.method == 'POST':
         session = Session.objects.filter(year=int(request.POST['session']))
@@ -968,6 +984,7 @@ def cal(id, id2, f):
                     ar.append(p)
     return ar
 
+@login_required(login_url='/log')
 def semBill(request, id, id2):
     session = Session.objects.get(year=int(id))
     semester = Semester.objects.get(session=session, semId=int(id2))
@@ -1006,6 +1023,7 @@ def semBill(request, id, id2):
     return render(request, 'semBill.html', cont)
 
 
+@login_required(login_url='/log')
 def indBill2(request, id, id2, id3):
     session = Session.objects.get(year=int(id))
     semester = Semester.objects.get(session=session, semId=int(id2))
@@ -1138,6 +1156,7 @@ def indBill2(request, id, id2, id3):
         'ss': ss
     }
     return render(request, 'indBill.html', cont)
+@login_required(login_url='/log')
 def thesis(request,id,id2,id3):
     session=Session.objects.get(year=int(id))
     semester=Semester.objects.get(session=session,semId=int(id2))
