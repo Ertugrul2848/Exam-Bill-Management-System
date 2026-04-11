@@ -1,9 +1,10 @@
 """Billing URL patterns."""
 
 from django.urls import path
-from ..views import examBill, indBill, pdf_view, examBill2, semBill, indBill2, all_bills
+from ..views import examBill, indBill, pdf_view, examBill2, semBill, indBill2, all_bills, my_assignments
 
 urlpatterns = [
+    path('my-assignments/', my_assignments, name='my_assignments'),
     path('examBill/', examBill, name='examBill'),
     path('indBill/<int:id>/<int:id2>/<int:id3>/', indBill, name='indBill'),
     path('pdf_view/<int:id>/<int:id2>/<int:id3>/', pdf_view, name="pdf_view"),
