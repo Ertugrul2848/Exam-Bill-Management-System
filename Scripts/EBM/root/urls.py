@@ -32,7 +32,7 @@ urlpatterns = [
          views.indCourse, name='indCourse'),
     path('examBill/', views.examBill, name='examBill'),
     path('indBill/<int:id>/<int:id2>/<int:id3>/', views.indBill, name='indBill'),
-    path('examBill2/', views.examBill2, name='examBill'),
+    path('examBill2/', views.examBill2, name='examBill2'),
     path('semBill/<int:id>/<int:id2>/', views.semBill, name='semBill'),
     path('indBill2/<int:id>/<int:id2>/<int:id3>/',
          views.indBill2, name='indBill2'),
