@@ -1,41 +1,40 @@
 {% extends 'base.html' %}
 {% block title %}Session {{ session }} — Committees{% endblock title %}
-{% block extra_css %}
-<style>
-  .view-com { margin-top: 40px; }
-  .view-com h2 { font-weight: 300; margin-bottom: 30px; }
-  .semester-card { margin-bottom: 20px; transition: box-shadow 0.2s; }
-  .semester-card:hover { box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
-  .semester-card .panel-body { display: flex; justify-content: space-between; align-items: center; }
-  .semester-info h4 { margin: 0 0 5px 0; }
-  .semester-info p { margin: 0; color: #777; font-size: 13px; }
-</style>
-{% endblock extra_css %}
 {% block content %}
-<div class="container view-com">
-  <h2 class="text-center">Session {{ session }} — Exam Committees</h2>
+<div class="container" style="margin-top: 40px;">
+  <h2 class="text-center" style="font-weight: 300; margin-bottom: 30px;">Session {{ session }} — Exam Committees</h2>
 
   <a href="{% url 'committee' %}" class="btn btn-default" style="margin-bottom: 20px;">
-    <span class="glyphicon glyphicon-arrow-left"></span> Back to Dashboard
+    <span class="glyphicon glyphicon-arrow-left"></span> Back
   </a>
 
   {% if ob %}
-  <div class="row">
-    {% for o in ob %}
-    <div class="col-md-6">
-      <div class="panel panel-default semester-card">
-        <div class="panel-body">
-          <div class="semester-info">
-            <h4>{{ o.st }}</h4>
-            <p><strong>Chairman:</strong> {{ o.qd.chairman.name }}</p>
-          </div>
-          <a href="{% url 'viewSem' session o.qd.semId %}" class="btn btn-primary btn-sm">
-            <span class="glyphicon glyphicon-eye-open"></span> View
-          </a>
-        </div>
-      </div>
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h3 class="panel-title">Semesters</h3>
     </div>
-    {% endfor %}
+    <table class="table table-hover" style="margin-bottom: 0;">
+      <thead>
+        <tr>
+          <th>Semester</th>
+          <th>Chairman</th>
+          <th style="width: 100px; text-align: right;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for o in ob %}
+        <tr>
+          <td><strong>{{ o.st }}</strong></td>
+          <td>{{ o.qd.chairman.name }}</td>
+          <td style="text-align: right;">
+            <a href="{% url 'viewSem' session o.qd.semId %}" class="btn btn-primary btn-sm">
+              <span class="glyphicon glyphicon-eye-open"></span> View
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
   {% else %}
   <div class="alert alert-info text-center">
