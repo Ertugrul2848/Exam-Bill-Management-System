@@ -147,11 +147,29 @@ def examBill2(request):
                 messages.error(request, 'Access Denied !!')
             else:
                 return redirect(reverse('semBill', args=[request.POST['session'], request.POST['semester']]))
-    sessions = Session.objects.all().order_by('-year')
-    semesters = Semester.objects.all().select_related('session')
+    try:
+        fac = faculty.objects.get(email=request.user.email)
+    except faculty.DoesNotExist:
+        return render(request, 'billing/examBill2.html', {
+            'sessions': [],
+            'semesters': [],
+        })
+    is_system_chairman = User.objects.filter(username='chairman', pk=request.user.pk).exists()
+    if is_system_chairman:
+        allowed_semesters = Semester.objects.all().select_related('session').order_by('-session__year')
+    else:
+        allowed_semesters = Semester.objects.filter(chairman=fac).select_related('session').order_by('-session__year')
+    seen_years = set()
+    sessions = []
+    for sem in allowed_semesters:
+        year = sem.session.year
+        if year not in seen_years:
+            seen_years.add(year)
+            sessions.append(sem.session)
+    sessions.sort(key=lambda s: s.year, reverse=True)
     return render(request, 'billing/examBill2.html', {
         'sessions': sessions,
-        'semesters': semesters,
+        'semesters': allowed_semesters,
     })
 
 

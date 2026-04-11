@@ -1,7 +1,7 @@
 """Authentication URL patterns."""
 
 from django.urls import path
-from ..views import home, log, logOut, register, pending_registrations, approve_registration, reject_registration
+from ..views import home, log, logOut, register, pending_registrations, approve_registration, reject_registration, add_teacher_direct
 
 urlpatterns = [
     path('', home, name='home'),
@@ -12,4 +12,5 @@ urlpatterns = [
     path('pending-registrations/', pending_registrations, name='pending_registrations'),
     path('approve-registration/<int:pk>/', approve_registration, name='approve_registration'),
     path('reject-registration/<int:pk>/', reject_registration, name='reject_registration'),
+    path('add-teacher/', add_teacher_direct, name='add_teacher_direct'),
 ]

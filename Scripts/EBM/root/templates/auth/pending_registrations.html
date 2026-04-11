@@ -3,9 +3,14 @@
 {% block content %}
 <div class="container" style="margin-top: 40px;">
   <h2 class="text-center" style="font-weight: 300; margin-bottom: 30px;">Pending Teacher Registrations</h2>
-  <a href="{% url 'home' %}" class="btn btn-default" style="margin-bottom: 20px;">
-    <span class="glyphicon glyphicon-arrow-left"></span> Back
-  </a>
+  <div style="margin-bottom: 20px;">
+    <a href="{% url 'home' %}" class="btn btn-default">
+      <span class="glyphicon glyphicon-arrow-left"></span> Back
+    </a>
+    <a href="{% url 'add_teacher_direct' %}" class="btn btn-primary" style="margin-left: 10px;">
+      <span class="glyphicon glyphicon-plus"></span> Add Teacher
+    </a>
+  </div>
 
   {% if pending %}
   <div class="panel panel-default">

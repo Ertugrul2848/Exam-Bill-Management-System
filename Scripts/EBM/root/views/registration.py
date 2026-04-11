@@ -5,6 +5,8 @@ from django.urls import reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 from ..models import faculty, RegistrationRequest
 
 
@@ -18,6 +20,12 @@ def register(request):
 
         if not all([name, email, title, password]):
             messages.error(request, 'All fields are required!')
+            return render(request, 'auth/register.html')
+
+        try:
+            validate_email(email)
+        except ValidationError:
+            messages.error(request, 'Please enter a valid email address!')
             return render(request, 'auth/register.html')
 
         if RegistrationRequest.objects.filter(email=email).exists():
@@ -84,6 +92,43 @@ def approve_registration(request, pk):
 
     messages.success(request, f'{reg.name} has been approved as a teacher.')
     return redirect(reverse('pending_registrations'))
+
+
+@login_required(login_url='/log')
+def add_teacher_direct(request):
+    """Chairman-only: add teacher directly without registration."""
+    is_chairman = User.objects.filter(username='chairman', pk=request.user.pk).exists()
+    if not is_chairman:
+        messages.error(request, 'Access Denied!')
+        return redirect(reverse('home'))
+
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+        email = request.POST.get('email', '').strip()
+        title = request.POST.get('title', '').strip()
+        password = request.POST.get('password', '').strip()
+
+        if not all([name, email, title, password]):
+            messages.error(request, 'All fields are required!')
+            return render(request, 'auth/add_teacher.html')
+
+        if faculty.objects.filter(email=email).exists():
+            messages.error(request, 'A teacher with this email already exists!')
+            return render(request, 'auth/add_teacher.html')
+
+        username = email.split('@')[0]
+        base_username = username
+        counter = 1
+        while User.objects.filter(username=username).exists():
+            username = f"{base_username}{counter}"
+            counter += 1
+
+        User.objects.create_user(username=username, email=email, password=password)
+        faculty.objects.create(username=username, email=email, name=name, title=title, password=password)
+        messages.success(request, f'{name} added as teacher successfully.')
+        return redirect(reverse('pending_registrations'))
+
+    return render(request, 'auth/add_teacher.html')
 
 
 @login_required(login_url='/log')
