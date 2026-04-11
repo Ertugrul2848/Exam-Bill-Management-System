@@ -102,6 +102,18 @@ def updateCourse(request, id, id2, id3):
     elif course.type == 3:
         viva = True
     ex = External.objects.filter()
+
+    # Handle delete of a CourseExaminer via GET param
+    delete_examiner_id = request.GET.get('delete_examiner')
+    if delete_examiner_id:
+        CourseExaminer.objects.filter(id=delete_examiner_id, course=course).delete()
+        return redirect(reverse('updateCourse', args=[id, id2, id3]))
+
+    # CourseExaminer querysets for theory template context
+    acting_first_examiner = CourseExaminer.objects.filter(course=course, role='acting_first').first()
+    course_external_examiners = CourseExaminer.objects.filter(course=course, role='external')
+    course_third_examiners = CourseExaminer.objects.filter(course=course, role='third')
+
     cont = {
         'session':id,
         'semester':id2,
@@ -112,7 +124,10 @@ def updateCourse(request, id, id2, id3):
         'viva': viva,
         'course': course,
         'extra': extra,
-        'ex': ex
+        'ex': ex,
+        'acting_first_examiner': acting_first_examiner,
+        'course_external_examiners': course_external_examiners,
+        'course_third_examiners': course_third_examiners,
     }
     if 'theory' in request.POST:
         internal = faculty.objects.get(email=request.POST.get('internal'))
@@ -126,6 +141,39 @@ def updateCourse(request, id, id2, id3):
         course.paperNo = paperNo
         course.tPaperNo = tPaperNo
         course.save()
+
+        # Handle acting first examiner (upsert)
+        acting_first_email = request.POST.get('acting_first_examiner', '').strip()
+        acting_first_count = int(request.POST.get('acting_first_paper_count', 0) or 0)
+        if acting_first_email:
+            acting_fac = faculty.objects.get(email=acting_first_email)
+            CourseExaminer.objects.update_or_create(
+                course=course, role='acting_first',
+                defaults={'faculty': acting_fac, 'paper_count': acting_first_count}
+            )
+        else:
+            CourseExaminer.objects.filter(course=course, role='acting_first').delete()
+
+        # Add new external examiner if provided
+        new_ext_email = request.POST.get('new_external_examiner', '').strip()
+        new_ext_count = int(request.POST.get('new_external_paper_count', 0) or 0)
+        if new_ext_email:
+            new_ext_fac = faculty.objects.get(email=new_ext_email)
+            CourseExaminer.objects.get_or_create(
+                course=course, faculty=new_ext_fac, role='external',
+                defaults={'paper_count': new_ext_count}
+            )
+
+        # Add new third examiner if provided
+        new_third_email = request.POST.get('new_third_examiner', '').strip()
+        new_third_count = int(request.POST.get('new_third_paper_count', 0) or 0)
+        if new_third_email:
+            new_third_fac = faculty.objects.get(email=new_third_email)
+            CourseExaminer.objects.get_or_create(
+                course=course, faculty=new_third_fac, role='third',
+                defaults={'paper_count': new_third_count}
+            )
+
         return redirect(reverse('viewCourse', args=[id, id2]))
     if 'lab' in request.POST:
         internal = faculty.objects.get(email=request.POST.get('internal'))
@@ -220,6 +268,14 @@ def thesis(request, id, id2, id3):
                     faculty=faculty.objects.get(email=o.email)
                 ).save()
     ff=ThesisPaper.objects.filter(session=session,semester=semester,course=course)
+    existing_emails = [tp.faculty.email for tp in ff]
+    available = faculty.objects.exclude(email__in=existing_emails).order_by('name')
+    if 'add_teacher' in request.POST:
+        selected_email = request.POST.get('new_teacher')
+        if selected_email:
+            selected_faculty = get_object_or_404(faculty, email=selected_email)
+            ThesisPaper(session=session, semester=semester, course=course, faculty=selected_faculty, paperNo=0).save()
+        return redirect(reverse('thesis', args=[id, id2, id3]))
     if 'delete_thesis' in request.POST:
         faculty_pk = request.POST['delete_thesis']
         ThesisPaper.objects.filter(
@@ -244,7 +300,8 @@ def thesis(request, id, id2, id3):
         'session':session.year,
         'semester':semester.semId,
         'course':course.courseCode,
-        'tea':ff
+        'tea':ff,
+        'available':available
     }
     return render(request,'course/thesis.html',cont)
 
@@ -265,6 +322,14 @@ def supervising(request, id, id2, id3):
                     faculty=faculty.objects.get(email=o.email)
                 ).save()
     ff=ThesisSupervisor.objects.filter(session=session,semester=semester,course=course)
+    existing_emails = [ts.faculty.email for ts in ff]
+    available = faculty.objects.exclude(email__in=existing_emails).order_by('name')
+    if 'add_teacher' in request.POST:
+        selected_email = request.POST.get('new_teacher')
+        if selected_email:
+            selected_faculty = get_object_or_404(faculty, email=selected_email)
+            ThesisSupervisor(session=session, semester=semester, course=course, faculty=selected_faculty, studentNo=0).save()
+        return redirect(reverse('supervising', args=[id, id2, id3]))
     if 'delete_supervisor' in request.POST:
         faculty_pk = request.POST['delete_supervisor']
         ThesisSupervisor.objects.filter(
@@ -289,7 +354,8 @@ def supervising(request, id, id2, id3):
         'session':session.year,
         'semester':semester.semId,
         'course':course.courseCode,
-        'tea':ff
+        'tea':ff,
+        'available':available
     }
     return render(request,'course/supervising.html',cont)
 

@@ -1,7 +1,7 @@
 """Committee management URL patterns."""
 
 from django.urls import path
-from ..views import committee, createCom, viewCom, viewSem, addRole, createSem, assign_acting_chairman, remove_acting_chairman
+from ..views import committee, createCom, viewCom, viewSem, addRole, createSem, assign_acting_chairman, remove_acting_chairman, toggle_archive
 
 urlpatterns = [
     path('committee/', committee, name="committee"),
@@ -12,4 +12,5 @@ urlpatterns = [
     path('createSem/<int:id>/', createSem, name="createSem"),
     path('assign-acting/<int:id>/<int:id2>/', assign_acting_chairman, name='assign_acting'),
     path('remove-acting/<int:id>/<int:id2>/', remove_acting_chairman, name='remove_acting'),
+    path('toggle-archive/<int:id>/<int:id2>/', toggle_archive, name='toggle_archive'),
 ]

@@ -37,6 +37,27 @@ class Course(models.Model):
         return str(str(self.semester) + self.courseName)
 
 
+class CourseExaminer(models.Model):
+    """Multiple external/third examiners per course with individual paper counts."""
+    ROLE_CHOICES = [
+        ('first', 'First Examiner'),
+        ('acting_first', 'Acting First Examiner'),
+        ('external', 'External Examiner'),
+        ('third', 'Third Examiner'),
+    ]
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='examiners')
+    faculty = models.ForeignKey('faculty', on_delete=models.CASCADE)
+    role = models.CharField(max_length=15, choices=ROLE_CHOICES)
+    paper_count = models.IntegerField(default=0)
+
+    class Meta:
+        app_label = 'root'
+        unique_together = ['course', 'faculty', 'role']
+
+    def __str__(self):
+        return f"{self.faculty.name} — {self.role} for {self.course.courseName}"
+
+
 class ThesisPaper(models.Model):
     """Thesis paper evaluation tracking."""
     session = models.ForeignKey(Session, on_delete=models.CASCADE, null=True)

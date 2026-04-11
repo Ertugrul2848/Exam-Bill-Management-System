@@ -3,7 +3,7 @@
 from django.contrib import admin
 from .models import (
     faculty, External, Session, Semester,
-    SemesterBill, Course, courseBill,
+    SemesterBill, Course, CourseExaminer, courseBill,
     ThesisPaper, ThesisSupervisor, RegistrationRequest,
     CourseCodeMaster, ModeratorRole,
 )
@@ -47,6 +47,13 @@ class CourseAdmin(admin.ModelAdmin):
     list_display = ('courseName', 'courseCode', 'type', 'session', 'semester', 'internal', 'external')
     list_filter = ('type', 'session')
     search_fields = ('courseName',)
+
+
+@admin.register(CourseExaminer)
+class CourseExaminerAdmin(admin.ModelAdmin):
+    list_display = ('course', 'faculty', 'role', 'paper_count')
+    list_filter = ('role', 'course__session')
+    search_fields = ('faculty__name', 'course__courseName')
 
 
 @admin.register(courseBill)

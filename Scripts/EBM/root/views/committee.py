@@ -105,7 +105,7 @@ def createCom(request):
                         bb = Semester(semId=int(
                             request.POST['year']), session=ca, chairman=selected_chairman, tabular1=tea1, tabular2=tea2, external=tea3)
                         bb.save()
-                        for o in ob:
+                        for o in all_faculty:
                             tea = faculty.objects.get(email=o.email)
                             aa = SemesterBill(
                                 session=ca, semester=bb, teacher=tea)
@@ -123,11 +123,18 @@ def createCom(request):
 def viewCom(request, id):
     """List all semesters for a given session year (id=year)."""
     session = get_object_or_404(Session, year=int(id))
-    semester = Semester.objects.filter(session=session).order_by('semId')
+    show_archived = request.GET.get('show_archived', '0') == '1'
+    if show_archived:
+        semester = Semester.objects.filter(session=session).order_by('semId')
+    else:
+        semester = Semester.objects.filter(session=session, is_archived=False).order_by('semId')
+    is_chairman = User.objects.filter(username='chairman', pk=request.user.pk).exists()
     ar = [{'qd': o, 'st': o.get_display_name()} for o in semester]
     cont = {
         'ob': ar,
-        'session': id
+        'session': id,
+        'show_archived': show_archived,
+        'is_chairman': is_chairman,
     }
     return render(request, 'committee/viewCom.html', cont)
 
@@ -324,6 +331,23 @@ def remove_acting_chairman(request, id, id2):
         semester.save()
         messages.success(request, 'Acting Chairman removed.')
     return redirect(reverse('viewSem', args=[id, id2]))
+
+
+@login_required(login_url='/log')
+def toggle_archive(request, id, id2):
+    """Toggle archive status of a semester. Chairman-only."""
+    is_chairman = User.objects.filter(username='chairman', pk=request.user.pk).exists()
+    if not is_chairman:
+        messages.error(request, 'Access Denied!')
+        return redirect(reverse('viewCom', args=[id]))
+    session = get_object_or_404(Session, year=int(id))
+    semester = get_object_or_404(Semester, session=session, semId=int(id2))
+    semester.is_archived = not semester.is_archived
+    semester.save()
+    status = 'archived' if semester.is_archived else 'unarchived'
+    messages.success(request, f'Semester {semester.get_display_name()} {status}.')
+    show = '1' if request.GET.get('show_archived') == '1' else '0'
+    return redirect(f"{reverse('viewCom', args=[id])}?show_archived={show}")
 
 
 @login_required(login_url='/log')

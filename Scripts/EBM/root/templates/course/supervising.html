@@ -40,6 +40,22 @@
           <button class="btn btn-primary" name="save" type="submit" id="supervisingSaveBtn" disabled>Save</button>
         </div>
       </form>
+      <form method="POST" style="margin-top: 15px;">
+        {% csrf_token %}
+        <div class="input-group">
+          <select class="form-control" name="new_teacher" required>
+            <option selected disabled value="">-- Add Teacher --</option>
+            {% for t in available %}
+            <option value="{{ t.email }}">{{ t.name }}</option>
+            {% endfor %}
+          </select>
+          <span class="input-group-btn">
+            <button class="btn btn-success" type="submit" name="add_teacher">
+              <span class="glyphicon glyphicon-plus"></span>
+            </button>
+          </span>
+        </div>
+      </form>
     </div>
   </div>
 </div>
