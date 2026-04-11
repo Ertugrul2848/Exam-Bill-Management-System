@@ -214,6 +214,13 @@ def viewSem(request, id, id2):
     flag = False
     if ob == semester.chairman:
         flag = True
+    # Build filtered teacher list — exclude teachers who already have ANY role
+    all_role_emails = set()
+    all_role_emails.update(sb.teacher.email for sb in moderator)
+    all_role_emails.update(sb.teacher.email for sb in translator)
+    all_role_emails.update(sb.teacher.email for sb in typist)
+    available_teachers = oc.exclude(email__in=all_role_emails).order_by('name')
+
     cont = {
         'sem': semester,
         'flag': flag,
@@ -221,7 +228,10 @@ def viewSem(request, id, id2):
         'oc': od,
         'moderator': moderator,
         'typist': typist,
-        'translator': translator
+        'translator': translator,
+        'available_teachers': available_teachers,
+        'session_id': id,
+        'sem_id': id2,
     }
 
     if 'update' in request.POST:
@@ -245,6 +255,27 @@ def viewSem(request, id, id2):
             semester.save()
             messages.success(
                 request, 'Committee Updated Successfully !')
+    if 'add_role' in request.POST:
+        tea = faculty.objects.get(email=request.POST['teacher'])
+        role_val = request.POST['role']
+        sb, created = SemesterBill.objects.get_or_create(
+            session=session, semester=semester, teacher=tea)
+        # Check if teacher already has ANY role in this semester
+        if sb.moderator == 1 or sb.translator == 1 or sb.typist == 1:
+            messages.error(request, f'{tea.name} already has a role in this semester!')
+        elif role_val == "1":
+            sb.moderator = 1
+            sb.save()
+            messages.success(request, f'{tea.name} added as Moderator')
+        elif role_val == "2":
+            sb.translator = 1
+            sb.save()
+            messages.success(request, f'{tea.name} added as Translator')
+        elif role_val == "3":
+            sb.typist = 1
+            sb.save()
+            messages.success(request, f'{tea.name} added as Stencil-Cutter')
+        return redirect(reverse('viewSem', args=[id, id2]))
     if 'add' in request.POST:
         return redirect(reverse('addRole', args=[id, id2]))
     if 'moderator' in request.POST:

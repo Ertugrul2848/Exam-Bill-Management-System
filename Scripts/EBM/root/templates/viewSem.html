@@ -2,73 +2,146 @@
 {% block title %}Semester Committee{% endblock title %}
 {% block extra_css %}
 <style>
-  .view-sem { margin-top: 40px; }
-  .view-sem h2 { font-weight: 300; margin-bottom: 30px; }
-  .role-badge { display: inline-block; margin: 5px; }
+  .input-group .btn { height: 34px; }
 </style>
 {% endblock extra_css %}
 {% block content %}
-<div class="container view-sem">
-  <h2 class="text-center">Semester Committee</h2>
+<div class="container" style="margin-top: 40px;">
+  <h2 class="text-center" style="font-weight: 300; margin-bottom: 30px;">Semester Committee</h2>
 
   <a href="javascript:history.back()" class="btn btn-default" style="margin-bottom: 20px;">
     <span class="glyphicon glyphicon-arrow-left"></span> Back
   </a>
 
   <div class="row">
-    <!-- Committee Members Card -->
+    <!-- Left: Committee Members + Add Roles -->
     <div class="col-md-6">
+      <!-- Committee Members -->
       <div class="panel panel-primary">
         <div class="panel-heading">
           <h3 class="panel-title">Committee Members</h3>
         </div>
         <div class="panel-body">
-          <form method="POST">
+          <form method="POST" id="committeeForm">
             {% csrf_token %}
             <div class="form-group">
               <label>Chairman</label>
-              <select class="form-control" name="chairman" disabled>
-                <option selected>{{ sem.chairman.name }}</option>
-              </select>
+              <input type="text" class="form-control" value="{{ sem.chairman.name }}" disabled />
             </div>
             <div class="form-group">
               <label>Tabulator 1</label>
-              <select class="form-control" name="tabular1">
+              <select class="form-control committee-select" name="tabular1" data-original="{{ sem.tabular1.email }}">
                 <option value="{{ sem.tabular1.email }}" selected>{{ sem.tabular1.name }}</option>
                 {% for o in ob %}
+                {% if o.email != sem.tabular1.email %}
                 <option value="{{ o.email }}">{{ o.name }}</option>
+                {% endif %}
                 {% endfor %}
               </select>
             </div>
             <div class="form-group">
               <label>Tabulator 2</label>
-              <select class="form-control" name="tabular2">
+              <select class="form-control committee-select" name="tabular2" data-original="{{ sem.tabular2.email }}">
                 <option value="{{ sem.tabular2.email }}" selected>{{ sem.tabular2.name }}</option>
                 {% for o in ob %}
+                {% if o.email != sem.tabular2.email %}
                 <option value="{{ o.email }}">{{ o.name }}</option>
+                {% endif %}
                 {% endfor %}
               </select>
             </div>
             <div class="form-group">
               <label>External Examiner</label>
-              <select class="form-control" name="external">
+              <select class="form-control committee-select" name="external" data-original="{{ sem.external.email }}">
                 <option value="{{ sem.external.email }}" selected>{{ sem.external.name }}</option>
                 {% for o in oc %}
+                {% if o.email != sem.external.email %}
                 <option value="{{ o.email }}">{{ o.name }}</option>
+                {% endif %}
                 {% endfor %}
               </select>
             </div>
             {% if flag %}
-            <button class="btn btn-primary btn-block" type="submit" name="update">
+            <button class="btn btn-primary btn-block" type="submit" name="update" id="updateBtn" disabled>
               <span class="glyphicon glyphicon-save"></span> Update Committee
             </button>
             {% endif %}
           </form>
         </div>
       </div>
+
+      {% if flag %}
+      <!-- Add Roles Section -->
+      <div class="panel panel-success">
+        <div class="panel-heading">
+          <h3 class="panel-title">Add Roles</h3>
+        </div>
+        <div class="panel-body">
+          <!-- Add Moderator -->
+          <form method="POST" style="margin-bottom: 15px;">
+            {% csrf_token %}
+            <label>Add Moderator</label>
+            <div class="input-group">
+              <select class="form-control" name="teacher" required>
+                <option selected disabled value="">-- Select Teacher --</option>
+                {% for o in available_teachers %}
+                <option value="{{ o.email }}">{{ o.name }}</option>
+                {% endfor %}
+              </select>
+              <input type="hidden" name="role" value="1" />
+              <span class="input-group-btn">
+                <button class="btn btn-success" type="submit" name="add_role">
+                  <span class="glyphicon glyphicon-plus"></span>
+                </button>
+              </span>
+            </div>
+          </form>
+
+          <!-- Add Translator -->
+          <form method="POST" style="margin-bottom: 15px;">
+            {% csrf_token %}
+            <label>Add Translator</label>
+            <div class="input-group">
+              <select class="form-control" name="teacher" required>
+                <option selected disabled value="">-- Select Teacher --</option>
+                {% for o in available_teachers %}
+                <option value="{{ o.email }}">{{ o.name }}</option>
+                {% endfor %}
+              </select>
+              <input type="hidden" name="role" value="2" />
+              <span class="input-group-btn">
+                <button class="btn btn-success" type="submit" name="add_role">
+                  <span class="glyphicon glyphicon-plus"></span>
+                </button>
+              </span>
+            </div>
+          </form>
+
+          <!-- Add Stencil-Cutter -->
+          <form method="POST" style="margin-bottom: 0;">
+            {% csrf_token %}
+            <label>Add Stencil-Cutter</label>
+            <div class="input-group">
+              <select class="form-control" name="teacher" required>
+                <option selected disabled value="">-- Select Teacher --</option>
+                {% for o in available_teachers %}
+                <option value="{{ o.email }}">{{ o.name }}</option>
+                {% endfor %}
+              </select>
+              <input type="hidden" name="role" value="3" />
+              <span class="input-group-btn">
+                <button class="btn btn-success" type="submit" name="add_role">
+                  <span class="glyphicon glyphicon-plus"></span>
+                </button>
+              </span>
+            </div>
+          </form>
+        </div>
+      </div>
+      {% endif %}
     </div>
 
-    <!-- Roles Card -->
+    <!-- Right: Current Roles -->
     <div class="col-md-6">
       <div class="panel panel-info">
         <div class="panel-heading">
@@ -108,7 +181,7 @@
             <p class="text-muted">No translator assigned</p>
             {% endfor %}
 
-            <!-- Typists -->
+            <!-- Stencil-Cutters -->
             <h4><span class="label label-warning">Stencil-Cutter</span></h4>
             {% for o in typist %}
             <div class="well well-sm" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
@@ -122,13 +195,6 @@
             {% empty %}
             <p class="text-muted">No stencil-cutter assigned</p>
             {% endfor %}
-
-            {% if flag %}
-            <hr />
-            <button class="btn btn-success btn-block" type="submit" name="add">
-              <span class="glyphicon glyphicon-plus"></span> Add Role
-            </button>
-            {% endif %}
           </form>
         </div>
       </div>
@@ -136,3 +202,22 @@
   </div>
 </div>
 {% endblock content %}
+
+{% block extra_js %}
+<script>
+// Enable Update button only when committee form values change
+$(function() {
+  var form = $('#committeeForm');
+  var btn = $('#updateBtn');
+  form.find('.committee-select').on('change', function() {
+    var changed = false;
+    form.find('.committee-select').each(function() {
+      if ($(this).val() !== $(this).data('original')) {
+        changed = true;
+      }
+    });
+    btn.prop('disabled', !changed);
+  });
+});
+</script>
+{% endblock extra_js %}
