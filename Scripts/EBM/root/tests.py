@@ -164,8 +164,9 @@ class BillCalculatorTestCase(TestCase):
         items = calc.calculate(include_amounts=True)
         pe_items = [i for i in items if i.role == 'Paper Evaluation' and i.course_code == 201]
         self.assertEqual(len(pe_items), 1)
-        # Third examiner uses tPaperNo for paper_no but paperNo for bill calculation
+        # Third examiner uses tPaperNo for both paper_no and bill calculation
         self.assertEqual(pe_items[0].paper_no, 20)
+        self.assertEqual(pe_items[0].bill, 20 * rates.PAPER_EVALUATION_PER_PAPER)
 
     def test_lab_evaluation_and_viva(self):
         calc = BillCalculator(2025, 1, self.internal_fac)
