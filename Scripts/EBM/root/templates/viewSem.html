@@ -1,164 +1,138 @@
 {% extends 'base.html' %}
+{% block title %}Semester Committee{% endblock title %}
 {% block extra_css %}
 <style>
-.el {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-direction: column;
-        padding: 20px;
-      }
-      h2 {
-        color: white;
-        background: black;
-        padding: 10px;
-        letter-spacing: 2px;
-        width: 200px;
-        text-align: center;
-      }
-      .el input {
-        margin-top: 10px;
-        width: 300px;
-        text-align: center;
-        font-weight: 600;
-        font-size: 18px;
-        margin-bottom: 20px;
-      }
-      .el button {
-        width: 150px;
-      }
-      
-      form {
-        background: whitesmoke;
-        padding: 40px;
-        box-shadow: 0 0 10px black;
-        margin-top: 100px;
-        display: flex;
-        width: 500px;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-      }
-      input {
-        padding: 10px;
-        width: 400px;
-      }
-      select {
-        padding: 10px;
-        width: 400px;
-      }
-      form > * {
-        margin-bottom: 20px;
-      }
-      form > label {
-        margin-left: 0;
-      }
-      button {
-        width: 200px;
-        border: 2px solid black;
-        padding: 10px;
-        background: black;
-        color: white;
-        font-size: 18px;
-      }
+  .view-sem { margin-top: 40px; }
+  .view-sem h2 { font-weight: 300; margin-bottom: 30px; }
+  .role-badge { display: inline-block; margin: 5px; }
 </style>
 {% endblock extra_css %}
 {% block content %}
+<div class="container view-sem">
+  <h2 class="text-center">Semester Committee</h2>
 
-    <div class="con">
-      <form method="POST">
-        <h1>Committee</h1>
-        {%csrf_token%}
-        <label> Chairman</label>
-        <select class="form-control" name="chairman">
-          <option value="{{sem.chairman.email}}" selected disabled>
-            {{sem.chairman.name}}
-          </option>
-        </select>
-        <label> Tabular1</label>
-        <select class="form-control" name="tabular1">
-          <option value="{{sem.tabular1.email}}" selected>
-            {{sem.tabular1.name}}
-          </option>
-          {%for o in ob%}
-          <option value="{{o.email}}">{{o.name}}</option>
-          {%endfor%}
-        </select>
-        <label> Tabular2</label>
-        <select class="form-control" name="tabular2">
-          <option value="{{sem.tabular2.email}}" selected>
-            {{sem.tabular2.name}}
-          </option>
-          {%for o in ob%}
-          <option value="{{o.email}}">{{o.name}}</option>
-          {%endfor%}
-        </select>
-        <label for=""> External</label>
-        <select class="form-control" name="external" id="">
-          <option value="{{sem.external.email}}" selected>
-            {{sem.external.name}}
-          </option>
-          {%for o in oc%}
-          <option value="{{o.email}}">{{o.name}}</option>
-          {%endfor%}
-        </select>
-        {%if flag%}
-        <button class="btn btn-primary" type="submit" name="update">Update</button>
-        {%endif%}
-      </form>
-    </div>
-    <div class="con">
-      <form method="POST">
-        {%csrf_token%}
-        <h2>Moderator</h2>
-        <div class="el">
-          {%for o in moderator%}
-          <input class="form-control"
-            type="text"
-            value="{{o.teacher.name}}"
-            name="moderator"
-            readonly
-          />
-          {%if flag%}
-          <button class="btn btn-primary" type="submit" name="moderator" value="{{o.teacher.email}}">
-            Delete
-          </button>
-          {%endif%} {%endfor%}
-        </div>
-        <h2>Translator</h2>
-        <div class="el">
-          {%for o in translator%}
-          <input class="form-control"
-            type="text"
-            value="{{o.teacher.name}}"
-            name="translator"
-            readonly
-          />
-          {%if flag%}
-          <button class="btn btn-primary" type="submit" name="translator" value="{{o.teacher.email}}">
-            Delete
-          </button>
-          {%endif%} {%endfor%}
-        </div>
-        <h2>Typist</h2>
-        <div class="el">
-          {%for o in typist%}
-          <input class="form-control"
-            type="text"
-            value="{{o.teacher.name}}"
-            name="typist"
-            readonly
-          />
-          {%if flag%}
-          <button class="btn btn-primary" type="submit" name="typist" value="{{o.teacher.email}}">
-            Delete
-          </button>
-          {%endif%} {%endfor%}
-        </div>
+  <a href="javascript:history.back()" class="btn btn-default" style="margin-bottom: 20px;">
+    <span class="glyphicon glyphicon-arrow-left"></span> Back
+  </a>
 
-        {%if flag%}
-        <button class="btn btn-primary" type="submit" name="add">Add Role</button>
-        {%endif%}
-      </form>
+  <div class="row">
+    <!-- Committee Members Card -->
+    <div class="col-md-6">
+      <div class="panel panel-primary">
+        <div class="panel-heading">
+          <h3 class="panel-title">Committee Members</h3>
+        </div>
+        <div class="panel-body">
+          <form method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+              <label>Chairman</label>
+              <select class="form-control" name="chairman" disabled>
+                <option selected>{{ sem.chairman.name }}</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Tabulator 1</label>
+              <select class="form-control" name="tabular1">
+                <option value="{{ sem.tabular1.email }}" selected>{{ sem.tabular1.name }}</option>
+                {% for o in ob %}
+                <option value="{{ o.email }}">{{ o.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Tabulator 2</label>
+              <select class="form-control" name="tabular2">
+                <option value="{{ sem.tabular2.email }}" selected>{{ sem.tabular2.name }}</option>
+                {% for o in ob %}
+                <option value="{{ o.email }}">{{ o.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label>External Examiner</label>
+              <select class="form-control" name="external">
+                <option value="{{ sem.external.email }}" selected>{{ sem.external.name }}</option>
+                {% for o in oc %}
+                <option value="{{ o.email }}">{{ o.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            {% if flag %}
+            <button class="btn btn-primary btn-block" type="submit" name="update">
+              <span class="glyphicon glyphicon-save"></span> Update Committee
+            </button>
+            {% endif %}
+          </form>
+        </div>
+      </div>
     </div>
+
+    <!-- Roles Card -->
+    <div class="col-md-6">
+      <div class="panel panel-info">
+        <div class="panel-heading">
+          <h3 class="panel-title">Assigned Roles</h3>
+        </div>
+        <div class="panel-body">
+          <form method="POST">
+            {% csrf_token %}
+
+            <!-- Moderators -->
+            <h4><span class="label label-primary">Moderator</span></h4>
+            {% for o in moderator %}
+            <div class="well well-sm" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span>{{ o.teacher.name }}</span>
+              {% if flag %}
+              <button class="btn btn-danger btn-xs" type="submit" name="moderator" value="{{ o.teacher.email }}">
+                <span class="glyphicon glyphicon-remove"></span> Remove
+              </button>
+              {% endif %}
+            </div>
+            {% empty %}
+            <p class="text-muted">No moderator assigned</p>
+            {% endfor %}
+
+            <!-- Translators -->
+            <h4><span class="label label-success">Translator</span></h4>
+            {% for o in translator %}
+            <div class="well well-sm" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span>{{ o.teacher.name }}</span>
+              {% if flag %}
+              <button class="btn btn-danger btn-xs" type="submit" name="translator" value="{{ o.teacher.email }}">
+                <span class="glyphicon glyphicon-remove"></span> Remove
+              </button>
+              {% endif %}
+            </div>
+            {% empty %}
+            <p class="text-muted">No translator assigned</p>
+            {% endfor %}
+
+            <!-- Typists -->
+            <h4><span class="label label-warning">Stencil-Cutter</span></h4>
+            {% for o in typist %}
+            <div class="well well-sm" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span>{{ o.teacher.name }}</span>
+              {% if flag %}
+              <button class="btn btn-danger btn-xs" type="submit" name="typist" value="{{ o.teacher.email }}">
+                <span class="glyphicon glyphicon-remove"></span> Remove
+              </button>
+              {% endif %}
+            </div>
+            {% empty %}
+            <p class="text-muted">No stencil-cutter assigned</p>
+            {% endfor %}
+
+            {% if flag %}
+            <hr />
+            <button class="btn btn-success btn-block" type="submit" name="add">
+              <span class="glyphicon glyphicon-plus"></span> Add Role
+            </button>
+            {% endif %}
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock content %}
