@@ -19,9 +19,11 @@ def createCourse(request, id, id2):
     session = get_object_or_404(Session, year=int(id))
     semester = get_object_or_404(Semester, session=session, semId=int(id2))
     ob = faculty.objects.filter()
+    course_codes = CourseCodeMaster.objects.all()
     cont = {'ob': ob,
             'session':session.year,
-            'semester':semester.semId
+            'semester':semester.semId,
+            'course_codes': course_codes,
             }
     if request.method == 'POST':
         name = request.POST['name']

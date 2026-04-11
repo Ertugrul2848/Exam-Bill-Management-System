@@ -8,6 +8,7 @@ from .course import (
 )
 from .billing import examBill, indBill, pdf_view, examBill2, semBill, indBill2
 from .registration import register, pending_registrations, approve_registration, reject_registration
+from .course_code import manage_course_codes, edit_course_code, sync_course_name, course_code_api
 
 __all__ = [
     'home', 'log', 'logOut',
