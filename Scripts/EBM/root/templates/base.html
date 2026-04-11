@@ -25,7 +25,7 @@
           <li><a href="{% url 'examBill' %}">Teacher Bill</a></li>
           <li><a href="{% url 'examBill2' %}">Semester Bill</a></li>
           {% if is_chairman %}<li><a href="{% url 'manage_course_codes' %}">Course Codes</a></li>{% endif %}
-          {% if is_chairman %}<li><a href="{% url 'all_bills' %}">Archived Bills</a></li>{% endif %}
+          <li><a href="{% url 'all_bills' %}">Archived Bills</a></li>
         </ul>
         <ul class="nav navbar-nav navbar-right">
           {% if is_chairman %}<li><a href="{% url 'pending_registrations' %}"><span class="glyphicon glyphicon-user"></span> Registrations</a></li>{% endif %}

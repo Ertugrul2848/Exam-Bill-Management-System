@@ -1,54 +1,73 @@
 {% extends 'base.html' %}
-{% block title %}Archived Bills — Chairman View{% endblock title %}
+{% block title %}Archived Bills{% endblock title %}
 {% block content %}
 <div class="container" style="margin-top: 40px;">
-  <h2 class="text-center fw-light mb-4">Archived Bills</h2>
-  <a href="{% url 'home' %}" class="btn btn-default mb-3">
-    <span class="glyphicon glyphicon-arrow-left"></span> Back to Home
-  </a>
 
-  <form method="get" class="d-flex mb-3" style="max-width: 500px;">
-    <input type="text" name="q" value="{{ q }}" class="form-control me-2" placeholder="Search by teacher name…">
-    <button class="btn btn-primary me-2" type="submit">
-      <span class="glyphicon glyphicon-search"></span> Search
-    </button>
-    {% if q %}
-    <a href="{% url 'all_bills' %}" class="btn btn-outline-secondary">Clear</a>
-    {% endif %}
-  </form>
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h3 class="panel-title">
+        Archived Bills
+        <span class="badge">{{ bills_page.paginator.count }}</span>
+      </h3>
+    </div>
+    <div class="panel-body">
+
+      <form method="get" class="form-inline">
+        <div class="form-group" style="margin-right: 8px;">
+          <label class="sr-only" for="q">Teacher Name</label>
+          <input type="text" id="q" name="q" value="{{ q }}" class="form-control" placeholder="Search by teacher name…">
+        </div>
+        <div class="form-group" style="margin-right: 8px;">
+          <label class="sr-only" for="session">Session</label>
+          <select id="session" name="session" class="form-control">
+            <option value="">All Sessions</option>
+            {% for s in sessions %}
+            <option value="{{ s.year }}" {% if session_filter == s.year|stringformat:"s" %}selected{% endif %}>{{ s.year }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">
+          <span class="glyphicon glyphicon-search"></span> Search
+        </button>
+        {% if q or session_filter %}
+        <a href="{% url 'all_bills' %}" class="btn btn-default" style="margin-left: 6px;">
+          <span class="glyphicon glyphicon-remove"></span> Clear
+        </a>
+        {% endif %}
+      </form>
+
+    </div>
+  </div>
 
   {% if bills_page.object_list %}
   <div class="panel panel-default">
-    <div class="panel-heading d-flex align-items-center justify-content-between">
-      <span>Archived Bills Overview</span>
-      <span class="label label-default">{{ bills_page.paginator.count }} total</span>
-    </div>
     <div class="table-responsive">
-      <table class="table table-hover table-striped mb-0">
-        <thead class="table-dark">
+      <table class="table table-hover table-striped" style="margin-bottom: 0;">
+        <thead>
           <tr>
-            <th>Session</th>
-            <th>Semester</th>
             <th>Teacher Name</th>
             <th>Email</th>
-            <th class="text-center">Moderator</th>
-            <th class="text-center">Translator</th>
-            <th class="text-center">Typist</th>
-            <th class="text-end" style="width: 100px;">Action</th>
+            <th>Session</th>
+            <th>Semester</th>
+            <th class="text-center">Roles</th>
+            <th class="text-center" style="width: 90px;">Action</th>
           </tr>
         </thead>
         <tbody>
           {% for bill in bills_page %}
           <tr>
-            <td>{{ bill.semester.session.year }}</td>
-            <td>{{ bill.semester.get_semId_display }}</td>
             <td><strong>{{ bill.teacher.name }}</strong></td>
             <td>{{ bill.teacher.email }}</td>
-            <td class="text-center">{% if bill.moderator %}<span class="label label-success">Yes</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
-            <td class="text-center">{% if bill.translator %}<span class="label label-info text-dark">Yes</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
-            <td class="text-center">{% if bill.typist %}<span class="label label-warning text-dark">Yes</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
-            <td class="text-end">
-              <a href="{% url 'indBill2' bill.semester.session.year bill.semester.semId bill.teacher.id %}" class="btn btn-primary btn-sm">
+            <td>{{ bill.semester.session.year }}</td>
+            <td>{{ bill.semester.get_semId_display }}</td>
+            <td class="text-center">
+              {% if bill.moderator %}<span class="label label-success">Moderator</span> {% endif %}
+              {% if bill.translator %}<span class="label label-info">Translator</span> {% endif %}
+              {% if bill.typist %}<span class="label label-warning">Typist</span> {% endif %}
+              {% if not bill.moderator and not bill.translator and not bill.typist %}<span class="text-muted">—</span>{% endif %}
+            </td>
+            <td class="text-center">
+              <a href="{% url 'indBill2' bill.semester.session.year bill.semester.semId bill.teacher.id %}" class="btn btn-primary btn-xs">
                 <span class="glyphicon glyphicon-eye-open"></span> View
               </a>
             </td>
@@ -60,36 +79,45 @@
   </div>
 
   {% if bills_page.has_other_pages %}
-  <nav class="mt-3">
-    <ul class="pagination justify-content-center">
+  <nav>
+    <ul class="pagination">
       {% if bills_page.has_previous %}
-      <li class="page-item"><a class="page-link" href="?page={{ bills_page.previous_page_number }}{% if q %}&q={{ q }}{% endif %}">&laquo; Previous</a></li>
+      <li><a href="?page={{ bills_page.previous_page_number }}{% if q %}&q={{ q }}{% endif %}{% if session_filter %}&session={{ session_filter }}{% endif %}">&laquo; Previous</a></li>
       {% else %}
-      <li class="page-item disabled"><span class="page-link">&laquo; Previous</span></li>
+      <li class="disabled"><span>&laquo; Previous</span></li>
       {% endif %}
 
-      {% for num in bills_page.paginator.page_range %}
+      {% for num in page_range %}
         {% if bills_page.number == num %}
-        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-        {% elif num >= bills_page.number|add:"-3" and num <= bills_page.number|add:"3" %}
-        <li class="page-item"><a class="page-link" href="?page={{ num }}{% if q %}&q={{ q }}{% endif %}">{{ num }}</a></li>
+        <li class="active"><span>{{ num }}</span></li>
+        {% else %}
+        <li><a href="?page={{ num }}{% if q %}&q={{ q }}{% endif %}{% if session_filter %}&session={{ session_filter }}{% endif %}">{{ num }}</a></li>
         {% endif %}
       {% endfor %}
 
       {% if bills_page.has_next %}
-      <li class="page-item"><a class="page-link" href="?page={{ bills_page.next_page_number }}{% if q %}&q={{ q }}{% endif %}">Next &raquo;</a></li>
+      <li><a href="?page={{ bills_page.next_page_number }}{% if q %}&q={{ q }}{% endif %}{% if session_filter %}&session={{ session_filter }}{% endif %}">Next &raquo;</a></li>
       {% else %}
-      <li class="page-item disabled"><span class="page-link">Next &raquo;</span></li>
+      <li class="disabled"><span>Next &raquo;</span></li>
       {% endif %}
     </ul>
   </nav>
   {% endif %}
 
   {% else %}
-  <div class="alert alert-info text-center">
+  <div class="alert alert-info">
     <span class="glyphicon glyphicon-info-sign"></span>
-    {% if q %}No bills found matching <strong>{{ q }}</strong>.{% else %}No archived bills found.{% endif %}
+    {% if q or session_filter %}
+      No archived bills found matching your filters.
+    {% else %}
+      No archived bills found.
+    {% endif %}
   </div>
   {% endif %}
+
+  <a href="{% url 'home' %}" class="btn btn-default">
+    <span class="glyphicon glyphicon-arrow-left"></span> Back to Home
+  </a>
+
 </div>
 {% endblock content %}
