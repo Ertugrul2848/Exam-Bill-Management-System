@@ -1,8 +1,6 @@
-{%extends 'nevigation.html'%} {%block body%}
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <style>
+{% extends 'base.html' %}
+{% block extra_css %}
+<style>
       .con {
         display: flex;
         justify-content: center;
@@ -54,13 +52,9 @@
         border: 2px solid black;
       }
     </style>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-  </head>
-  <body>
-    <div class="con">
+{% endblock extra_css %}
+{% block content %}
+<div class="con">
       <form method="POST">
         {%csrf_token%} {%if theory%}
         <h2>Update Course</h2>
@@ -174,6 +168,4 @@
         Thesis Supervising
       </button>
     </div>
-  </body>
-</html>
-{%endblock%}
+{% endblock content %}

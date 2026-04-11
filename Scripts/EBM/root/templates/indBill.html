@@ -1,7 +1,6 @@
-{%extends 'nevigation.html'%} {%block body%}
-<!DOCTYPE html>
-<html lang="en">
-  <style>
+{% extends 'base.html' %}
+{% block extra_css %}
+<style>
     body {
       background: white;
     }
@@ -47,14 +46,9 @@
       margin-bottom: 50px;
     }
   </style>
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-  </head>
-  <body>
-    <div class="con">
+{% endblock extra_css %}
+{% block content %}
+<div class="con">
       <div class="el">
         <h4><strong>Examiner Name : </strong>{{name.name}}</h4>
         <h4><strong>Title : </strong>{{name.title}}</h4>
@@ -100,6 +94,4 @@
         <button name="pdf" type="submit">Generate Pdf</button>
       </form>
     </div>
-  </body>
-</html>
-{%endblock body%}
+{% endblock content %}
