@@ -9,11 +9,11 @@
     margin-bottom: 30px;
     font-weight: 300;
   }
-  .card-header h3 {
+  .panel-heading h3 {
     margin: 0;
     font-size: 16px;
   }
-  .card-body .form-group {
+  .panel-body .form-group {
     margin-bottom: 15px;
   }
 </style>
@@ -26,14 +26,14 @@
     <!-- Create Committee Card (chairman only) -->
     {% if is_chairman %}
     <div class="col-md-4">
-      <div class="card border-primary">
-        <div class="card-header">
-          <h3 class="card-title">Create Committee</h3>
+      <div class="panel panel-primary">
+        <div class="panel-heading">
+          <h3 class="panel-title">Create Committee</h3>
         </div>
-        <div class="card-body text-center">
+        <div class="panel-body text-center">
           <p>Create a new exam committee for a session and semester.</p>
           <a href="{% url 'createCom' %}" class="btn btn-primary btn-block">
-            <span class="bi bi-plus-lg"></span> Create Committee
+            <span class="glyphicon glyphicon-plus"></span> Create Committee
           </a>
         </div>
       </div>
@@ -42,11 +42,11 @@
 
     <!-- View Committee Card -->
     <div class="col-md-4">
-      <div class="card border-info">
-        <div class="card-header">
-          <h3 class="card-title">View Committee</h3>
+      <div class="panel panel-info">
+        <div class="panel-heading">
+          <h3 class="panel-title">View Committee</h3>
         </div>
-        <div class="card-body">
+        <div class="panel-body">
           {% if sessions %}
           <form method="POST">
             {% csrf_token %}
@@ -59,12 +59,12 @@
               </select>
             </div>
             <button class="btn btn-info btn-block" type="submit" name="sess">
-              <span class="bi bi-eye"></span> View
+              <span class="glyphicon glyphicon-eye-open"></span> View
             </button>
           </form>
           {% else %}
           <div class="alert alert-warning" style="margin-bottom: 0;">
-            <span class="bi bi-info-circle"></span>
+            <span class="glyphicon glyphicon-info-sign"></span>
             No sessions available. Create a committee first to add a session.
           </div>
           {% endif %}
@@ -74,11 +74,11 @@
 
     <!-- View Semester Card -->
     <div class="col-md-4">
-      <div class="card border-success">
-        <div class="card-header">
-          <h3 class="card-title">View Semester</h3>
+      <div class="panel panel-success">
+        <div class="panel-heading">
+          <h3 class="panel-title">View Semester</h3>
         </div>
-        <div class="card-body">
+        <div class="panel-body">
           {% if sessions %}
           <form method="POST">
             {% csrf_token %}
@@ -96,7 +96,7 @@
           </form>
           {% else %}
           <div class="alert alert-warning" style="margin-bottom: 0;">
-            <span class="bi bi-info-circle"></span>
+            <span class="glyphicon glyphicon-info-sign"></span>
             No sessions available. Create a committee first to add a session.
           </div>
           {% endif %}

@@ -4,14 +4,14 @@
 <div class="container" style="margin-top: 40px;">
   <h2 class="text-center" style="font-weight: 300; margin-bottom: 30px;">Session {{ session }} — Exam Committees</h2>
 
-  <a href="{% url 'committee' %}" class="btn btn-secondary" style="margin-bottom: 20px;">
-    <span class="bi bi-arrow-left"></span> Back
+  <a href="{% url 'committee' %}" class="btn btn-default" style="margin-bottom: 20px;">
+    <span class="glyphicon glyphicon-arrow-left"></span> Back
   </a>
 
   {% if ob %}
-  <div class="card">
-    <div class="card-header">
-      <h3 class="card-title">Semesters</h3>
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h3 class="panel-title">Semesters</h3>
     </div>
     <table class="table table-hover" style="margin-bottom: 0;">
       <thead>
@@ -27,14 +27,14 @@
           <td>
             <strong>{{ o.st }}</strong>
             {% if o.qd.is_locked %}
-            <span class="bi bi-lock text-danger" title="Locked" style="margin-left: 6px;"></span>
+            <span class="glyphicon glyphicon-lock text-danger" title="Locked" style="margin-left: 6px;"></span>
             {% endif %}
           </td>
           <td>{{ o.qd.chairman.name }}</td>
           {% if is_chairman %}
           <td style="text-align: right;">
             <a href="{% url 'viewSem' session o.qd.semId %}" class="btn btn-primary btn-sm">
-              <span class="bi bi-eye"></span> View
+              <span class="glyphicon glyphicon-eye-open"></span> View
             </a>
           </td>
           {% endif %}
@@ -45,7 +45,7 @@
   </div>
   {% else %}
   <div class="alert alert-info text-center">
-    <span class="bi bi-info-circle"></span>
+    <span class="glyphicon glyphicon-info-sign"></span>
     No committees found for session {{ session }}.
     <a href="{% url 'createCom' %}" class="alert-link">Create one now</a>.
   </div>
