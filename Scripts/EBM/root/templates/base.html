@@ -23,7 +23,7 @@
         <ul class="nav navbar-nav">
           <li><a href="{% url 'committee' %}">Exam Committee</a></li>
           <li><a href="{% url 'examBill' %}">Teacher Bill</a></li>
-          <li><a href="{% url 'examBill2' %}">Semester Bill</a></li>
+          <li><a href="{% url 'examBill2' %}">Semester Summary</a></li>
           {% if is_chairman %}<li><a href="{% url 'manage_course_codes' %}">Course Codes</a></li>{% endif %}
           <li><a href="{% url 'all_bills' %}">Archived Bills</a></li>
         </ul>
