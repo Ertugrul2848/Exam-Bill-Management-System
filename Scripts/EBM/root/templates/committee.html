@@ -1,8 +1,6 @@
-{%extends 'nevigation.html'%} {%block body%}
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <style>
+{% extends 'base.html' %}
+{% block extra_css %}
+<style>
       #popdiv {
         height: 100%;
         width: 100%;
@@ -86,13 +84,9 @@
         border: 4px solid black;
       }
     </style>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-  </head>
-  <body>
-    {% for msg in messages%} {% if 'session' in msg.tags%}
+{% endblock extra_css %}
+{% block content %}
+{% for msg in messages%} {% if 'session' in msg.tags%}
     <div id="popdiv"></div>
     <div id="alert1">
       <strong> {{msg}} </strong>
@@ -101,7 +95,7 @@
     {%endif%} {%endfor%}
     <div class="con">
       <h1>Select an Option</h1>
-      <button><a href="/createCom">Create Committee</a></button>
+      <button><a href="{% url 'createCom' %}">Create Committee</a></button>
       <form method="POST">
         <h3>View Committee</h3>
         {%csrf_token%}
@@ -115,6 +109,4 @@
         <button type="submit" name="sem">Submit</button>
       </form>
     </div>
-  </body>
-</html>
-{%endblock body%}
+{% endblock content %}

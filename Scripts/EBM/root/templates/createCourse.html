@@ -1,8 +1,6 @@
-{%extends 'nevigation.html'%} {%block body %}
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <style>
+{% extends 'base.html' %}
+{% block extra_css %}
+<style>
       #alert1 {
         background: white;
         width: 350px;
@@ -166,13 +164,9 @@
         padding: 10px;
       }
     </style>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-  </head>
-  <body>
-    {% for msg in messages%} {% if 'error' in msg.tags%}
+{% endblock extra_css %}
+{% block content %}
+{% for msg in messages%} {% if 'error' in msg.tags%}
     <div id="popdiv"></div>
     <div id="alert1">
       <strong> {{msg}} </strong>
@@ -213,6 +207,4 @@
         <button type="submit">Create</button>
       </form>
     </div>
-  </body>
-</html>
-{%endblock body%}
+{% endblock content %}

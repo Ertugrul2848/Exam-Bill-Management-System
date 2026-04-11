@@ -1,8 +1,6 @@
-{%extends 'nevigation.html'%} {%block body%}
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <style>
+{% extends 'base.html' %}
+{% block extra_css %}
+<style>
       .el {
         display: flex;
         justify-content: space-between;
@@ -193,13 +191,9 @@
         font-size: 18px;
       }
     </style>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-  </head>
-  <body>
-    {% for msg in messages%} {% if 'chairman' in msg.tags%}
+{% endblock extra_css %}
+{% block content %}
+{% for msg in messages%} {% if 'chairman' in msg.tags%}
     <div id="popdiv"></div>
     <div id="alert1">
       <strong> {{msg}} </strong>
@@ -321,6 +315,4 @@
         {%endif%}
       </form>
     </div>
-  </body>
-</html>
-{%endblock body%}
+{% endblock content %}

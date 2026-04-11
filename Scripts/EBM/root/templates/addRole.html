@@ -1,8 +1,6 @@
-{%extends 'nevigation.html'%} {%block body%}
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <style>
+{% extends 'base.html' %}
+{% block extra_css %}
+<style>
       .con {
         display: flex;
         justify-content: center;
@@ -30,13 +28,9 @@
         font-size: 16px;
       }
     </style>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-  </head>
-  <body>
-    <div class="con">
+{% endblock extra_css %}
+{% block content %}
+<div class="con">
       <form method="POST">
         {%csrf_token%}
         <label>Select Teacher</label>
@@ -56,6 +50,4 @@
         <button type="submit">Add</button>
       </form>
     </div>
-  </body>
-</html>
-{%endblock%}
+{% endblock content %}

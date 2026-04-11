@@ -1,8 +1,6 @@
-{%extends 'nevigation.html'%} {%block body%}
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <style>
+{% extends 'base.html' %}
+{% block extra_css %}
+<style>
       .con {
         display: flex;
         justify-content: center;
@@ -24,13 +22,9 @@
         letter-spacing: 2px;
       }
     </style>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-  </head>
-  <body>
-    <div class="con">
+{% endblock extra_css %}
+{% block content %}
+<div class="con">
       <h1>{{session}} session</h1>
       {%for o in ob%}
       <button>
@@ -41,6 +35,4 @@
       </button>
       {%endfor%}
     </div>
-  </body>
-</html>
-{%endblock body%}
+{% endblock content %}
