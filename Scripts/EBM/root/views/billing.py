@@ -96,12 +96,15 @@ def pdf_view(request, id, id2, id3):
     ar = calc.calculate(include_amounts=True)
     total = sum(item.bill for item in ar)
     ss = get_semester_display(int(id2))
+    session_obj = get_object_or_404(Session, year=int(id))
+    semester_obj = get_object_or_404(Semester, session=session_obj, semId=int(id2))
     cont = {
         'ob': ar,
         'name': fac,
         'session': id,
         'ss': ss,
-        'total': total
+        'total': total,
+        'semester': semester_obj,
     }
     template_path = 'billing/pdf_view.html'
     response = HttpResponse(content_type='application/pdf')
@@ -211,3 +214,36 @@ def indBill2(request, id, id2, id3):
         'ss': ss
     }
     return render(request, 'billing/indBill.html', cont)
+
+
+@login_required(login_url='/log')
+def all_bills(request):
+    """Chairman-only view: all teachers across all semesters with their total bill amounts."""
+    is_chairman = User.objects.filter(username='chairman', pk=request.user.pk).exists()
+    if not is_chairman:
+        messages.error(request, 'Access Denied — chairman only.')
+        return redirect(reverse('home'))
+
+    rows = []
+    all_semesters = Semester.objects.all().select_related('session').order_by('-session__year', 'semId')
+    all_faculty_qs = faculty.objects.all()
+
+    for sem in all_semesters:
+        for fac in all_faculty_qs:
+            try:
+                calc = BillCalculator(sem.session.year, sem.semId, fac)
+                items = calc.calculate(include_amounts=True)
+                if items:
+                    total = sum(item.bill for item in items)
+                    rows.append({
+                        'session': sem.session.year,
+                        'semester': get_semester_display(sem.semId),
+                        'semId': sem.semId,
+                        'teacher': fac,
+                        'total': total,
+                        'fac_id': fac.id,
+                    })
+            except Exception:
+                pass
+
+    return render(request, 'billing/all_bills.html', {'rows': rows})

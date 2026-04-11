@@ -15,6 +15,7 @@
             <tr>
               <th>Teacher Name</th>
               <th>Students</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -23,6 +24,12 @@
               <td>{{ o.faculty.name }}</td>
               <td>
                 <input class="form-control supervising-field" type="number" min="0" value="{{ o.studentNo }}" name="student" data-original="{{ o.studentNo }}" />
+              </td>
+              <td>
+                <button class="btn btn-danger btn-xs" type="submit" name="delete_supervisor" value="{{ o.faculty.pk }}"
+                  onclick="return confirm('Remove {{ o.faculty.name }} from this thesis supervision?')">
+                  <span class="glyphicon glyphicon-trash"></span> Delete
+                </button>
               </td>
             </tr>
             {% endfor %}

@@ -148,7 +148,7 @@ def viewSem(request, id, id2):
     translator = SemesterBill.objects.filter(
         session=session, semester=semester, translator=1)
     flag = False
-    if ob == semester.chairman:
+    if ob == semester.chairman or (semester.acting_chairman and ob == semester.acting_chairman):
         flag = True
     # Build filtered teacher list — exclude teachers who already have ANY role
     all_role_emails = set()
@@ -287,6 +287,43 @@ def addRole(request, id, id2):
         return redirect(reverse('viewSem', args=[id, id2]))
     return render(request, 'committee/addRole.html', cont)
 
+
+
+@login_required(login_url='/log')
+def assign_acting_chairman(request, id, id2):
+    """Assign an acting chairman to a semester. Chairman-only (id=year, id2=semId)."""
+    ob = get_object_or_404(faculty, email=request.user.email)
+    session = get_object_or_404(Session, year=int(id))
+    semester = get_object_or_404(Semester, session=session, semId=int(id2))
+    if ob != semester.chairman:
+        messages.error(request, 'Access Denied !!!')
+        return redirect(reverse('viewSem', args=[id, id2]))
+    if request.method == 'POST':
+        selected_email = request.POST.get('acting_chairman', '').strip()
+        if not selected_email:
+            messages.error(request, 'Please select a faculty member.')
+        else:
+            selected_faculty = get_object_or_404(faculty, email=selected_email)
+            semester.acting_chairman = selected_faculty
+            semester.save()
+            messages.success(request, f'{selected_faculty.name} assigned as Acting Chairman.')
+    return redirect(reverse('viewSem', args=[id, id2]))
+
+
+@login_required(login_url='/log')
+def remove_acting_chairman(request, id, id2):
+    """Remove the acting chairman from a semester. Chairman-only (id=year, id2=semId)."""
+    ob = get_object_or_404(faculty, email=request.user.email)
+    session = get_object_or_404(Session, year=int(id))
+    semester = get_object_or_404(Semester, session=session, semId=int(id2))
+    if ob != semester.chairman:
+        messages.error(request, 'Access Denied !!!')
+        return redirect(reverse('viewSem', args=[id, id2]))
+    if request.method == 'POST':
+        semester.acting_chairman = None
+        semester.save()
+        messages.success(request, 'Acting Chairman removed.')
+    return redirect(reverse('viewSem', args=[id, id2]))
 
 
 @login_required(login_url='/log')

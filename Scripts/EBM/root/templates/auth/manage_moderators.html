@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% block title %}Manage Moderators{% endblock title %}
+{% block content %}
+<div class="container" style="margin-top: 40px;">
+  <h2 class="text-center" style="font-weight: 300; margin-bottom: 30px;">Moderator Role Management</h2>
+
+  <div style="margin-bottom: 20px;">
+    <a href="{% url 'home' %}" class="btn btn-default">
+      <span class="glyphicon glyphicon-arrow-left"></span> Back
+    </a>
+  </div>
+
+  <!-- Add Moderator Form -->
+  <div class="panel panel-primary">
+    <div class="panel-heading">
+      <h3 class="panel-title">
+        <span class="glyphicon glyphicon-plus"></span> Add Moderator
+      </h3>
+    </div>
+    <div class="panel-body">
+      <form method="post" action="{% url 'manage_moderators' %}">
+        {% csrf_token %}
+        <div class="row">
+          <div class="col-sm-4">
+            <div class="form-group">
+              <label for="teacher">Teacher</label>
+              <select name="teacher" id="teacher" class="form-control" required>
+                <option value="">-- Select Teacher --</option>
+                {% for t in teachers %}
+                <option value="{{ t.pk }}">{{ t.name }} ({{ t.title }})</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="col-sm-3">
+            <div class="form-group">
+              <label for="scope">Scope</label>
+              <select name="scope" id="scope" class="form-control" required onchange="toggleSemester(this.value)">
+                <option value="">-- Select Scope --</option>
+                <option value="system">System</option>
+                <option value="semester">Semester</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-sm-3" id="semester-field" style="display:none;">
+            <div class="form-group">
+              <label for="semester">Semester</label>
+              <select name="semester" id="semester" class="form-control">
+                <option value="">-- Select Semester --</option>
+                {% for s in semesters %}
+                <option value="{{ s.pk }}">{{ s.session.year }} — Sem {{ s.semId }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="col-sm-2" style="padding-top: 25px;">
+            <button type="submit" class="btn btn-primary btn-block">
+              <span class="glyphicon glyphicon-plus"></span> Add
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Current Moderators Table -->
+  {% if moderators %}
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h3 class="panel-title">
+        <span class="badge">{{ moderators|length }}</span> Active Moderators
+      </h3>
+    </div>
+    <table class="table table-hover" style="margin-bottom: 0;">
+      <thead>
+        <tr>
+          <th>Teacher</th>
+          <th>Scope</th>
+          <th>Semester</th>
+          <th>View Only</th>
+          <th>Create Sem</th>
+          <th>View Sem Bill</th>
+          <th>View All Bills</th>
+          <th>View Session Bills</th>
+          <th>Approve Requests</th>
+          <th>Assigned</th>
+          <th style="text-align:right;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for m in moderators %}
+        <tr>
+          <td><strong>{{ m.user.name }}</strong></td>
+          <td>
+            <span class="label {% if m.scope == 'system' %}label-danger{% else %}label-info{% endif %}">
+              {{ m.get_scope_display }}
+            </span>
+          </td>
+          <td>{% if m.semester %}{{ m.semester.session.year }} — Sem {{ m.semester.semId }}{% else %}<em class="text-muted">—</em>{% endif %}</td>
+          <td>{% if m.view_only %}<span class="glyphicon glyphicon-ok text-success"></span>{% else %}<span class="glyphicon glyphicon-remove text-muted"></span>{% endif %}</td>
+          <td>{% if m.can_create_semester %}<span class="glyphicon glyphicon-ok text-success"></span>{% else %}<span class="glyphicon glyphicon-remove text-muted"></span>{% endif %}</td>
+          <td>{% if m.can_view_semester_bill %}<span class="glyphicon glyphicon-ok text-success"></span>{% else %}<span class="glyphicon glyphicon-remove text-muted"></span>{% endif %}</td>
+          <td>{% if m.can_view_all_bills %}<span class="glyphicon glyphicon-ok text-success"></span>{% else %}<span class="glyphicon glyphicon-remove text-muted"></span>{% endif %}</td>
+          <td>{% if m.can_view_session_bills %}<span class="glyphicon glyphicon-ok text-success"></span>{% else %}<span class="glyphicon glyphicon-remove text-muted"></span>{% endif %}</td>
+          <td>{% if m.can_approve_requests %}<span class="glyphicon glyphicon-ok text-success"></span>{% else %}<span class="glyphicon glyphicon-remove text-muted"></span>{% endif %}</td>
+          <td>{{ m.created_at|date:"M d, Y" }}</td>
+          <td style="text-align:right;">
+            <a href="{% url 'edit_moderator' m.pk %}" class="btn btn-warning btn-sm">
+              <span class="glyphicon glyphicon-pencil"></span> Edit
+            </a>
+            <a href="{% url 'remove_moderator' m.pk %}" class="btn btn-danger btn-sm"
+               onclick="return confirm('Remove moderator role for {{ m.user.name }}?')">
+              <span class="glyphicon glyphicon-trash"></span> Remove
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="alert alert-info text-center">
+    <span class="glyphicon glyphicon-info-sign"></span> No moderators assigned yet.
+  </div>
+  {% endif %}
+</div>
+
+{% block extra_js %}
+<script>
+function toggleSemester(scope) {
+  document.getElementById('semester-field').style.display = (scope === 'semester') ? 'block' : 'none';
+}
+</script>
+{% endblock extra_js %}
+{% endblock content %}

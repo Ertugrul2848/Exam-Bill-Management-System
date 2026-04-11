@@ -42,6 +42,10 @@ class Semester(models.Model):
     tabular2 = models.ForeignKey(
         faculty, related_name="tabular2", on_delete=models.CASCADE)
     external = models.ForeignKey(External, on_delete=models.CASCADE)
+    acting_chairman = models.ForeignKey(
+        faculty, related_name='acting_chairman', on_delete=models.SET_NULL,
+        null=True, blank=True
+    )
 
     class Meta:
         app_label = 'root'

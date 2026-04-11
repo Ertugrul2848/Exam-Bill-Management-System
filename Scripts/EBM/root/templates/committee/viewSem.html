@@ -29,6 +29,14 @@
               <input type="text" class="form-control" value="{{ sem.chairman.name }}" disabled />
             </div>
             <div class="form-group">
+              <label>Acting Chairman</label>
+              {% if sem.acting_chairman %}
+              <input type="text" class="form-control" value="{{ sem.acting_chairman.name }}" disabled />
+              {% else %}
+              <input type="text" class="form-control" value="None assigned" disabled />
+              {% endif %}
+            </div>
+            <div class="form-group">
               <label>Tabulator 1</label>
               <select class="form-control committee-select" name="tabular1" data-original="{{ sem.tabular1.email }}">
                 <option value="{{ sem.tabular1.email }}" selected>{{ sem.tabular1.name }}</option>
@@ -69,6 +77,43 @@
           </form>
         </div>
       </div>
+
+      {% if flag %}
+      <!-- Acting Chairman Section -->
+      <div class="panel panel-warning">
+        <div class="panel-heading">
+          <h3 class="panel-title">Acting Chairman</h3>
+        </div>
+        <div class="panel-body">
+          <form method="POST" action="{% url 'assign_acting' session_id sem_id %}">
+            {% csrf_token %}
+            <div class="input-group">
+              <select class="form-control" name="acting_chairman" required>
+                <option selected disabled value="">-- Select Faculty --</option>
+                {% for o in ob %}
+                {% if o.email != sem.chairman.email %}
+                <option value="{{ o.email }}"{% if sem.acting_chairman and o.email == sem.acting_chairman.email %} selected{% endif %}>{{ o.name }}</option>
+                {% endif %}
+                {% endfor %}
+              </select>
+              <span class="input-group-btn">
+                <button class="btn btn-warning" type="submit">
+                  <span class="glyphicon glyphicon-user"></span> Assign
+                </button>
+              </span>
+            </div>
+          </form>
+          {% if sem.acting_chairman %}
+          <form method="POST" action="{% url 'remove_acting' session_id sem_id %}" style="margin-top: 10px;">
+            {% csrf_token %}
+            <button class="btn btn-danger btn-sm" type="submit">
+              <span class="glyphicon glyphicon-remove"></span> Remove Acting Chairman
+            </button>
+          </form>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
 
       {% if flag %}
       <!-- Add Roles Section -->

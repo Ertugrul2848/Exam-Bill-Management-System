@@ -28,6 +28,7 @@
         </ul>
         <ul class="nav navbar-nav navbar-right">
           {% if is_chairman %}<li><a href="{% url 'pending_registrations' %}"><span class="glyphicon glyphicon-user"></span> Registrations</a></li>{% endif %}
+          {% if is_chairman %}<li><a href="{% url 'manage_moderators' %}"><span class="glyphicon glyphicon-wrench"></span> Moderators</a></li>{% endif %}
           <li>
             <a href="{% url 'logOut' %}"
               ><span class="glyphicon glyphicon-log-out"></span> Logout</a
