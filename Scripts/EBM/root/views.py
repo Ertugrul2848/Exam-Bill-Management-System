@@ -11,6 +11,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import Group, User
+from .services import BillCalculator, get_semester_display
 
 # Create your views here.
 
@@ -541,313 +542,44 @@ def examBill(request):
 
 @login_required(login_url='/log')
 def indBill(request, id, id2, id3):
-    session = Session.objects.get(year=int(id))
-    semester = Semester.objects.get(session=session, semId=int(id2))
     fac = faculty.objects.get(email=request.user.email)
-    course = Course.objects.filter(session=session, semester=semester)
-    semBill = SemesterBill.objects.filter(session=session, semester=semester)
-    thesPaper=ThesisPaper.objects.filter(session=session,semester=semester)
-    thesSupervisor=ThesisSupervisor.objects.filter(session=session,semester=semester)
-    class bill:
-        def __init__(self, role, courseCode, courseName,  paperNo, duration,bill,st):
-            self.role = role
-            self.courseCode = courseCode
-            self.courseName = courseName
-            self.paperNo = paperNo
-            self.duration = duration
-            self.bill=bill
-            self.st=st
-    ar = []
-    if semester.chairman == fac:
-        p = bill(role="Chairman", courseCode=0,
-                 courseName="CSE", paperNo=0, duration=0,bill=2700,st=0)
-        ar.append(p)
-    if semester.tabular1 == fac or semester.tabular2 == fac:
-        tk=0
-        if semester.semId>=1 and semester.semId<=3:
-            tk=2500
-        else:
-            tk=3125
-        p = bill(role="Tabulation", courseCode=0,
-                 courseName="CSE", paperNo=0, duration=0,bill=tk,st=0)
-        ar.append(p)
-    for o in thesPaper:
-        if o.faculty==fac:
-            if o.paperNo>0:
-                p=bill(role='Thesis Paper Evaluation',courseCode=o.course.courseCode,
-                       courseName='CSE',paperNo=o.paperNo,duration=0,bill=o.paperNo*1250,
-                       st=0
-                       )
-                ar.append(p)
-    for o in thesSupervisor:
-        if o.faculty==fac:
-            if o.studentNo>0:
-                p=bill(role='Thesis Supervisor',courseCode=o.course.courseCode,
-                       courseName='CSE',paperNo=o.studentNo,duration=0,
-                       bill=o.studentNo*3100,st=0
-                       )
-                ar.append(p)
-    
-    for o in semBill:
-        if o.teacher == fac:
-            if o.moderator == 1:
-                p = bill(role="Moderation", courseCode=0,
-                         courseName="CSE", paperNo=len(course)-1, duration=0,bill=2150,st=len(course)-1)
-                ar.append(p)
-    for o in semBill:
-        if o.teacher == fac:
-            if o.translator == 1:
-                p = bill(role="Translation", courseCode=0,
-                         courseName="CSE", paperNo=len(course)-1, duration=0,bill=400,st=len(course-1))
-                ar.append(p)
-    for o in semBill:
-        if o.teacher == fac:
-            if o.typist == 1:
-                p = bill(role="Stencil-Cutter", courseCode=0,
-                         courseName="CSE", paperNo=len(course)-1, duration=0,bill=375,st=o.paperNo)
-                ar.append(p)
-
-    for o in course:
-        if o.type == 1 and o.internal == fac:
-            p = bill(role="Question-Paper Formulation", courseCode=o.courseCode,
-                     courseName="CSE", paperNo=0, duration=0,bill=2150,st=1)
-            ar.append(p)
-    for o in course:
-        if o.type == 1 and o.external == fac:
-            p = bill(role="Question-Paper Formulation", courseCode=o.courseCode,
-                     courseName="CSE", paperNo=0, duration=0,bill=2150,st=1)
-            ar.append(p)
-    for o in course:
-        if o.type == 1 and o.internal == fac:
-            p = bill(role="Paper Evaluation", courseCode=o.courseCode,
-                     courseName="CSE", paperNo=o.paperNo, duration=0,bill=o.paperNo*115,st=0)
-            ar.append(p)
-    for o in course:
-        if o.type == 1 and o.external == fac:
-            p = bill(role="Paper Evaluation", courseCode=o.courseCode,
-                     courseName="CSE", paperNo=o.paperNo, duration=0,bill=o.paperNo*115,st=0)
-            ar.append(p)
-    for o in course:
-        if o.type == 1 and o.thirdExaminer == fac:
-            p = bill(role="Paper Evaluation", courseCode=o.courseCode,
-                     courseName="CSE", paperNo=o.tPaperNo, duration=0,bill=o.paperNo*115,st=0)
-            ar.append(p)
-    for o in course:
-        if o.type == 2 and (o.internal == fac or o.external == fac):
-            p = bill(role="Lab Evaluation", courseCode=o.courseCode,
-                     courseName="CSE", paperNo=o.paperNo, duration=o.duration,bill=15000,st=0)
-            ar.append(p)
-    for o in course:
-        if o.type == 2 and (o.internal == fac or o.external == fac):
-            p = bill(role="Lab Viva", courseCode=o.courseCode,
-                     courseName="CSE", paperNo=0, duration=o.duration,bill=o.duration*200,st=0)
-            ar.append(p)
-    for o in course:
-        if o.type == 2:
-            ex = courseBill.objects.filter(
-                session=session, semester=semester, course=o)
-            for i in ex:
-                if ex.extra == fac:
-                    p = bill(role="Lab Invigilator", courseCode=o.courseCode,
-                             courseName="CSE", paperNo=0, duration=o.duration,bill=o.duration*400,st=0)
-                    ar.append(p)
-    for o in course:
-        if o.type == 3:
-            ex = courseBill.objects.filter(
-                session=session, semester=semester, course=o)
-            for i in ex:
-                if ex.extra == fac:
-                    p = bill(role="Viva-Voce", courseCode=o.courseCode,
-                             courseName="CSE", paperNo=0, duration=o.duration,bill=o.duration*200,st=0)
-                    ar.append(p)
-    aa = int(id2)
-    ca = int((aa+1)/2)
-    ss = ""
-    if ca == 1:
-        ss += "1st Year "
-    elif ca == 2:
-        ss += "2nd Year "
-    elif ca == 3:
-        ss += "3rd Year "
-    elif ca == 4:
-        ss += "4th Year "
-    if aa == 1:
-        ss += "1st Semester"
-    elif aa == 2:
-        ss += "2nd Semester"
-    total=0
-    for o in ar:
-        total+=o.bill
+    calc = BillCalculator(id, id2, fac)
+    ar = calc.calculate(include_amounts=True)
+    total = sum(item.bill for item in ar)
+    ss = get_semester_display(int(id2))
     cont = {
         'ob': ar,
         'name': fac,
         'session': id,
         'ss': ss,
-        'total':total
+        'total': total
     }
     if 'pdf' in request.POST:
-        res='/pdf_view/'+str(id)+'/'+str(id2)+'/'+str(id3)
+        res = '/pdf_view/' + str(id) + '/' + str(id2) + '/' + str(id3)
         return redirect(res)
     return render(request, 'indBill.html', cont)
 @login_required(login_url='/log')
-def pdf_view(request,id,id2,id3):
-    session = Session.objects.get(year=int(id))
-    semester = Semester.objects.get(session=session, semId=int(id2))
+def pdf_view(request, id, id2, id3):
     fac = faculty.objects.get(email=request.user.email)
-    course = Course.objects.filter(session=session, semester=semester)
-    semBill = SemesterBill.objects.filter(session=session, semester=semester)
-    thesPaper=ThesisPaper.objects.filter(session=session,semester=semester)
-    thesSupervisor=ThesisSupervisor.objects.filter(session=session,semester=semester)
-    class bill:
-        def __init__(self, role, courseCode, courseName,  paperNo, duration,bill,st):
-            self.role = role
-            self.courseCode = courseCode
-            self.courseName = courseName
-            self.paperNo = paperNo
-            self.duration = duration
-            self.bill=bill
-            self.st=st
-    ar = []
-    if semester.chairman == fac:
-        p = bill(role="Chairman", courseCode=0,
-                 courseName="CSE", paperNo=0, duration=0,bill=2700,st=0)
-        ar.append(p)
-    if semester.tabular1 == fac or semester.tabular2 == fac:
-        tk=0
-        if semester.semId>=1 and semester.semId<=3:
-            tk=2500
-        else:
-            tk=3125
-        p = bill(role="Tabulation", courseCode=0,
-                 courseName="CSE", paperNo=0, duration=0,bill=tk,st=0)
-        ar.append(p)
-    for o in thesPaper:
-        if o.faculty==fac:
-            if o.paperNo>0:
-                p=bill(role='Thesis Paper Evaluation',courseCode=o.course.courseCode,
-                       courseName='CSE',paperNo=o.paperNo,duration=0,bill=o.paperNo*1250,
-                       st=0
-                       )
-                ar.append(p)
-    for o in thesSupervisor:
-        if o.faculty==fac:
-            if o.studentNo>0:
-                p=bill(role='Thesis Supervisor',courseCode=o.course.courseCode,
-                       courseName='CSE',paperNo=o.studentNo,duration=0,
-                       bill=o.studentNo*3100,st=0
-                       )
-                ar.append(p)
-    
-    for o in semBill:
-        if o.teacher == fac:
-            if o.moderator == 1:
-                p = bill(role="Moderation", courseCode=0,
-                         courseName="CSE", paperNo=len(course)-1, duration=0,bill=2150,st=o.paperNo)
-                ar.append(p)
-    for o in semBill:
-        if o.teacher == fac:
-            if o.translator == 1:
-                p = bill(role="Translation", courseCode=0,
-                         courseName="CSE", paperNo=len(course)-1, duration=0,bill=400,st=o.paperNo)
-                ar.append(p)
-    for o in semBill:
-        if o.teacher == fac:
-            if o.typist == 1:
-                p = bill(role="Stencil-Cutter", courseCode=0,
-                         courseName="CSE", paperNo=len(course)-1, duration=0,bill=375,st=o.paperNo)
-                ar.append(p)
-
-    for o in course:
-        if o.type == 1 and o.internal == fac:
-            p = bill(role="Question-Paper Formulation", courseCode=o.courseCode,
-                     courseName="CSE", paperNo=0, duration=0,bill=2150,st=1)
-            ar.append(p)
-    for o in course:
-        if o.type == 1 and o.external == fac:
-            p = bill(role="Question-Paper Formulation", courseCode=o.courseCode,
-                     courseName="CSE", paperNo=0, duration=0,bill=2150,st=1)
-            ar.append(p)
-    for o in course:
-        if o.type == 1 and o.internal == fac:
-            p = bill(role="Paper Evaluation", courseCode=o.courseCode,
-                     courseName="CSE", paperNo=o.paperNo, duration=0,bill=o.paperNo*115,st=0)
-            ar.append(p)
-    for o in course:
-        if o.type == 1 and o.external == fac:
-            p = bill(role="Paper Evaluation", courseCode=o.courseCode,
-                     courseName="CSE", paperNo=o.paperNo, duration=0,bill=o.paperNo*115,st=0)
-            ar.append(p)
-    for o in course:
-        if o.type == 1 and o.thirdExaminer == fac:
-            p = bill(role="Paper Evaluation", courseCode=o.courseCode,
-                     courseName="CSE", paperNo=o.tPaperNo, duration=0,bill=o.paperNo*115,st=0)
-            ar.append(p)
-    for o in course:
-        if o.type == 2 and (o.internal == fac or o.external == fac):
-            p = bill(role="Lab Evaluation", courseCode=o.courseCode,
-                     courseName="CSE", paperNo=o.paperNo, duration=o.duration,bill=15000,st=0)
-            ar.append(p)
-    for o in course:
-        if o.type == 2 and (o.internal == fac or o.external == fac):
-            p = bill(role="Lab Viva", courseCode=o.courseCode,
-                     courseName="CSE", paperNo=0, duration=o.duration,bill=o.duration*200,st=0)
-            ar.append(p)
-    for o in course:
-        if o.type == 2:
-            ex = courseBill.objects.filter(
-                session=session, semester=semester, course=o)
-            for i in ex:
-                if ex.extra == fac:
-                    p = bill(role="Lab Invigilator", courseCode=o.courseCode,
-                             courseName="CSE", paperNo=0, duration=o.duration,bill=o.duration*400,st=0)
-                    ar.append(p)
-    for o in course:
-        if o.type == 3:
-            ex = courseBill.objects.filter(
-                session=session, semester=semester, course=o)
-            for i in ex:
-                if ex.extra == fac:
-                    p = bill(role="Viva-Voce", courseCode=o.courseCode,
-                             courseName="CSE", paperNo=0, duration=o.duration,bill=o.duration*200,st=0)
-                    ar.append(p)
-    aa = int(id2)
-    ca = int((aa+1)/2)
-    ss = ""
-    if ca == 1:
-        ss += "1st Year "
-    elif ca == 2:
-        ss += "2nd Year "
-    elif ca == 3:
-        ss += "3rd Year "
-    elif ca == 4:
-        ss += "4th Year "
-    if aa == 1:
-        ss += "1st Semester"
-    elif aa == 2:
-        ss += "2nd Semester"
-    elif aa==3:
-        ss+='3rd Semester'
-    else:
-        ss+=str(id2)+"th Semester" 
-    total=0
-    for o in ar:
-        total+=o.bill
+    calc = BillCalculator(id, id2, fac)
+    ar = calc.calculate(include_amounts=True)
+    total = sum(item.bill for item in ar)
+    ss = get_semester_display(int(id2))
     cont = {
         'ob': ar,
         'name': fac,
         'session': id,
         'ss': ss,
-        'total':total
+        'total': total
     }
-    template_path='pdf_view.html'
+    template_path = 'pdf_view.html'
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = ' filename="bill.pdf"'
     template = get_template(template_path)
-    html = template.render(cont)    
-    pisa_status = pisa.CreatePDF(
-       html, dest=response )
+    html = template.render(cont)
+    pisa_status = pisa.CreatePDF(html, dest=response)
     if pisa_status.err:
-       return HttpResponse('We had some errors <pre>' + html + '</pre>')
+        return HttpResponse('We had some errors <pre>' + html + '</pre>')
     return response
 
 @login_required(login_url='/log')
@@ -883,272 +615,34 @@ def examBill2(request):
     return render(request, 'examBill2.html')
 
 
-class bill:
-    def __init__(self, teacher,  role, courseCode, courseName,  paperNo, duration):
-        self.role = role
-        self.courseCode = courseCode
-        self.courseName = courseName
-        self.paperNo = paperNo
-        self.duration = duration
-        self.teacher = teacher
-
-
-def cal(id, id2, f):
-    session = Session.objects.get(year=int(id))
-    semester = Semester.objects.get(session=session, semId=int(id2))
-    fac = faculty.objects.get(email=f.email)
-    course = Course.objects.filter(session=session, semester=semester)
-    semBill = SemesterBill.objects.filter(session=session, semester=semester)
-
-    ar = []
-    if semester.chairman == fac:
-        p = bill(teacher=fac.email, role="Chairman", courseCode=0,
-                 courseName="CSE", paperNo=0, duration=0)
-        ar.append(p)
-    if semester.tabular1 == fac or semester.tabular2 == fac:
-        p = bill(teacher=fac.email, role="Tabulation", courseCode=0,
-                 courseName="CSE", paperNo=0, duration=0)
-        ar.append(p)
-
-    for o in semBill:
-        if o.teacher == fac:
-            if o.moderator == 1:
-                p = bill(teacher=fac.email, role="Moderation", courseCode=0,
-                         courseName="CSE", paperNo=len(course)-1, duration=0)
-                ar.append(p)
-    for o in semBill:
-        if o.teacher == fac:
-            if o.translator == 1:
-                p = bill(teacher=fac.email, role="Translation", courseCode=0,
-                         courseName="CSE", paperNo=len(course)-1, duration=0)
-                ar.append(p)
-    for o in semBill:
-        if o.teacher == fac:
-            if o.typist == 1:
-                p = bill(teacher=fac.email, role="Stencil-Cutter", courseCode=0,
-                         courseName="CSE", paperNo=len(course)-1, duration=0)
-                ar.append(p)
-
-    for o in course:
-        if o.type == 1 and o.internal == fac:
-            p = bill(teacher=fac.email, role="Question-Paper Formulation", courseCode=o.courseCode,
-                     courseName="CSE", paperNo=0, duration=0)
-            ar.append(p)
-    for o in course:
-        if o.type == 1 and o.external == fac:
-            p = bill(teacher=fac.email, role="Question-Paper Formulation", courseCode=o.courseCode,
-                     courseName="CSE", paperNo=0, duration=0)
-            ar.append(p)
-    for o in course:
-        if o.type == 1 and o.internal == fac:
-            p = bill(teacher=fac.email, role="Paper Evaluation", courseCode=o.courseCode,
-                     courseName="CSE", paperNo=o.paperNo, duration=0)
-            ar.append(p)
-    for o in course:
-        if o.type == 1 and o.external == fac:
-            p = bill(teacher=fac.email, role="Paper Evaluation", courseCode=o.courseCode,
-                     courseName="CSE", paperNo=o.paperNo, duration=0)
-            ar.append(p)
-    for o in course:
-        if o.type == 1 and o.thirdExaminer == fac:
-            p = bill(teacher=fac.email, role="Paper Evaluation", courseCode=o.courseCode,
-                     courseName="CSE", paperNo=o.tPaperNo, duration=0)
-            ar.append(p)
-    for o in course:
-        if o.type == 2 and (o.internal == fac or o.external == fac):
-            p = bill(teacher=fac.email, role="Lab Evaluation", courseCode=o.courseCode,
-                     courseName="CSE", paperNo=o.paperNo, duration=o.duration)
-            ar.append(p)
-    for o in course:
-        if o.type == 2 and (o.internal == fac or o.external == fac):
-            p = bill(teacher=fac.email, role="Lab Viva", courseCode=o.courseCode,
-                     courseName="CSE", paperNo=0, duration=o.duration)
-            ar.append(p)
-    for o in course:
-        if o.type == 2:
-            ex = courseBill.objects.filter(
-                session=session, semester=semester, course=o)
-            for i in ex:
-                if ex.extra == fac:
-                    p = bill(teacher=fac.email, role="Lab Invigilator", courseCode=o.courseCode,
-                             courseName="CSE", paperNo=0, duration=o.duration)
-                    ar.append(p)
-    for o in course:
-        if o.type == 3:
-            ex = courseBill.objects.filter(
-                session=session, semester=semester, course=o)
-            for i in ex:
-                if ex.extra == fac:
-                    p = bill(teacher=fac.email, role="Viva-Voce", courseCode=o.courseCode,
-                             courseName="CSE", paperNo=0, duration=o.duration)
-                    ar.append(p)
-    return ar
-
 @login_required(login_url='/log')
 def semBill(request, id, id2):
-    session = Session.objects.get(year=int(id))
-    semester = Semester.objects.get(session=session, semId=int(id2))
-    ex = faculty.objects.filter()
-    a = []
+    all_faculty = faculty.objects.filter()
     ob = []
-    for o in ex:
-        b = cal(id, id2, o)
-        if len(b) > 0:
-            a.append(b[0].teacher)
-    for o in a:
-        oo = faculty.objects.get(email=o)
-        ob.append(oo)
-    aa=int(id2)
-    ss=""
-    if aa == 1:
-        ss += "1st Semester"
-    elif aa == 2:
-        ss += "2nd Semester"
-    elif aa==3:
-        ss+='3rd Semester'
-    else:
-        ss+=str(id2)+"th Semester" 
+    for f in all_faculty:
+        calc = BillCalculator(id, id2, f)
+        items = calc.calculate(include_amounts=False)
+        if len(items) > 0:
+            ob.append(f)
+    ss = get_semester_display(int(id2))
     cont = {
         'ob': ob,
-        'semester':ss
+        'semester': ss
     }
-
     if request.method == 'POST':
         aa = request.POST.get('teacher')
-        bb = -111
         oo = faculty.objects.get(email=aa)
-        response = '/indBill2/'+str(id)+'/'+str(id2)+'/'+str(oo.id)
+        response = '/indBill2/' + str(id) + '/' + str(id2) + '/' + str(oo.id)
         return redirect(response)
-
     return render(request, 'semBill.html', cont)
 
 
 @login_required(login_url='/log')
 def indBill2(request, id, id2, id3):
-    session = Session.objects.get(year=int(id))
-    semester = Semester.objects.get(session=session, semId=int(id2))
     fac = faculty.objects.get(id=int(id3))
-    course = Course.objects.filter(session=session, semester=semester)
-    semBill = SemesterBill.objects.filter(session=session, semester=semester)
-    thesPaper=ThesisPaper.objects.filter(session=session,semester=semester)
-    thesSupervisor=ThesisSupervisor.objects.filter(session=session,semester=semester)
-    class bill:
-        def __init__(self, role, courseCode, courseName,  paperNo, duration):
-            self.role = role
-            self.courseCode = courseCode
-            self.courseName = courseName
-            self.paperNo = paperNo
-            self.duration = duration
-    ar = []
-    if semester.chairman == fac:
-        p = bill(role="Chairman", courseCode=0,
-                 courseName="CSE", paperNo=0, duration=0)
-        ar.append(p)
-    if semester.tabular1 == fac or semester.tabular2 == fac:
-        p = bill(role="Tabulation", courseCode=0,
-                 courseName="CSE", paperNo=0, duration=0)
-        ar.append(p)
-    for o in thesPaper:
-        if o.faculty==fac:
-            if o.paperNo>0:
-                p=bill(role='Thesis Paper Evaluation',courseCode=o.course.courseCode,
-                       courseName='CSE',paperNo=o.paperNo,duration=0
-                       )
-                ar.append(p)
-    for o in thesSupervisor:
-        if o.faculty==fac:
-            if o.studentNo>0:
-                p=bill(role='Thesis Supervisor',courseCode=o.course.courseCode,
-                       courseName='CSE',paperNo=o.studentNo,duration=0
-                       )
-                ar.append(p)
-    for o in semBill:
-        if o.teacher == fac:
-            if o.moderator == 1:
-                p = bill(role="Moderation", courseCode=0,
-                         courseName="CSE", paperNo=len(course)-1, duration=0)
-                ar.append(p)
-    for o in semBill:
-        if o.teacher == fac:
-            if o.translator == 1:
-                p = bill(role="Translation", courseCode=0,
-                         courseName="CSE", paperNo=len(course)-1, duration=0)
-                ar.append(p)
-    for o in semBill:
-        if o.teacher == fac:
-            if o.typist == 1:
-                p = bill(role="Stencil-Cutter", courseCode=0,
-                         courseName="CSE", paperNo=len(course)-1, duration=0)
-                ar.append(p)
-
-    for o in course:
-        if o.type == 1 and o.internal == fac:
-            p = bill(role="Question-Paper Formulation", courseCode=o.courseCode,
-                     courseName="CSE", paperNo=o.paperNo, duration=0)
-            ar.append(p)
-    for o in course:
-        if o.type == 1 and o.external == fac:
-            p = bill(role="Question-Paper Formulation", courseCode=o.courseCode,
-                     courseName="CSE", paperNo=o.paperNo, duration=0)
-            ar.append(p)
-    for o in course:
-        if o.type == 1 and o.internal == fac:
-            p = bill(role="Paper Evaluation", courseCode=o.courseCode,
-                     courseName="CSE", paperNo=o.paperNo, duration=0)
-            ar.append(p)
-    for o in course:
-        if o.type == 1 and o.external == fac:
-            p = bill(role="Paper Evaluation", courseCode=o.courseCode,
-                     courseName="CSE", paperNo=o.paperNo, duration=0)
-            ar.append(p)
-    for o in course:
-        if o.type == 1 and o.thirdExaminer == fac:
-            p = bill(role="Paper Evaluation", courseCode=o.courseCode,
-                     courseName="CSE", paperNo=o.tPaperNo, duration=0)
-            ar.append(p)
-    for o in course:
-        if o.type == 2 and (o.internal == fac or o.external == fac):
-            p = bill(role="Lab Evaluation", courseCode=o.courseCode,
-                     courseName="CSE", paperNo=o.paperNo, duration=o.duration)
-            ar.append(p)
-    for o in course:
-        if o.type == 2 and (o.internal == fac or o.external == fac):
-            p = bill(role="Lab Viva", courseCode=o.courseCode,
-                     courseName="CSE", paperNo=0, duration=o.duration)
-            ar.append(p)
-    for o in course:
-        if o.type == 2:
-            ex = courseBill.objects.filter(
-                session=session, semester=semester, course=o)
-            for i in ex:
-                if ex.extra == fac:
-                    p = bill(role="Lab Invigilator", courseCode=o.courseCode,
-                             courseName="CSE", paperNo=0, duration=o.duration)
-                    ar.append(p)
-    for o in course:
-        if o.type == 3:
-            ex = courseBill.objects.filter(
-                session=session, semester=semester, course=o)
-            for i in ex:
-                if ex.extra == fac:
-                    p = bill(role="Viva-Voce", courseCode=o.courseCode,
-                             courseName="CSE", paperNo=0, duration=o.duration)
-                    ar.append(p)
-    aa = int(id2)
-    ca = int((aa+1)/2)
-    ss = ""
-    if ca == 1:
-        ss += "1st Year "
-    elif ca == 2:
-        ss += "2nd Year "
-    elif ca == 3:
-        ss += "3rd Year "
-    elif ca == 4:
-        ss += "4th Year "
-    if aa == 1:
-        ss += "1st Semester"
-    elif aa == 2:
-        ss += "2nd Semester"
+    calc = BillCalculator(id, id2, fac)
+    ar = calc.calculate(include_amounts=False)
+    ss = get_semester_display(int(id2))
     cont = {
         'ob': ar,
         'name': fac,
