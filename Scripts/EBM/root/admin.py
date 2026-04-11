@@ -4,7 +4,7 @@ from django.contrib import admin
 from .models import (
     faculty, External, Session, Semester,
     SemesterBill, Course, courseBill,
-    ThesisPaper, ThesisSupervisor,
+    ThesisPaper, ThesisSupervisor, RegistrationRequest,
 )
 
 
@@ -66,3 +66,10 @@ class ThesisSupervisorAdmin(admin.ModelAdmin):
     list_display = ('course', 'faculty', 'studentNo', 'session', 'semester')
     list_filter = ('session',)
     search_fields = ('faculty__name',)
+
+
+@admin.register(RegistrationRequest)
+class RegistrationRequestAdmin(admin.ModelAdmin):
+    list_display = ('name', 'email', 'title', 'status', 'created_at')
+    list_filter = ('status',)
+    search_fields = ('name', 'email')
