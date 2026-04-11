@@ -384,8 +384,7 @@ def viewCourse(request, id, id2):
     if 'update' in request.POST:
         return redirect(reverse('updateCourse', args=[id, id2, request.POST['update']]))
     if 'delete' in request.POST:
-        co = Course.objects.get(
-            session=session, semester=semester, courseCode=int(request.POST['delete']))
+        co = get_object_or_404(Course, session=session, semester=semester, courseCode=int(request.POST['delete']))
         co.delete()
         return redirect(reverse('viewCourse', args=[id, id2]))
     return render(request, 'viewCourse.html', cont)
@@ -400,8 +399,7 @@ def updateCourse(request, id, id2, id3):
     theory = False
     lab = False
     viva = False
-    course = Course.objects.get(
-        session=session, semester=semester, courseCode=int(id3))
+    course = get_object_or_404(Course, session=session, semester=semester, courseCode=int(id3))
     extra = courseBill.objects.filter(
         session=session, semester=semester, course=course)
 
@@ -464,8 +462,7 @@ def addInvigilator(request, id, id2, id3):
     """Assign an extra invigilator to a lab/viva course (id=year, id2=semId, id3=courseCode)."""
     session = get_object_or_404(Session, year=int(id))
     semester = get_object_or_404(Semester, session=session, semId=int(id2))
-    course = Course.objects.get(
-        session=session, semester=semester, courseCode=int(id3))
+    course = get_object_or_404(Course, session=session, semester=semester, courseCode=int(id3))
     ob = faculty.objects.filter()
     ex = External.objects.filter()
     cont = {'ob': ob, }
@@ -483,8 +480,7 @@ def indCourse(request, id, id2, id3):
     """View individual course details and examiners (id=year, id2=semId, id3=courseCode)."""
     session = get_object_or_404(Session, year=int(id))
     semester = get_object_or_404(Semester, session=session, semId=int(id2))
-    course = Course.objects.get(
-        session=session, semester=semester, courseCode=int(id3))
+    course = get_object_or_404(Course, session=session, semester=semester, courseCode=int(id3))
     theory = False
     viva = False
     lab = False
@@ -656,8 +652,8 @@ def indBill2(request, id, id2, id3):
 def thesis(request, id, id2, id3):
     """Manage thesis paper evaluation assignments (id=year, id2=semId, id3=courseCode)."""
     session=get_object_or_404(Session, year=int(id))
-    semester=Semester.objects.get(session=session,semId=int(id2))
-    course=Course.objects.get(session=session,semester=semester,courseCode=int(id3))
+    semester=get_object_or_404(Semester, session=session,semId=int(id2))
+    course=get_object_or_404(Course, session=session,semester=semester,courseCode=int(id3))
     tec=faculty.objects.filter().order_by('name')
     tea=ThesisPaper.objects.filter(session=session,semester=semester,course=course)
     if not tea:
@@ -692,8 +688,8 @@ def thesis(request, id, id2, id3):
 def supervising(request, id, id2, id3):
     """Manage thesis supervisor assignments (id=year, id2=semId, id3=courseCode)."""
     session=get_object_or_404(Session, year=int(id))
-    semester=Semester.objects.get(session=session,semId=int(id2))
-    course=Course.objects.get(session=session,semester=semester,courseCode=int(id3))
+    semester=get_object_or_404(Semester, session=session,semId=int(id2))
+    course=get_object_or_404(Course, session=session,semester=semester,courseCode=int(id3))
     tec=faculty.objects.filter().order_by('name')
     tea=ThesisSupervisor.objects.filter(session=session,semester=semester,course=course)
     if not tea:
