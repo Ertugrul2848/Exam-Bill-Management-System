@@ -1,28 +1,4 @@
 {% extends 'base.html' %}
-{% block extra_css %}
-<style>
-      .con {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-        flex-direction: column;
-      }
-      .con > * {
-        margin-bottom: 20px;
-        width: 200px;
-        padding: 10px;
-      }
-      .con h1 {
-        width: 400px;
-        background-color: black;
-        color: white;
-        text-transform: uppercase;
-        font-weight: 500;
-        letter-spacing: 2px;
-      }
-    </style>
-{% endblock extra_css %}
 {% block content %}
 <div class="con">
       <h1>{{session}} session</h1>

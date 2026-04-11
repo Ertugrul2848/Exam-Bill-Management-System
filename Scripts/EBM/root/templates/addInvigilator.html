@@ -1,36 +1,4 @@
 {% extends 'base.html' %}
-{% block extra_css %}
-<style>
-      .con {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-      form {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-        padding: 20px;
-        background-color: whitesmoke;
-        box-shadow: 0 0 5px black;
-      }
-      form > * {
-        padding: 10px;
-        width: 300px;
-        margin-bottom: 20px;
-      }
-      label {
-        margin-bottom: 0;
-      }
-      button {
-        width: 200px;
-        background: black;
-        font-weight: 800;
-        color: white;
-      }
-    </style>
-{% endblock extra_css %}
 {% block content %}
 <div class="con">
       <form method="POST">
