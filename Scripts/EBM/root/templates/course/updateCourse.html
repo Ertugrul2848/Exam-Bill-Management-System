@@ -2,14 +2,14 @@
 {% block title %}Update Course{% endblock title %}
 {% block content %}
 <div class="container" style="margin-top: 40px; max-width: 600px;">
-  <a href="javascript:history.back()" class="btn btn-default" style="margin-bottom: 20px;">
-    <span class="glyphicon glyphicon-arrow-left"></span> Back
+  <a href="javascript:history.back()" class="btn btn-secondary" style="margin-bottom: 20px;">
+    <span class="bi bi-arrow-left"></span> Back
   </a>
 
   {% if theory %}
-  <div class="panel panel-primary">
-    <div class="panel-heading"><h3 class="panel-title">Update Theory Course</h3></div>
-    <div class="panel-body">
+  <div class="card border-primary">
+    <div class="card-header"><h3 class="card-title">Update Theory Course</h3></div>
+    <div class="card-body">
       <form method="POST" id="theoryForm">
         {% csrf_token %}
         <div class="form-group">
@@ -66,26 +66,26 @@
         {% endif %}
 
         <button class="btn btn-primary btn-block" name="theory" type="submit" id="theoryBtn">
-          <span class="glyphicon glyphicon-save"></span> Update
+          <span class="bi bi-floppy"></span> Update
         </button>
       </form>
 
         <hr />
         <h4>Additional External Examiners</h4>
         {% for ex in course_external_examiners %}
-        <div class="panel panel-default" style="padding: 10px;">
+        <div class="card" style="padding: 10px;">
           <strong>{{ ex.faculty.name }}</strong> — {{ ex.paper_count }} papers
           <form method="POST" style="display:inline;">
             {% csrf_token %}
             <input type="hidden" name="examiner_pk" value="{{ ex.id }}" />
-            <button type="submit" name="remove_examiner" class="btn btn-xs btn-danger pull-right"
+            <button type="submit" name="remove_examiner" class="btn btn-sm btn-danger pull-right"
               onclick="return confirm('Remove this examiner?')">Remove</button>
           </form>
         </div>
         {% empty %}
         <p class="text-muted">No additional external examiners assigned.</p>
         {% endfor %}
-        <form method="POST" class="well well-sm">
+        <form method="POST" class="card bg-light p-2">
           {% csrf_token %}
           <label>Add External Examiner</label>
           <select class="form-control" name="new_external_examiner" style="margin-bottom:8px;">
@@ -94,27 +94,27 @@
           </select>
           <label>Paper Count</label>
           <input class="form-control" type="number" name="new_external_paper_count" value="0" min="0" style="margin-bottom:8px;" />
-          <button type="submit" name="add_external" class="btn btn-default btn-block">
-            <span class="glyphicon glyphicon-plus"></span> Add External Examiner
+          <button type="submit" name="add_external" class="btn btn-secondary btn-block">
+            <span class="bi bi-plus-lg"></span> Add External Examiner
           </button>
         </form>
 
         <hr />
         <h4>Additional Third Examiners</h4>
         {% for tx in course_third_examiners %}
-        <div class="panel panel-default" style="padding: 10px;">
+        <div class="card" style="padding: 10px;">
           <strong>{{ tx.faculty.name }}</strong> — {{ tx.paper_count }} papers
           <form method="POST" style="display:inline;">
             {% csrf_token %}
             <input type="hidden" name="examiner_pk" value="{{ tx.id }}" />
-            <button type="submit" name="remove_examiner" class="btn btn-xs btn-danger pull-right"
+            <button type="submit" name="remove_examiner" class="btn btn-sm btn-danger pull-right"
               onclick="return confirm('Remove this examiner?')">Remove</button>
           </form>
         </div>
         {% empty %}
         <p class="text-muted">No additional third examiners assigned.</p>
         {% endfor %}
-        <form method="POST" class="well well-sm">
+        <form method="POST" class="card bg-light p-2">
           {% csrf_token %}
           <label>Add Third Examiner</label>
           <select class="form-control" name="new_third_examiner" style="margin-bottom:8px;">
@@ -123,8 +123,8 @@
           </select>
           <label>Paper Count</label>
           <input class="form-control" type="number" name="new_third_paper_count" value="0" min="0" style="margin-bottom:8px;" />
-          <button type="submit" name="add_third" class="btn btn-default btn-block">
-            <span class="glyphicon glyphicon-plus"></span> Add Third Examiner
+          <button type="submit" name="add_third" class="btn btn-secondary btn-block">
+            <span class="bi bi-plus-lg"></span> Add Third Examiner
           </button>
         </form>
     </div>
@@ -132,9 +132,9 @@
   {% endif %}
 
   {% if lab %}
-  <div class="panel panel-success">
-    <div class="panel-heading"><h3 class="panel-title">Update Lab Course</h3></div>
-    <div class="panel-body">
+  <div class="card border-success">
+    <div class="card-header"><h3 class="card-title">Update Lab Course</h3></div>
+    <div class="card-body">
       <form method="POST" id="labForm">
         {% csrf_token %}
         <div class="form-group">
@@ -155,19 +155,19 @@
         <div class="form-group">
           <label>Lab Invigilators</label>
           {% for o in extra %}
-          <span class="label label-info" style="font-size: 14px; margin-right: 5px;">{{ o.extra.name }}</span>
+          <span class="badge bg-info" style="font-size: 14px; margin-right: 5px;">{{ o.extra.name }}</span>
           {% endfor %}
         </div>
         {% endif %}
-        <button class="btn btn-default btn-block" type="submit" name="invigilator" style="margin-bottom: 10px;">
-          <span class="glyphicon glyphicon-plus"></span> Add Invigilator
+        <button class="btn btn-secondary btn-block" type="submit" name="invigilator" style="margin-bottom: 10px;">
+          <span class="bi bi-plus-lg"></span> Add Invigilator
         </button>
         <div class="form-group">
           <label>Duration (hours)</label>
           <input class="form-control lab-field" type="number" value="{{ course.duration }}" name="duration" data-original="{{ course.duration }}" />
         </div>
         <button class="btn btn-success btn-block" type="submit" name="lab" id="labBtn" disabled>
-          <span class="glyphicon glyphicon-save"></span> Update
+          <span class="bi bi-floppy"></span> Update
         </button>
       </form>
     </div>
@@ -175,9 +175,9 @@
   {% endif %}
 
   {% if viva %}
-  <div class="panel panel-warning">
-    <div class="panel-heading"><h3 class="panel-title">Update Viva Course</h3></div>
-    <div class="panel-body">
+  <div class="card border-warning">
+    <div class="card-header"><h3 class="card-title">Update Viva Course</h3></div>
+    <div class="card-body">
       <form method="POST" id="vivaForm">
         {% csrf_token %}
         <div class="form-group">
@@ -191,19 +191,19 @@
         <div class="form-group">
           <label>Internals</label>
           {% for o in extra %}
-          <span class="label label-info" style="font-size: 14px; margin-right: 5px;">{{ o.extra.name }}</span>
+          <span class="badge bg-info" style="font-size: 14px; margin-right: 5px;">{{ o.extra.name }}</span>
           {% endfor %}
         </div>
         {% endif %}
-        <button class="btn btn-default btn-block" type="submit" name="invigilator" style="margin-bottom: 10px;">
-          <span class="glyphicon glyphicon-plus"></span> Add Internals
+        <button class="btn btn-secondary btn-block" type="submit" name="invigilator" style="margin-bottom: 10px;">
+          <span class="bi bi-plus-lg"></span> Add Internals
         </button>
         <div class="form-group">
           <label>Duration (hours)</label>
           <input class="form-control viva-field" type="number" value="{{ course.duration }}" name="duration" data-original="{{ course.duration }}" />
         </div>
         <button class="btn btn-warning btn-block" type="submit" name="viva" id="vivaBtn" disabled>
-          <span class="glyphicon glyphicon-save"></span> Update
+          <span class="bi bi-floppy"></span> Update
         </button>
       </form>
     </div>

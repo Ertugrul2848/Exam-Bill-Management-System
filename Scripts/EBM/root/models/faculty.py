@@ -5,8 +5,8 @@ from django.db import models
 
 class faculty(models.Model):
     """Faculty member (teacher/instructor) profile."""
-    username = models.CharField(max_length=100, null=True, blank=True)
-    email = models.EmailField(blank=True, null=True)
+    username = models.CharField(max_length=100, unique=True)
+    email = models.EmailField(unique=True)
     name = models.CharField(max_length=100, blank=True)
     title = models.CharField(max_length=100, blank=True)
     password = models.CharField(max_length=15, blank=True)

@@ -10,7 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import Group, User
 from xhtml2pdf import pisa
-from ..models import *
+from ..models import faculty, External, Session, Semester, SemesterBill
 from ..services import BillCalculator, get_semester_display
 
 @login_required(login_url='/log')
@@ -348,6 +348,22 @@ def toggle_archive(request, id, id2):
     messages.success(request, f'Semester {semester.get_display_name()} {status}.')
     show = '1' if request.GET.get('show_archived') == '1' else '0'
     return redirect(f"{reverse('viewCom', args=[id])}?show_archived={show}")
+
+
+@login_required(login_url='/log')
+def toggle_lock(request, id, id2):
+    """Toggle lock status of a semester. Chairman-only (id=year, id2=semId)."""
+    is_chairman = User.objects.filter(username='chairman', pk=request.user.pk).exists()
+    if not is_chairman:
+        messages.error(request, 'Access Denied!')
+        return redirect(reverse('viewSem', args=[id, id2]))
+    session = get_object_or_404(Session, year=int(id))
+    semester = get_object_or_404(Semester, session=session, semId=int(id2))
+    semester.is_locked = not semester.is_locked
+    semester.save()
+    status = 'locked' if semester.is_locked else 'unlocked'
+    messages.success(request, f'Semester {semester.get_display_name()} {status}.')
+    return redirect(reverse('viewSem', args=[id, id2]))
 
 
 @login_required(login_url='/log')

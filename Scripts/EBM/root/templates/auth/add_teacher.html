@@ -11,13 +11,13 @@
         {% endfor %}
       {% endif %}
 
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          <h3 class="panel-title">Add Teacher by Email</h3>
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Add Teacher by Email</h3>
         </div>
-        <div class="panel-body">
+        <div class="card-body">
           <p class="text-muted" style="margin-bottom: 20px;">
-            Enter the teacher's email address. They will be prompted to complete their profile (name, title, password) on first login.
+            Enter the teacher's email address. An invitation link will be emailed to them — they click it to set their name, title, and password.
           </p>
           <form method="post">
             {% csrf_token %}
@@ -28,14 +28,14 @@
             </div>
 
             <button type="submit" class="btn btn-primary btn-block">
-              <span class="glyphicon glyphicon-plus"></span> Add Teacher
+              <span class="bi bi-plus-lg"></span> Add Teacher
             </button>
           </form>
         </div>
       </div>
 
-      <a href="{% url 'pending_registrations' %}" class="btn btn-default">
-        <span class="glyphicon glyphicon-arrow-left"></span> Back to Pending Registrations
+      <a href="{% url 'pending_registrations' %}" class="btn btn-secondary">
+        <span class="bi bi-arrow-left"></span> Back to Pending Registrations
       </a>
 
     </div>

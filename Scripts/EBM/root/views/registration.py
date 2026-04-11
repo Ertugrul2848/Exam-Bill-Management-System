@@ -1,12 +1,16 @@
 """Teacher registration and chairman approval views."""
 
+import uuid
+from datetime import timedelta
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.core.mail import send_mail
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 from ..models import faculty, RegistrationRequest
 
 
@@ -123,21 +127,45 @@ def add_teacher_direct(request):
             messages.error(request, 'A user with this email already exists!')
             return render(request, 'auth/add_teacher.html')
 
-        username = email.split('@')[0]
-        base_username = username
-        counter = 1
-        while User.objects.filter(username=username).exists():
-            username = f"{base_username}{counter}"
-            counter += 1
-
-        # Temporary password is the email itself; teacher sets their own on first login
-        User.objects.create_user(username=username, email=email, password=email)
-        faculty.objects.create(
-            username=username, email=email,
-            name='', title='', password=email,
-            is_profile_complete=False,
+        # Create an invitation-only RegistrationRequest (no User yet — teacher registers via token link)
+        expires_at = timezone.now() + timedelta(days=7)
+        reg, created = RegistrationRequest.objects.get_or_create(
+            email=email,
+            defaults={
+                'name': '',
+                'title': '',
+                'password': '',
+                'status': 'pending',
+                'invitation_token': uuid.uuid4(),
+                'token_expires_at': expires_at,
+            },
         )
-        messages.success(request, f'Teacher with email {email} added. They must complete their profile on first login.')
+        if not created:
+            # Refresh token and expiry for re-invited teachers
+            reg.invitation_token = uuid.uuid4()
+            reg.token_expires_at = expires_at
+            reg.status = 'pending'
+            reg.save()
+
+        # Build invitation link and send email
+        invite_url = request.build_absolute_uri(
+            reverse('register_with_token', kwargs={'token': reg.invitation_token})
+        )
+        send_mail(
+            subject='You have been invited to join the EBM System',
+            message=(
+                f'Hello,\n\n'
+                f'You have been invited to register as a teacher in the Exam Bill Management System.\n\n'
+                f'Please click the link below to complete your registration (valid for 7 days):\n\n'
+                f'{invite_url}\n\n'
+                f'If you did not expect this invitation, please ignore this email.\n\n'
+                f'Regards,\nEBM System'
+            ),
+            from_email=None,  # uses DEFAULT_FROM_EMAIL from settings
+            recipient_list=[email],
+            fail_silently=False,
+        )
+        messages.success(request, f'Invitation email sent to {email}. They must complete their registration via the link.')
         return redirect(reverse('pending_registrations'))
 
     return render(request, 'auth/add_teacher.html')
@@ -194,6 +222,83 @@ def complete_profile(request):
         return redirect(reverse('home'))
 
     return render(request, 'auth/complete_profile.html', {'title_choices': TITLE_CHOICES})
+
+
+def register_with_token(request, token):
+    """Public view: teacher completes registration via emailed invitation link."""
+    reg = get_object_or_404(RegistrationRequest, invitation_token=token)
+
+    # Check if token has expired
+    if reg.token_expires_at and timezone.now() > reg.token_expires_at:
+        messages.error(request, 'This invitation link has expired. Please ask the chairman to re-send an invitation.')
+        return redirect(reverse('log'))
+
+    # Check if already approved (link reused)
+    if reg.status == 'approved':
+        messages.info(request, 'This invitation has already been used. Please log in.')
+        return redirect(reverse('log'))
+
+    TITLE_CHOICES = [
+        ('Professor', 'Professor'),
+        ('Associate Professor', 'Associate Professor'),
+        ('Assistant Professor', 'Assistant Professor'),
+        ('Lecturer', 'Lecturer'),
+    ]
+
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+        title = request.POST.get('title', '').strip()
+        password = request.POST.get('password', '').strip()
+
+        if not all([name, title, password]):
+            messages.error(request, 'All fields are required!')
+            return render(request, 'auth/register_token.html', {'reg': reg, 'title_choices': TITLE_CHOICES})
+
+        valid_titles = [t[0] for t in TITLE_CHOICES]
+        if title not in valid_titles:
+            messages.error(request, 'Please select a valid title.')
+            return render(request, 'auth/register_token.html', {'reg': reg, 'title_choices': TITLE_CHOICES})
+
+        if len(password) < 8:
+            messages.error(request, 'Password must be at least 8 characters.')
+            return render(request, 'auth/register_token.html', {'reg': reg, 'title_choices': TITLE_CHOICES})
+
+        if User.objects.filter(email=reg.email).exists():
+            messages.error(request, 'An account with this email already exists. Please log in.')
+            return redirect(reverse('log'))
+
+        # Derive unique username from email
+        username = reg.email.split('@')[0]
+        base_username = username
+        counter = 1
+        while User.objects.filter(username=username).exists():
+            username = f"{base_username}{counter}"
+            counter += 1
+
+        # Create Django User
+        user = User.objects.create_user(username=username, email=reg.email, password=password)
+
+        # Create faculty record
+        faculty.objects.create(
+            username=username,
+            email=reg.email,
+            name=name,
+            title=title,
+            password=password,
+            is_profile_complete=True,
+        )
+
+        # Mark registration as approved
+        reg.name = name
+        reg.title = title
+        reg.password = password
+        reg.status = 'approved'
+        reg.save()
+
+        messages.success(request, 'Registration complete! You can now log in.')
+        return redirect(reverse('log'))
+
+    return render(request, 'auth/register_token.html', {'reg': reg, 'title_choices': TITLE_CHOICES})
 
 
 @login_required(login_url='/log')

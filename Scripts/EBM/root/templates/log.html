@@ -33,7 +33,7 @@
     align-items: center;
     justify-content: center;
   }
-  .login-card .logo-icon .glyphicon {
+  .login-card .logo-icon .bi {
     color: #fff;
     font-size: 28px;
   }
@@ -53,7 +53,7 @@
     margin-bottom: 20px;
     position: relative;
   }
-  .login-card .form-group .glyphicon {
+  .login-card .form-group .bi {
     position: absolute;
     left: 12px;
     top: 11px;
@@ -104,7 +104,7 @@
 {% block content %}
 <div class="login-card">
   <div class="logo-icon">
-    <span class="glyphicon glyphicon-education"></span>
+    <span class="bi bi-mortarboard"></span>
   </div>
   <h2>EBM System</h2>
   <p class="subtitle">Exam Bill Management — Sign in to continue</p>
@@ -112,10 +112,10 @@
   {% for msg in messages %}
     {% if 'log' in msg.tags %}
     <div class="alert alert-danger alert-dismissible fade in" role="alert">
-      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">
         <span aria-hidden="true">&times;</span>
       </button>
-      <span class="glyphicon glyphicon-exclamation-sign"></span>&nbsp; {{ msg }}
+      <span class="bi bi-exclamation-circle"></span>&nbsp; {{ msg }}
     </div>
     {% endif %}
   {% endfor %}
@@ -123,11 +123,11 @@
   <form method="POST">
     {% csrf_token %}
     <div class="form-group">
-      <span class="glyphicon glyphicon-envelope"></span>
+      <span class="bi bi-envelope"></span>
       <input type="email" name="email" class="form-control" placeholder="Email address" required />
     </div>
     <div class="form-group">
-      <span class="glyphicon glyphicon-lock"></span>
+      <span class="bi bi-lock"></span>
       <input type="password" name="pass" class="form-control" placeholder="Password" required />
     </div>
     <button type="submit" name="log" class="btn btn-login">Sign In</button>

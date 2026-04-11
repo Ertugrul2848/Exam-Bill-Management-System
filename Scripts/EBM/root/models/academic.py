@@ -47,9 +47,11 @@ class Semester(models.Model):
         null=True, blank=True
     )
     is_archived = models.BooleanField(default=False)
+    is_locked = models.BooleanField(default=False)
 
     class Meta:
         app_label = 'root'
+        unique_together = [('session', 'semId')]
 
     def get_display_name(self):
         """Return human-readable semester name."""

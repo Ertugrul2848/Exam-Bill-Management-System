@@ -4,18 +4,18 @@
 <div class="container" style="margin-top: 40px;">
   <h2 class="text-center" style="font-weight: 300; margin-bottom: 30px;">Pending Teacher Registrations</h2>
   <div style="margin-bottom: 20px;">
-    <a href="{% url 'home' %}" class="btn btn-default">
-      <span class="glyphicon glyphicon-arrow-left"></span> Back
+    <a href="{% url 'home' %}" class="btn btn-secondary">
+      <span class="bi bi-arrow-left"></span> Back
     </a>
     <a href="{% url 'add_teacher_direct' %}" class="btn btn-primary" style="margin-left: 10px;">
-      <span class="glyphicon glyphicon-plus"></span> Add Teacher
+      <span class="bi bi-plus-lg"></span> Add Teacher
     </a>
   </div>
 
   {% if pending %}
-  <div class="panel panel-default">
-    <div class="panel-heading">
-      <h3 class="panel-title">
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">
         <span class="badge">{{ pending|length }}</span> Pending Applications
       </h3>
     </div>
@@ -38,10 +38,10 @@
           <td>{{ r.created_at|date:"M d, Y" }}</td>
           <td style="text-align: right;">
             <a href="{% url 'approve_registration' r.pk %}" class="btn btn-success btn-sm" onclick="return confirm('Approve {{ r.name }}?')">
-              <span class="glyphicon glyphicon-ok"></span> Approve
+              <span class="bi bi-check"></span> Approve
             </a>
             <a href="{% url 'reject_registration' r.pk %}" class="btn btn-danger btn-sm" onclick="return confirm('Reject {{ r.name }}?')">
-              <span class="glyphicon glyphicon-remove"></span> Reject
+              <span class="bi bi-x"></span> Reject
             </a>
           </td>
         </tr>
@@ -51,7 +51,7 @@
   </div>
   {% else %}
   <div class="alert alert-info text-center">
-    <span class="glyphicon glyphicon-info-sign"></span> No pending registrations.
+    <span class="bi bi-info-circle"></span> No pending registrations.
   </div>
   {% endif %}
 </div>
