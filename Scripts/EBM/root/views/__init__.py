@@ -7,8 +7,8 @@ from .course import (
     addInvigilator, indCourse, thesis, supervising,
 )
 from .billing import examBill, indBill, pdf_view, examBill2, semBill, indBill2, all_bills
-from .registration import register, pending_registrations, approve_registration, reject_registration, add_teacher_direct
-from .course_code import manage_course_codes, edit_course_code, sync_course_name, course_code_api
+from .registration import register, pending_registrations, approve_registration, reject_registration, add_teacher_direct, complete_profile
+from .course_code import manage_course_codes, edit_course_code, sync_course_name, course_code_api, manage_credits
 from .moderator import manage_moderators, edit_moderator, remove_moderator
 
 __all__ = [

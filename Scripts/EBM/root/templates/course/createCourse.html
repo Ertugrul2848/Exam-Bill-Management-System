@@ -29,7 +29,16 @@
         </div>
         <div class="form-group">
           <label>Credits</label>
+          {% if accepted_credits %}
+          <select class="form-control" name="credit" required>
+            <option selected disabled value="">-- Select Credits --</option>
+            {% for ac in accepted_credits %}
+            <option value="{{ ac.value }}">{{ ac.value }}</option>
+            {% endfor %}
+          </select>
+          {% else %}
           <input class="form-control" type="number" name="credit" placeholder="Enter Credits" required />
+          {% endif %}
         </div>
         <div class="form-group">
           <label>Course Type</label>
@@ -72,6 +81,15 @@ $('#code-select').on('change', function() {
   var name = $(this).find(':selected').data('name');
   if (name) {
     $('#name-input').val(name);
+  }
+});
+
+$('form').on('submit', function(e) {
+  var internal = $('select[name="internal"]').val();
+  var external = $('select[name="external"]').val();
+  if (internal && external && internal === external) {
+    e.preventDefault();
+    alert('Internal and external examiner cannot be the same person.');
   }
 });
 </script>

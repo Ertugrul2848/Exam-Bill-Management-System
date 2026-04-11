@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import JsonResponse
-from ..models import CourseCodeMaster, Course
+from ..models import CourseCodeMaster, AcceptedCredit, Course
 
 
 def _is_chairman(request):
@@ -93,6 +93,43 @@ def sync_course_name(request, pk):
             messages.success(request, f'Synced {updated} course(s) to master name "{cc.name}"')
 
     return redirect(reverse('manage_course_codes'))
+
+
+@login_required(login_url='/log')
+def manage_credits(request):
+    """Chairman-only: list, add, and delete accepted course credit values."""
+    if not _is_chairman(request):
+        messages.error(request, 'Access Denied! Only chairman can manage accepted credits.')
+        return redirect(reverse('home'))
+
+    credits = AcceptedCredit.objects.all()
+
+    if request.method == 'POST' and 'add_credit' in request.POST:
+        value = request.POST.get('value', '').strip()
+        if not value:
+            messages.error(request, 'Credit value is required!')
+        else:
+            try:
+                int_val = int(value)
+                if int_val <= 0:
+                    raise ValueError
+                if AcceptedCredit.objects.filter(value=int_val).exists():
+                    messages.error(request, f'Credit {int_val} already exists!')
+                else:
+                    AcceptedCredit.objects.create(value=int_val)
+                    messages.success(request, f'Credit {int_val} added.')
+            except ValueError:
+                messages.error(request, 'Credit value must be a positive integer.')
+        return redirect(reverse('manage_credits'))
+
+    if request.method == 'POST' and 'delete_credit' in request.POST:
+        credit_id = request.POST.get('delete_credit')
+        ac = get_object_or_404(AcceptedCredit, pk=int(credit_id))
+        ac.delete()
+        messages.success(request, f'Credit {ac.value} deleted.')
+        return redirect(reverse('manage_credits'))
+
+    return render(request, 'course/manage_credits.html', {'credits': credits})
 
 
 @login_required(login_url='/log')

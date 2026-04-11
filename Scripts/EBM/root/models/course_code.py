@@ -18,3 +18,15 @@ class CourseCodeMaster(models.Model):
 
     def __str__(self):
         return f"{self.code} — {self.name}"
+
+
+class AcceptedCredit(models.Model):
+    value = models.IntegerField(unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        app_label = 'root'
+        ordering = ['value']
+
+    def __str__(self):
+        return str(self.value)

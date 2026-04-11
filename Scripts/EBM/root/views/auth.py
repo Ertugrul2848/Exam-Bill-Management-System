@@ -15,7 +15,13 @@ from ..services import BillCalculator, get_semester_display
 
 @login_required(login_url='/log')
 def home(request):
-    """Landing page. Requires authentication."""
+    """Landing page. Requires authentication. Redirects incomplete profiles."""
+    try:
+        teacher = faculty.objects.get(username=request.user.username)
+        if not teacher.is_profile_complete:
+            return redirect(reverse('complete_profile'))
+    except faculty.DoesNotExist:
+        pass
     return render(request, 'home.html')
 
 
