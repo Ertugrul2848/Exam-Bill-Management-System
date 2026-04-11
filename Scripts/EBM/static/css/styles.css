@@ -1,0 +1,277 @@
+/* ==========================================================================
+   Exam Bill Management System — Shared Styles
+   ========================================================================== */
+
+/* ---------- Modal / popup overlay ---------- */
+#popdiv {
+  height: 100%;
+  width: 100%;
+  opacity: 0.5;
+  background-color: black;
+  position: fixed;
+  top: 0;
+  z-index: 10;
+  left: 0;
+}
+
+/* ---------- Alert dialogs ---------- */
+#alert1 {
+  background: white;
+  width: 350px;
+  padding: 20px;
+  height: 200px;
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+  position: absolute;
+  z-index: 9999;
+  text-align: center;
+  top: 40%;
+  left: 40%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  border-radius: 20px;
+  color: black;
+  border-bottom: solid 25px #a90c04;
+}
+
+#alert1 h3 {
+  color: red;
+  margin-bottom: 20px;
+}
+
+#alert1 #suc {
+  box-shadow: rgb(211, 57, 57) 0px 7px 29px 0px;
+  font-size: 5rem;
+  color: white;
+  background: #d13e36fc;
+  padding: 25px;
+  border-radius: 50%;
+  position: absolute;
+  top: -20%;
+  left: 32%;
+}
+
+#alert2 {
+  background: white;
+  width: 350px;
+  padding: 20px;
+  height: 200px;
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+  position: absolute;
+  z-index: 9999;
+  text-align: center;
+  top: 40%;
+  left: 40%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  border-radius: 20px;
+  color: black;
+  border-bottom: solid 25px #39cf2e;
+}
+
+#alert2 h3 {
+  color: #4bb543;
+  margin-bottom: 20px;
+}
+
+#alert1 #ok,
+#alert2 #ok {
+  box-shadow: #4bb543 0px 7px 29px 0px;
+  font-size: 5rem;
+  color: white;
+  background: #4bb543;
+  padding: 25px;
+  border-radius: 50%;
+  position: absolute;
+  top: -20%;
+  left: 32%;
+}
+
+/* ---------- Common close button ---------- */
+.button {
+  margin-top: 30px;
+  padding: 10px 20px;
+  background: white;
+  border-radius: 10px;
+  outline: none;
+  color: black;
+  box-shadow: rgba(52, 39, 39, 0.24) 0px 3px 8px;
+  border: none;
+  cursor: pointer;
+  width: 100px;
+  font-weight: 400;
+  font-size: 18px;
+}
+
+/* ---------- Centered container ---------- */
+.con {
+  margin-top: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.con > * {
+  margin-bottom: 20px;
+}
+
+.con a {
+  color: black;
+}
+
+/* ---------- Forms ---------- */
+.form-container {
+  background: whitesmoke;
+  padding: 40px;
+  box-shadow: 0 0 10px black;
+  display: flex;
+  width: 500px;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.form-container > * {
+  margin-bottom: 20px;
+}
+
+.form-container input,
+.form-container select {
+  padding: 10px;
+  width: 400px;
+}
+
+.form-container button {
+  width: 200px;
+  border: 2px solid black;
+  padding: 10px;
+  background: black;
+  color: white;
+  font-size: 18px;
+}
+
+/* ---------- Section headings ---------- */
+.section-heading {
+  background: black;
+  padding: 10px;
+  width: 250px;
+  text-transform: uppercase;
+  font-size: 20px;
+  font-weight: 500;
+  text-align: center;
+  color: white;
+}
+
+/* ---------- Sub heading ---------- */
+.sub {
+  margin-top: 100px;
+  text-align: center;
+}
+
+/* ---------- Login page ---------- */
+.login-body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  margin-top: 100px;
+}
+
+.login-form {
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px black;
+  background: whitesmoke;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.login-form > * {
+  margin-bottom: 20px;
+}
+
+.login-form input {
+  padding: 10px;
+  width: 200px;
+}
+
+.login-form button {
+  padding: 10px;
+  width: 150px;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+/* ---------- Login alert ---------- */
+.login-overlay {
+  background: rgba(92, 84, 84, 0.757);
+  position: absolute;
+  min-height: 142vh;
+  min-width: 100vw;
+  z-index: 5;
+}
+
+.login-alert {
+  background: rgb(184, 94, 94);
+  position: absolute;
+  z-index: 400;
+  width: 300px;
+  padding: 40px;
+  top: 30%;
+  left: 40%;
+  color: white;
+  border-radius: 10px;
+  font-family: "Courier New", Courier, monospace;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+
+.login-alert button {
+  padding: 10px;
+  width: 200px;
+  border: none;
+  background: white;
+  color: #db341e;
+  font-weight: 800;
+  margin-left: 20%;
+  outline: none;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.login-alert h3 {
+  text-align: center;
+}
+
+.login-alert h2 {
+  text-align: center;
+  margin-top: 0;
+  font-size: 19px;
+  font-weight: 500;
+  margin-bottom: 10px;
+}
+
+/* ---------- Home page ---------- */
+.home-con {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20%;
+  margin-left: 20%;
+  width: 1000px;
+  background: salmon;
+  border-radius: 10px;
+  border: 5px solid seagreen;
+}
+
+/* ---------- Tables ---------- */
+.table-container {
+  margin: 20px auto;
+  width: 90%;
+}
