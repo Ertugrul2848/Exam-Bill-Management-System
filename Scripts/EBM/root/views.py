@@ -108,7 +108,13 @@ def committee(request):
                 messages.error(request, 'Session Does not Exist !!')
             else:
                 return redirect(reverse('createSem', args=[sess]))
-    return render(request, 'committee.html')
+    from datetime import datetime
+    sessions = Session.objects.all().order_by('-year')
+    current_year = datetime.now().year
+    return render(request, 'committee.html', {
+        'sessions': sessions,
+        'current_year': current_year,
+    })
 
 
 @login_required(login_url='/log')
@@ -124,9 +130,15 @@ def createCom(request):
     if not is_chairman:
         messages.error(request, 'Access Denied !!!')
     else:
+        from datetime import datetime
         ob = faculty.objects.filter()
         oc = External.objects.filter()
-        cont = {'ob': ob, 'oc': oc}
+        cont = {
+            'ob': ob,
+            'oc': oc,
+            'current_year': datetime.now().year,
+            'semester_choices': Semester.SEMESTER_CHOICES,
+        }
         if request.method == 'POST':
             session_year = int(request.POST['session'])
             if session_year < 1900:

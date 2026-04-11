@@ -1,58 +1,96 @@
 {% extends 'base.html' %}
+{% block title %}Exam Committee — EBM System{% endblock title %}
 {% block extra_css %}
 <style>
-h1 {
-        background: black;
-        padding: 10px;
-        width: 250px;
-        text-transform: uppercase;
-        font-size: 20px;
-        font-weight: 500;
-        text-align: center;
-        color: white;
-      }
-      button {
-        padding: 10px;
-        border: 2px solid black;
-        outline: none;
-        width: 200px;
-        font-weight: 700;
-        font-size: 16px;
-      }
-      input {
-        padding: 10px;
-        width: 200px;
-      }
-      form {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-        border: 2px solid black;
-        padding: 20px;
-        background: whitesmoke;
-      }
-      form > * {
-        margin-bottom: 20px;
-      }
+  .committee-dashboard {
+    margin-top: 40px;
+  }
+  .committee-dashboard h2 {
+    margin-bottom: 30px;
+    font-weight: 300;
+  }
+  .panel-heading h3 {
+    margin: 0;
+    font-size: 16px;
+  }
+  .panel-body .form-group {
+    margin-bottom: 15px;
+  }
 </style>
 {% endblock extra_css %}
 {% block content %}
+<div class="container committee-dashboard">
+  <h2 class="text-center">Exam Committee</h2>
 
-    <div class="con">
-      <h1>Select an Option</h1>
-      <button><a href="{% url 'createCom' %}">Create Committee</a></button>
-      <form method="POST">
-        <h3>View Committee</h3>
-        {%csrf_token%}
-        <input class="form-control" type="number" name="session" min="1900" placeholder="Enter Session" />
-        <button class="btn btn-primary" type="submit" name="sess">Submit</button>
-      </form>
-      <form method="POST">
-        <h3>View Semester</h3>
-        {%csrf_token%}
-        <input class="form-control" type="number" name="session" min="1900" placeholder="Enter Session" />
-        <button class="btn btn-primary" type="submit" name="sem">Submit</button>
-      </form>
+  <div class="row">
+    <!-- Create Committee Card -->
+    <div class="col-md-4">
+      <div class="panel panel-primary">
+        <div class="panel-heading">
+          <h3 class="panel-title">Create Committee</h3>
+        </div>
+        <div class="panel-body text-center">
+          <p>Create a new exam committee for a session and semester.</p>
+          <a href="{% url 'createCom' %}" class="btn btn-primary btn-block">
+            <span class="glyphicon glyphicon-plus"></span> Create Committee
+          </a>
+        </div>
+      </div>
     </div>
+
+    <!-- View Committee Card -->
+    <div class="col-md-4">
+      <div class="panel panel-info">
+        <div class="panel-heading">
+          <h3 class="panel-title">View Committee</h3>
+        </div>
+        <div class="panel-body">
+          <form method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+              <label>Select Session</label>
+              <select class="form-control" name="session" required>
+                {% for s in sessions %}
+                <option value="{{ s.year }}" {% if s.year == current_year %}selected{% endif %}>{{ s.year }}</option>
+                {% empty %}
+                <option disabled selected>No sessions available</option>
+                {% endfor %}
+              </select>
+            </div>
+            <button class="btn btn-info btn-block" type="submit" name="sess">
+              <span class="glyphicon glyphicon-eye-open"></span> View
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- View Semester Card -->
+    <div class="col-md-4">
+      <div class="panel panel-success">
+        <div class="panel-heading">
+          <h3 class="panel-title">View Semester</h3>
+        </div>
+        <div class="panel-body">
+          <form method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+              <label>Select Session</label>
+              <select class="form-control" name="session" required>
+                {% for s in sessions %}
+                <option value="{{ s.year }}" {% if s.year == current_year %}selected{% endif %}>{{ s.year }}</option>
+                {% empty %}
+                <option disabled selected>No sessions available</option>
+                {% endfor %}
+              </select>
+            </div>
+            <button class="btn btn-success btn-block" type="submit" name="sem">
+              <span class="glyphicon glyphicon-list"></span> View
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock content %}

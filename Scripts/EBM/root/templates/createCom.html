@@ -1,92 +1,95 @@
 {% extends 'base.html' %}
+{% block title %}Create Committee — EBM System{% endblock title %}
 {% block extra_css %}
 <style>
-form {
-        background: whitesmoke;
-        padding: 40px;
-        box-shadow: 0 0 10px black;
-        margin-top: 100px;
-        display: flex;
-        width: 500px;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-      }
-      input {
-        padding: 10px;
-        width: 400px;
-      }
-      select {
-        padding: 10px;
-        width: 400px;
-      }
-      form > * {
-        margin-bottom: 20px;
-      }
-      form > label {
-        margin-left: 0;
-      }
-      button {
-        width: 200px;
-        border: 2px solid black;
-        padding: 10px;
-        background: black;
-        color: white;
-        font-size: 18px;
-      }
+  .create-com {
+    margin-top: 40px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
 </style>
 {% endblock extra_css %}
 {% block content %}
-
-    <div class="con">
-      <form method="POST">
-        <h1>Create Committee</h1>
-        {%csrf_token%}
-        <label for="">Select Session</label>
-        <input class="form-control" type="number" name="session" min="1900" id="" />
-        <label for="">Select Semester</label>
-        <select class="form-control" name="year">
-          <option selected disabled></option>
-          <option value="10">5-2</option>
-          <option value="9">5-1</option>
-          <option value="8">4-2</option>
-          <option value="7">4-1</option>
-          <option value="6">3-2</option>
-          <option value="5">3-1</option>
-          <option value="4">2-2</option>
-          <option value="3">2-1</option>
-          <option value="2">1-2</option>
-          <option value="1">1-1</option>
-        </select>
-        <label>Select Chairman</label>
-        <select class="form-control" name="chairman">
-          <option selected disabled></option>
-          {%for o in ob%}
-          <option value="{{o.email}}">{{o.name}}</option>
-          {%endfor%}
-        </select>
-        <label>Select Tabular1</label>
-        <select class="form-control" name="tabular1">
-          <option selected disabled></option>
-          {%for o in ob%}
-          <option value="{{o.email}}">{{o.name}}</option>
-          {%endfor%}
-        </select>
-        <label>Select Tabular2</label>
-        <select class="form-control" name="tabular2">
-          <option selected disabled></option>
-          {%for o in ob%}
-          <option value="{{o.email}}">{{o.name}}</option>
-          {%endfor%}
-        </select>
-        <label for="">Select External</label>
-        <select class="form-control" name="external" id="">
-          <option selected disabled></option>
-          {%for o in oc%}
-          <option value="{{o.email}}">{{o.name}}</option>
-          {%endfor%}
-        </select>
-        <button class="btn btn-primary" type="submit">Create</button>
-      </form>
+<div class="container create-com">
+  <div class="panel panel-primary">
+    <div class="panel-heading">
+      <h3 class="panel-title">Create Exam Committee</h3>
     </div>
+    <div class="panel-body">
+      {% if ob %}
+      <form method="POST">
+        {% csrf_token %}
+
+        <div class="form-group">
+          <label>Session (Year)</label>
+          <input class="form-control" type="number" name="session" min="1900"
+                 value="{{ current_year }}" required />
+        </div>
+
+        <div class="form-group">
+          <label>Semester</label>
+          <select class="form-control" name="year" required>
+            <option selected disabled value="">-- Select Semester --</option>
+            {% for value, label in semester_choices %}
+            <option value="{{ value }}">{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Chairman</label>
+          <select class="form-control" name="chairman" required>
+            <option selected disabled value="">-- Select Chairman --</option>
+            {% for o in ob %}
+            <option value="{{ o.email }}">{{ o.name }} ({{ o.title }})</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Tabulator 1</label>
+          <select class="form-control" name="tabular1" required>
+            <option selected disabled value="">-- Select Tabulator 1 --</option>
+            {% for o in ob %}
+            <option value="{{ o.email }}">{{ o.name }} ({{ o.title }})</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Tabulator 2</label>
+          <select class="form-control" name="tabular2" required>
+            <option selected disabled value="">-- Select Tabulator 2 --</option>
+            {% for o in ob %}
+            <option value="{{ o.email }}">{{ o.name }} ({{ o.title }})</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>External Examiner</label>
+          <select class="form-control" name="external" required>
+            <option selected disabled value="">-- Select External --</option>
+            {% for o in oc %}
+            <option value="{{ o.email }}">{{ o.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <button class="btn btn-primary btn-block" type="submit">
+          <span class="glyphicon glyphicon-ok"></span> Create Committee
+        </button>
+      </form>
+      {% else %}
+      <div class="alert alert-danger">
+        <strong>Access Denied!</strong> Only the chairman can create committees.
+      </div>
+      <a href="{% url 'committee' %}" class="btn btn-default">
+        <span class="glyphicon glyphicon-arrow-left"></span> Back
+      </a>
+      {% endif %}
+    </div>
+  </div>
+</div>
 {% endblock content %}
