@@ -94,8 +94,7 @@ def committee(request):
         sess = int(sess)
         ob = Session.objects.filter(year=sess)
         if not ob:
-            messages.error(request, 'Session Does not Exist !!',
-                           extra_tags='session')
+            messages.error(request, 'Session Does not Exist !!')
         else:
             return redirect(reverse('viewCom', args=[request.POST['session']]))
     if 'sem' in request.POST:
@@ -103,8 +102,7 @@ def committee(request):
         sess = int(sess)
         ob = Session.objects.filter(year=sess)
         if not ob:
-            messages.error(request, 'Session Does not Exist !!',
-                           extra_tags='session')
+            messages.error(request, 'Session Does not Exist !!')
         else:
             return redirect(reverse('createSem', args=[sess]))
     return render(request, 'committee.html')
@@ -122,7 +120,7 @@ def createCom(request):
     chairman = User.objects.get(username='chairman')
     cont = None
     if not us == chairman:
-        messages.error(request, 'Access Denied !!!', extra_tags='access')
+        messages.error(request, 'Access Denied !!!')
     else:
         ob = faculty.objects.filter()
         oc = External.objects.filter()
@@ -144,7 +142,7 @@ def createCom(request):
                         flag = True
                 if flag:
                     messages.error(
-                        request, "Chairman Already Exists in another Committee !", extra_tags='chairman')
+                        request, "Chairman Already Exists in another Committee !")
                 else:
                     tea1 = faculty.objects.get(email=request.POST['tabular1'])
                     tea2 = faculty.objects.get(email=request.POST['tabular2'])
@@ -154,7 +152,7 @@ def createCom(request):
                         flag = True
                     if flag:
                         messages.error(
-                            request, 'Faculty can not be selected more than once !!', extra_tags="twice")
+                            request, 'Faculty can not be selected more than once !!')
                     else:
                         bb = Semester(semId=int(
                             request.POST['year']), session=ca, chairman=chairman, tabular1=tea1, tabular2=tea2, external=tea3)
@@ -165,10 +163,10 @@ def createCom(request):
                                 session=ca, semester=bb, teacher=tea)
                             aa.save()
                         messages.success(
-                            request, "Committee Created Successfully", extra_tags="success")
+                            request, "Committee Created Successfully")
             else:
                 messages.error(
-                    request, "Semester Already Exists !!", extra_tags="sem")
+                    request, "Semester Already Exists !!")
     return render(request, 'createCom.html', cont)
 
 
@@ -252,7 +250,7 @@ def viewSem(request, id, id2):
             flag = True
         if flag:
             messages.error(
-                request, 'Faculty can not be selected more than once !!', extra_tags="twice")
+                request, 'Faculty can not be selected more than once !!')
         else:
             semester.tabular1 = faculty.objects.get(
                 email=request.POST.get('tabular1'))
@@ -262,7 +260,7 @@ def viewSem(request, id, id2):
                 email=request.POST.get('external'))
             semester.save()
             messages.success(
-                request, 'Committee Updated Successfully !', extra_tags='update')
+                request, 'Committee Updated Successfully !')
     con = None
     if 'add' in request.POST:
         return redirect(reverse('addRole', args=[id, id2]))
@@ -406,10 +404,9 @@ def createCourse(request, id, id2):
                             courseName=name, courseCode=code, credit=credit, type=type)
                 oa.save()
             messages.success(
-                request, 'Course Created Successfully !!', extra_tags='success')
+                request, 'Course Created Successfully !!')
         else:
-            messages.error(request, 'Course Already Exists',
-                           extra_tags='error')
+            messages.error(request, 'Course Already Exists')
     return render(request, 'createCourse.html', cont)
 
 
@@ -577,7 +574,7 @@ def examBill(request):
                 flag = True
         if flag:
             messages.error(
-                request, 'Session Or Semester Does not Exist !!', extra_tags='nn')
+                request, 'Session Or Semester Does not Exist !!')
         else:
             return redirect(reverse('indBill', args=[request.POST['session'], request.POST['semester'], request.user.id]))
     return render(request, 'examBill.html')
@@ -643,7 +640,7 @@ def examBill2(request):
                 flag = True
         if flag:
             messages.error(
-                request, 'Session Or Semester Does not Exist !!', extra_tags='nn')
+                request, 'Session Or Semester Does not Exist !!')
         else:
             ca = faculty.objects.get(email=request.user.email)
             da = faculty.objects.get(email="chairman@gmail.com")
@@ -652,7 +649,7 @@ def examBill2(request):
             if not (ca == semester.chairman or da == ca):
                 flag = True
             if flag:
-                messages.error(request, 'Access Denied !!', extra_tags='chair')
+                messages.error(request, 'Access Denied !!')
             else:
                 return redirect(reverse('semBill', args=[request.POST['session'], request.POST['semester']]))
     return render(request, 'examBill2.html')
