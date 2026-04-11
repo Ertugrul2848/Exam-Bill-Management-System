@@ -356,9 +356,11 @@ def createSem(request, id):
     session = get_object_or_404(Session, year=int(id))
     semester = Semester.objects.filter(session=session)
     ar = [{'qd': o, 'st': o.get_display_name()} for o in semester]
+    is_chairman = User.objects.filter(username='chairman', pk=request.user.pk).exists()
     cont = {
         'ob': ar,
-        'session': id
+        'session': id,
+        'is_chairman': is_chairman,
     }
     return render(request, 'committee/createSem.html', cont)
 
