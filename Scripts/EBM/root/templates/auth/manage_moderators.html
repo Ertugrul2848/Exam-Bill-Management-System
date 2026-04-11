@@ -6,25 +6,25 @@
 
   {% if not is_system %}
   <div class="alert alert-info">
-    <span class="bi bi-info-circle"></span>
+    <span class="glyphicon glyphicon-info-sign"></span>
     <strong>Semester Chairman View:</strong> You can only manage moderators for semesters you chair.
   </div>
   {% endif %}
 
   <div style="margin-bottom: 20px;">
-    <a href="{% url 'home' %}" class="btn btn-secondary">
-      <span class="bi bi-arrow-left"></span> Back
+    <a href="{% url 'home' %}" class="btn btn-default">
+      <span class="glyphicon glyphicon-arrow-left"></span> Back
     </a>
   </div>
 
   <!-- Add Moderator Form -->
-  <div class="card border-primary">
-    <div class="card-header">
-      <h3 class="card-title">
-        <span class="bi bi-plus-lg"></span> Add Moderator
+  <div class="panel panel-primary">
+    <div class="panel-heading">
+      <h3 class="panel-title">
+        <span class="glyphicon glyphicon-plus"></span> Add Moderator
       </h3>
     </div>
-    <div class="card-body">
+    <div class="panel-body">
       <form method="post" action="{% url 'manage_moderators' %}">
         {% csrf_token %}
         <div class="row">
@@ -80,7 +80,7 @@
 
           <div class="col-sm-2" style="padding-top: 25px;">
             <button type="submit" class="btn btn-primary btn-block">
-              <span class="bi bi-plus-lg"></span> Add
+              <span class="glyphicon glyphicon-plus"></span> Add
             </button>
           </div>
         </div>
@@ -90,9 +90,9 @@
 
   <!-- Current Moderators Table -->
   {% if moderators %}
-  <div class="card">
-    <div class="card-header">
-      <h3 class="card-title">
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h3 class="panel-title">
         <span class="badge">{{ moderators|length }}</span> Active Moderators
         {% if not is_system %}<small class="text-muted"> (your semesters only)</small>{% endif %}
       </h3>
@@ -123,22 +123,22 @@
             </span>
           </td>
           <td>{% if m.semester %}{{ m.semester.session.year }} — Sem {{ m.semester.semId }}{% else %}<em class="text-muted">—</em>{% endif %}</td>
-          <td>{% if m.view_only %}<span class="bi bi-check text-success"></span>{% else %}<span class="bi bi-x text-muted"></span>{% endif %}</td>
-          <td>{% if m.can_create_semester %}<span class="bi bi-check text-success"></span>{% else %}<span class="bi bi-x text-muted"></span>{% endif %}</td>
-          <td>{% if m.can_view_semester_bill %}<span class="bi bi-check text-success"></span>{% else %}<span class="bi bi-x text-muted"></span>{% endif %}</td>
-          <td>{% if m.can_view_all_bills %}<span class="bi bi-check text-success"></span>{% else %}<span class="bi bi-x text-muted"></span>{% endif %}</td>
-          <td>{% if m.can_view_session_bills %}<span class="bi bi-check text-success"></span>{% else %}<span class="bi bi-x text-muted"></span>{% endif %}</td>
-          <td>{% if m.can_approve_requests %}<span class="bi bi-check text-success"></span>{% else %}<span class="bi bi-x text-muted"></span>{% endif %}</td>
+          <td>{% if m.view_only %}<span class="glyphicon glyphicon-ok text-success"></span>{% else %}<span class="glyphicon glyphicon-remove text-muted"></span>{% endif %}</td>
+          <td>{% if m.can_create_semester %}<span class="glyphicon glyphicon-ok text-success"></span>{% else %}<span class="glyphicon glyphicon-remove text-muted"></span>{% endif %}</td>
+          <td>{% if m.can_view_semester_bill %}<span class="glyphicon glyphicon-ok text-success"></span>{% else %}<span class="glyphicon glyphicon-remove text-muted"></span>{% endif %}</td>
+          <td>{% if m.can_view_all_bills %}<span class="glyphicon glyphicon-ok text-success"></span>{% else %}<span class="glyphicon glyphicon-remove text-muted"></span>{% endif %}</td>
+          <td>{% if m.can_view_session_bills %}<span class="glyphicon glyphicon-ok text-success"></span>{% else %}<span class="glyphicon glyphicon-remove text-muted"></span>{% endif %}</td>
+          <td>{% if m.can_approve_requests %}<span class="glyphicon glyphicon-ok text-success"></span>{% else %}<span class="glyphicon glyphicon-remove text-muted"></span>{% endif %}</td>
           <td>{{ m.created_at|date:"M d, Y" }}</td>
           <td style="text-align:right;">
             <a href="{% url 'edit_moderator' m.pk %}" class="btn btn-warning btn-sm">
-              <span class="bi bi-pencil"></span> Edit
+              <span class="glyphicon glyphicon-edit"></span> Edit
             </a>
             <form method="post" action="{% url 'remove_moderator' m.pk %}" style="display:inline;"
                   onsubmit="return confirm('Remove moderator role for {{ m.user.name }}?')">
               {% csrf_token %}
               <button type="submit" class="btn btn-danger btn-sm">
-                <span class="bi bi-trash"></span> Remove
+                <span class="glyphicon glyphicon-trash"></span> Remove
               </button>
             </form>
           </td>
@@ -149,7 +149,7 @@
   </div>
   {% else %}
   <div class="alert alert-info text-center">
-    <span class="bi bi-info-circle"></span> No moderators assigned yet.
+    <span class="glyphicon glyphicon-info-sign"></span> No moderators assigned yet.
   </div>
   {% endif %}
 </div>

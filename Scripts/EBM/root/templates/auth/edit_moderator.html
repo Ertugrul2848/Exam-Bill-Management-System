@@ -5,14 +5,14 @@
   <h2 class="text-center" style="font-weight: 300; margin-bottom: 30px;">Edit Moderator Permissions</h2>
 
   <div style="margin-bottom: 20px;">
-    <a href="{% url 'manage_moderators' %}" class="btn btn-secondary">
-      <span class="bi bi-arrow-left"></span> Back
+    <a href="{% url 'manage_moderators' %}" class="btn btn-default">
+      <span class="glyphicon glyphicon-arrow-left"></span> Back
     </a>
   </div>
 
-  <div class="card">
-    <div class="card-header">
-      <h3 class="card-title">
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h3 class="panel-title">
         {{ role.user.name }}
         <span class="label {% if role.scope == 'system' %}label-danger{% else %}label-info{% endif %}" style="margin-left: 8px;">
           {{ role.get_scope_display }}
@@ -22,7 +22,7 @@
         {% endif %}
       </h3>
     </div>
-    <div class="card-body">
+    <div class="panel-body">
       <form method="post" action="{% url 'edit_moderator' role.pk %}">
         {% csrf_token %}
         <table class="table">
@@ -57,7 +57,7 @@
           </tbody>
         </table>
         <div class="text-right">
-          <a href="{% url 'manage_moderators' %}" class="btn btn-secondary">Cancel</a>
+          <a href="{% url 'manage_moderators' %}" class="btn btn-default">Cancel</a>
           <button type="submit" class="btn btn-success">
             <span class="bi bi-floppy"></span> Save Permissions
           </button>

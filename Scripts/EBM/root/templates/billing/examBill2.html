@@ -2,9 +2,9 @@
 {% block title %}Semester Bill{% endblock title %}
 {% block content %}
 <div class="container" style="margin-top: 40px; max-width: 500px;">
-  <div class="card border-primary">
-    <div class="card-header"><h3 class="card-title">View Semester Bill</h3></div>
-    <div class="card-body">
+  <div class="panel panel-primary">
+    <div class="panel-heading"><h3 class="panel-title">View Semester Bill</h3></div>
+    <div class="panel-body">
       {% if sessions %}
       <form method="POST">
         {% csrf_token %}
@@ -24,12 +24,12 @@
           </select>
         </div>
         <button class="btn btn-primary btn-block" type="submit">
-          <span class="bi bi-search"></span> View Bill
+          <span class="glyphicon glyphicon-search"></span> View Bill
         </button>
       </form>
       {% else %}
       <div class="alert alert-warning">
-        <span class="bi bi-info-circle"></span> No sessions available.
+        <span class="glyphicon glyphicon-info-sign"></span> No sessions available.
       </div>
       {% endif %}
     </div>
