@@ -34,6 +34,10 @@
       </button>
       {% endif %}
     </form>
+    <a href="{% url 'toggle_archive' session_id sem_id %}" class="btn btn-sm {% if sem.is_archived %}btn-default{% else %}btn-info{% endif %}" style="margin-left: 6px;">
+      <span class="glyphicon glyphicon-folder-{% if sem.is_archived %}open{% else %}close{% endif %}"></span>
+      {% if sem.is_archived %}Unarchive Semester{% else %}Archive Semester{% endif %}
+    </a>
   </div>
   {% endif %}
 

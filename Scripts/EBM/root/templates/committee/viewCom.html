@@ -18,7 +18,7 @@
         <tr>
           <th>Semester</th>
           <th>Chairman</th>
-          {% if is_chairman %}<th style="width: 100px; text-align: right;">Action</th>{% endif %}
+          {% if is_chairman %}<th style="width: 260px; text-align: right;">Action</th>{% endif %}
         </tr>
       </thead>
       <tbody>
@@ -35,6 +35,12 @@
           <td style="text-align: right;">
             <a href="{% url 'viewSem' session o.qd.semId %}" class="btn btn-primary btn-sm">
               <span class="glyphicon glyphicon-eye-open"></span> View
+            </a>
+            <a href="{% url 'toggle_lock' session o.qd.semId %}" class="btn btn-sm {% if o.qd.is_locked %}btn-warning{% else %}btn-danger{% endif %}">
+              <span class="glyphicon glyphicon-lock"></span> {% if o.qd.is_locked %}Unlock{% else %}Lock{% endif %}
+            </a>
+            <a href="{% url 'toggle_archive' session o.qd.semId %}" class="btn btn-sm {% if o.qd.is_archived %}btn-default{% else %}btn-info{% endif %}">
+              <span class="glyphicon glyphicon-folder-{% if o.qd.is_archived %}open{% else %}close{% endif %}"></span> {% if o.qd.is_archived %}Unarchive{% else %}Archive{% endif %}
             </a>
           </td>
           {% endif %}
