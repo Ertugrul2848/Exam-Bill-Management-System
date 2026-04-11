@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block extra_css %}
+<style>
+form {
+        background: whitesmoke;
+        box-shadow: 0 0 5px black;
+        padding: 40px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        margin-bottom: 50px;
+      }
+      h2 {
+        text-align: center;
+        text-transform: uppercase;
+        background: black;
+        padding: 5px;
+        font-size: 20px;
+        color: white;
+      }
+      form > * {
+        padding: 10px;
+        margin-bottom: 20px;
+        width: 300px;
+      }
+      button {
+        background: rgb(23, 23, 37);
+        color: white;
+        font-size: 18px;
+        width: 200px;
+        margin-bottom: 20px;
+        width: 300px;
+        padding: 10px;
+      }
+</style>
+{% endblock extra_css %}
+{% block content %}
+
+    <div class="con">
+      <form method="POST">
+        <h2>Create Course</h2>
+        {%csrf_token%}
+        <input class="form-control" type="text" name="name" placeholder="Enter Course Name" />
+        <input class="form-control" type="number" name="code" placeholder="Enter Course Code" />
+        <input class="form-control" type="number" name="credit" placeholder="Enter Credits" />
+        <select class="form-control" name="type" id="">
+          <option selected disabled>Select Course Type</option>
+          <option value="1">Theory</option>
+          <option value="2">Lab</option>
+          <option value="3">Viva</option>
+        </select>
+        <select class="form-control" name="internal" id="">
+          <option selected disabled>Select Internal</option>
+          {%for o in ob%}
+          <option value="{{o.email}}">{{o.name}}</option>
+          {%endfor%}
+        </select>
+        <select class="form-control" name="external" id="">
+          <option selected disabled>Select External</option>
+          {%for o in ob%}
+          <option value="{{o.email}}">{{o.name}}</option>
+          {%endfor%}
+        </select>
+        <button class="btn btn-primary" type="submit">Create</button>
+      </form>
+    </div>
+{% endblock content %}

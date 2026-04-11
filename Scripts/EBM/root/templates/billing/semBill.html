@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+
+    <div class="con">
+      <form method="POST">
+        {%csrf_token%} {%for o in ob%}
+        <input class="btn btn-default" type="submit" value="{{o.email}}" name="teacher" readonly />
+        {{o.name}} {%endfor%}
+      </form>
+    </div>
+{% endblock content %}
