@@ -1,8 +1,31 @@
+"""
+Django forms for the Exam Bill Management System.
+
+This module provides form classes for user input validation:
+- LoginForm: Handles faculty login via email/password.
+- CommitteeCreateForm: Handles exam committee creation with validation
+  to prevent duplicate faculty assignments.
+
+Note: LoginForm is not yet integrated into the login view (views.log still
+uses raw POST data). Integration is planned for a future ticket.
+"""
+
 from django import forms
 from .models import faculty, External, Session, Semester
 
 
 class LoginForm(forms.Form):
+    """
+    Login form for faculty members.
+
+    Uses email + password authentication (matching the faculty model's
+    plaintext password field). This form validates input format only —
+    actual authentication is handled by the view via Django's authenticate().
+
+    Fields:
+        email: Faculty email address (used to look up the faculty record).
+        password: Plaintext password (matched against faculty.password).
+    """
     email = forms.EmailField(
         widget=forms.EmailInput(attrs={
             'placeholder': 'a@gmail.com',
@@ -18,6 +41,24 @@ class LoginForm(forms.Form):
 
 
 class CommitteeCreateForm(forms.Form):
+    """
+    Form for creating a new exam committee (semester).
+
+    Creates a Semester record with assigned committee members. Validates that:
+    - No faculty member is assigned to more than one role (chairman/tabular1/tabular2).
+    - All required fields are provided.
+
+    Querysets for faculty/external fields are refreshed in __init__ to avoid
+    stale data from module-level evaluation.
+
+    Fields:
+        session: Academic session (year) — validated against existing Session records.
+        semester: Semester ID (1-10) from SEMESTER_CHOICES.
+        chairman: Faculty member to chair the committee.
+        tabular1: First tabulator faculty member.
+        tabular2: Second tabulator faculty member.
+        external: External examiner from the External model.
+    """
     session = forms.ModelChoiceField(
         queryset=Session.objects.all(),
         widget=forms.Select(attrs={
@@ -71,6 +112,7 @@ class CommitteeCreateForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
+        """Refresh querysets to include newly added faculty/external members."""
         super().__init__(*args, **kwargs)
         self.fields['chairman'].queryset = faculty.objects.all()
         self.fields['tabular1'].queryset = faculty.objects.all()
@@ -78,6 +120,7 @@ class CommitteeCreateForm(forms.Form):
         self.fields['external'].queryset = External.objects.all()
 
     def clean(self):
+        """Validate that no faculty member is assigned to multiple committee roles."""
         cleaned_data = super().clean()
         chairman = cleaned_data.get('chairman')
         tabular1 = cleaned_data.get('tabular1')
