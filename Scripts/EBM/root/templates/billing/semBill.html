@@ -1,11 +1,45 @@
 {% extends 'base.html' %}
+{% block title %}Semester Bill — Teachers{% endblock title %}
 {% block content %}
+<div class="container" style="margin-top: 40px;">
+  <h2 class="text-center" style="font-weight: 300; margin-bottom: 30px;">{{ semester }} — Teacher Bills</h2>
+  <a href="{% url 'examBill2' %}" class="btn btn-default" style="margin-bottom: 20px;">
+    <span class="glyphicon glyphicon-arrow-left"></span> Back
+  </a>
 
-    <div class="con">
-      <form method="POST">
-        {%csrf_token%} {%for o in ob%}
-        <input class="btn btn-default" type="submit" value="{{o.email}}" name="teacher" readonly />
-        {{o.name}} {%endfor%}
-      </form>
-    </div>
+  {% if ob %}
+  <div class="panel panel-default">
+    <div class="panel-heading"><h3 class="panel-title">Teachers with Bills</h3></div>
+    <table class="table table-hover" style="margin-bottom: 0;">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th style="width: 120px; text-align: right;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for o in ob %}
+        <tr>
+          <td><strong>{{ o.name }}</strong></td>
+          <td>{{ o.email }}</td>
+          <td style="text-align: right;">
+            <form method="POST" style="display: inline;">
+              {% csrf_token %}
+              <button class="btn btn-primary btn-sm" type="submit" name="teacher" value="{{ o.email }}">
+                <span class="glyphicon glyphicon-eye-open"></span> View
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="alert alert-info text-center">
+    <span class="glyphicon glyphicon-info-sign"></span> No teachers with bills found for this semester.
+  </div>
+  {% endif %}
+</div>
 {% endblock content %}

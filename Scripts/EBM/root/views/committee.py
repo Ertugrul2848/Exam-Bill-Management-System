@@ -55,10 +55,14 @@ def createCom(request):
     if not is_chairman:
         messages.error(request, 'Access Denied !!!')
     else:
-        ob = faculty.objects.filter()
+        # Filter out faculty already serving as chairman in any semester
+        existing_chairmen_emails = Semester.objects.values_list('chairman__email', flat=True)
+        available_faculty = faculty.objects.exclude(email__in=existing_chairmen_emails).order_by('name')
+        all_faculty = faculty.objects.all().order_by('name')
         oc = External.objects.filter()
         cont = {
-            'ob': ob,
+            'ob': all_faculty,
+            'available_chairmen': available_faculty,
             'oc': oc,
             'current_year': datetime.now().year,
             'semester_choices': Semester.SEMESTER_CHOICES,

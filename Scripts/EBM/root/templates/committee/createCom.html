@@ -41,7 +41,7 @@
           <label>Chairman</label>
           <select class="form-control" name="chairman" required>
             <option selected disabled value="">-- Select Chairman --</option>
-            {% for o in ob %}
+            {% for o in available_chairmen %}
             <option value="{{ o.email }}">{{ o.name }} ({{ o.title }})</option>
             {% endfor %}
           </select>
