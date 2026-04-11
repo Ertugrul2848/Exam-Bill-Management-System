@@ -36,7 +36,12 @@ def examBill(request):
                 request, 'Session Or Semester Does not Exist !!')
         else:
             return redirect(reverse('indBill', args=[request.POST['session'], request.POST['semester'], request.user.id]))
-    return render(request, 'billing/examBill.html')
+    sessions = Session.objects.all().order_by('-year')
+    semesters = Semester.objects.all().select_related('session')
+    return render(request, 'billing/examBill.html', {
+        'sessions': sessions,
+        'semesters': semesters,
+    })
 
 
 
@@ -120,7 +125,12 @@ def examBill2(request):
                 messages.error(request, 'Access Denied !!')
             else:
                 return redirect(reverse('semBill', args=[request.POST['session'], request.POST['semester']]))
-    return render(request, 'billing/examBill2.html')
+    sessions = Session.objects.all().order_by('-year')
+    semesters = Semester.objects.all().select_related('session')
+    return render(request, 'billing/examBill2.html', {
+        'sessions': sessions,
+        'semesters': semesters,
+    })
 
 
 

@@ -17,6 +17,7 @@
         <div class="col-md-4"><strong>Session:</strong> {{ session }} — {{ ss }}</div>
       </div>
     </div>
+    {% if ob %}
     <table class="table table-striped table-bordered" style="margin-bottom: 0;">
       <thead>
         <tr>
@@ -40,8 +41,6 @@
           <td>{% if o.duration %}{{ o.duration }}{% else %}—{% endif %}</td>
           {% if total is not None %}<td>{{ o.bill }}</td>{% endif %}
         </tr>
-        {% empty %}
-        <tr><td colspan="7" class="text-center text-muted">No bill items found</td></tr>
         {% endfor %}
       </tbody>
       {% if total is not None %}
@@ -53,9 +52,17 @@
       </tfoot>
       {% endif %}
     </table>
+    {% else %}
+    <div class="panel-body">
+      <div class="alert alert-info" style="margin-bottom: 0;">
+        <span class="glyphicon glyphicon-info-sign"></span>
+        You have no examination involvement in this semester. No bill to display.
+      </div>
+    </div>
+    {% endif %}
   </div>
 
-  {% if total is not None %}
+  {% if ob and total is not None %}
   <form method="POST" style="margin-top: 15px;">
     {% csrf_token %}
     <button class="btn btn-success" name="pdf" type="submit">
