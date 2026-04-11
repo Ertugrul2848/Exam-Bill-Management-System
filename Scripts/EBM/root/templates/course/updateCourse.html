@@ -10,38 +10,38 @@
   <div class="panel panel-primary">
     <div class="panel-heading"><h3 class="panel-title">Update Theory Course</h3></div>
     <div class="panel-body">
-      <form method="POST">
+      <form method="POST" id="theoryForm">
         {% csrf_token %}
         <div class="form-group">
           <label>Internal Examiner</label>
-          <select class="form-control" name="internal">
+          <select class="form-control theory-field" name="internal" data-original="{{ course.internal.email }}">
             <option value="{{ course.internal.email }}" selected>{{ course.internal.name }}</option>
             {% for o in ob %}<option value="{{ o.email }}">{{ o.name }}</option>{% endfor %}
           </select>
         </div>
         <div class="form-group">
           <label>External Examiner</label>
-          <select class="form-control" name="external">
+          <select class="form-control theory-field" name="external" data-original="{{ course.external.email }}">
             <option value="{{ course.external.email }}" selected>{{ course.external.name }}</option>
             {% for o in ob %}<option value="{{ o.email }}">{{ o.name }}</option>{% endfor %}
           </select>
         </div>
         <div class="form-group">
           <label>Third Examiner</label>
-          <select class="form-control" name="third">
+          <select class="form-control theory-field" name="third" data-original="{{ course.thirdExaminer.email }}">
             <option value="{{ course.thirdExaminer.email }}" selected>{{ course.thirdExaminer.name }}</option>
             {% for o in ob %}<option value="{{ o.email }}">{{ o.name }}</option>{% endfor %}
           </select>
         </div>
         <div class="form-group">
           <label>Paper No</label>
-          <input class="form-control" type="number" name="paperNo" value="{{ course.paperNo }}" />
+          <input class="form-control theory-field" type="number" name="paperNo" value="{{ course.paperNo }}" data-original="{{ course.paperNo }}" />
         </div>
         <div class="form-group">
           <label>Third Examiner Paper No</label>
-          <input class="form-control" type="number" name="tpaperNo" value="{{ course.tPaperNo }}" />
+          <input class="form-control theory-field" type="number" name="tpaperNo" value="{{ course.tPaperNo }}" data-original="{{ course.tPaperNo }}" />
         </div>
-        <button class="btn btn-primary btn-block" name="theory" type="submit">
+        <button class="btn btn-primary btn-block" name="theory" type="submit" id="theoryBtn" disabled>
           <span class="glyphicon glyphicon-save"></span> Update
         </button>
       </form>
@@ -53,18 +53,18 @@
   <div class="panel panel-success">
     <div class="panel-heading"><h3 class="panel-title">Update Lab Course</h3></div>
     <div class="panel-body">
-      <form method="POST">
+      <form method="POST" id="labForm">
         {% csrf_token %}
         <div class="form-group">
           <label>Lab Internal</label>
-          <select class="form-control" name="internal">
+          <select class="form-control lab-field" name="internal" data-original="{{ course.internal.email }}">
             <option value="{{ course.internal.email }}" selected>{{ course.internal.name }}</option>
             {% for o in ob %}<option value="{{ o.email }}">{{ o.name }}</option>{% endfor %}
           </select>
         </div>
         <div class="form-group">
           <label>Lab External</label>
-          <select class="form-control" name="external">
+          <select class="form-control lab-field" name="external" data-original="{{ course.external.email }}">
             <option value="{{ course.external.email }}" selected>{{ course.external.name }}</option>
             {% for o in ob %}<option value="{{ o.email }}">{{ o.name }}</option>{% endfor %}
           </select>
@@ -82,9 +82,9 @@
         </button>
         <div class="form-group">
           <label>Duration (hours)</label>
-          <input class="form-control" type="number" value="{{ course.duration }}" name="duration" />
+          <input class="form-control lab-field" type="number" value="{{ course.duration }}" name="duration" data-original="{{ course.duration }}" />
         </div>
-        <button class="btn btn-success btn-block" type="submit" name="lab">
+        <button class="btn btn-success btn-block" type="submit" name="lab" id="labBtn" disabled>
           <span class="glyphicon glyphicon-save"></span> Update
         </button>
       </form>
@@ -96,11 +96,11 @@
   <div class="panel panel-warning">
     <div class="panel-heading"><h3 class="panel-title">Update Viva Course</h3></div>
     <div class="panel-body">
-      <form method="POST">
+      <form method="POST" id="vivaForm">
         {% csrf_token %}
         <div class="form-group">
           <label>External Examiner</label>
-          <select class="form-control" name="external">
+          <select class="form-control viva-field" name="external" data-original="{{ course.vivaExternal.email }}">
             <option value="{{ course.vivaExternal.email }}" selected>{{ course.vivaExternal.name }}</option>
             {% for o in ex %}<option value="{{ o.email }}">{{ o.name }}</option>{% endfor %}
           </select>
@@ -118,9 +118,9 @@
         </button>
         <div class="form-group">
           <label>Duration (hours)</label>
-          <input class="form-control" type="number" value="{{ course.duration }}" name="duration" />
+          <input class="form-control viva-field" type="number" value="{{ course.duration }}" name="duration" data-original="{{ course.duration }}" />
         </div>
-        <button class="btn btn-warning btn-block" type="submit" name="viva">
+        <button class="btn btn-warning btn-block" type="submit" name="viva" id="vivaBtn" disabled>
           <span class="glyphicon glyphicon-save"></span> Update
         </button>
       </form>
@@ -138,3 +138,27 @@
   </div>
 </div>
 {% endblock content %}
+
+{% block extra_js %}
+<script>
+// Enable Update button only when form values differ from originals
+$(function() {
+  function watchForm(fieldClass, btnId) {
+    var btn = $(btnId);
+    $(document).on('change input', '.' + fieldClass, function() {
+      var changed = false;
+      $('.' + fieldClass).each(function() {
+        if ($(this).val() !== String($(this).data('original'))) {
+          changed = true;
+        }
+      });
+      btn.prop('disabled', !changed);
+    });
+  }
+
+  watchForm('theory-field', '#theoryBtn');
+  watchForm('lab-field', '#labBtn');
+  watchForm('viva-field', '#vivaBtn');
+});
+</script>
+{% endblock extra_js %}

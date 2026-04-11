@@ -36,11 +36,33 @@ def examBill(request):
                 request, 'Session Or Semester Does not Exist !!')
         else:
             return redirect(reverse('indBill', args=[request.POST['session'], request.POST['semester'], request.user.id]))
-    sessions = Session.objects.all().order_by('-year')
-    semesters = Semester.objects.all().select_related('session')
+    try:
+        fac = faculty.objects.get(email=request.user.email)
+    except faculty.DoesNotExist:
+        return render(request, 'billing/examBill.html', {
+            'sessions': [],
+            'semesters': [],
+        })
+    involved_semesters = []
+    for sem in Semester.objects.all().select_related('session').order_by('-session__year'):
+        try:
+            calc = BillCalculator(sem.session.year, sem.semId, fac)
+            items = calc.calculate(include_amounts=False)
+            if items:
+                involved_semesters.append(sem)
+        except Exception:
+            pass
+    seen_years = set()
+    sessions = []
+    for sem in involved_semesters:
+        year = sem.session.year
+        if year not in seen_years:
+            seen_years.add(year)
+            sessions.append(sem.session)
+    sessions.sort(key=lambda s: s.year, reverse=True)
     return render(request, 'billing/examBill.html', {
         'sessions': sessions,
-        'semesters': semesters,
+        'semesters': involved_semesters,
     })
 
 
