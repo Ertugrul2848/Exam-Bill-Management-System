@@ -75,7 +75,7 @@ class Session(models.Model):
     """
     year = models.IntegerField(
         primary_key=True,
-        validators=[MinValueValidator(1900), MaxValueValidator(2100)],
+        validators=[MinValueValidator(1900)],
     )
 
     def __str__(self):
