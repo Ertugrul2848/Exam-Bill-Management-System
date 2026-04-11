@@ -1,5 +1,5 @@
 from django import forms
-from .models import faculty, External, Semester
+from .models import faculty, External, Session, Semester
 
 
 class LoginForm(forms.Form):
@@ -18,11 +18,13 @@ class LoginForm(forms.Form):
 
 
 class CommitteeCreateForm(forms.Form):
-    session = forms.IntegerField(
-        widget=forms.NumberInput(attrs={
+    session = forms.ModelChoiceField(
+        queryset=Session.objects.all(),
+        widget=forms.Select(attrs={
             'class': 'form-control',
         }),
         label='Select Session',
+        empty_label='---',
     )
     semester = forms.ChoiceField(
         choices=[('', '---')] + Semester.SEMESTER_CHOICES,
@@ -32,7 +34,7 @@ class CommitteeCreateForm(forms.Form):
         label='Select Semester',
     )
     chairman = forms.ModelChoiceField(
-        queryset=faculty.objects.all(),
+        queryset=faculty.objects.none(),
         widget=forms.Select(attrs={
             'class': 'form-control',
         }),
@@ -41,7 +43,7 @@ class CommitteeCreateForm(forms.Form):
         empty_label='---',
     )
     tabular1 = forms.ModelChoiceField(
-        queryset=faculty.objects.all(),
+        queryset=faculty.objects.none(),
         widget=forms.Select(attrs={
             'class': 'form-control',
         }),
@@ -50,7 +52,7 @@ class CommitteeCreateForm(forms.Form):
         empty_label='---',
     )
     tabular2 = forms.ModelChoiceField(
-        queryset=faculty.objects.all(),
+        queryset=faculty.objects.none(),
         widget=forms.Select(attrs={
             'class': 'form-control',
         }),
@@ -59,7 +61,7 @@ class CommitteeCreateForm(forms.Form):
         empty_label='---',
     )
     external = forms.ModelChoiceField(
-        queryset=External.objects.all(),
+        queryset=External.objects.none(),
         widget=forms.Select(attrs={
             'class': 'form-control',
         }),
@@ -67,6 +69,13 @@ class CommitteeCreateForm(forms.Form):
         to_field_name='email',
         empty_label='---',
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['chairman'].queryset = faculty.objects.all()
+        self.fields['tabular1'].queryset = faculty.objects.all()
+        self.fields['tabular2'].queryset = faculty.objects.all()
+        self.fields['external'].queryset = External.objects.all()
 
     def clean(self):
         cleaned_data = super().clean()
