@@ -1,5 +1,10 @@
 {% extends 'base.html' %}
 {% block title %}Semester Committee{% endblock title %}
+{% block extra_css %}
+<style>
+  .input-group .btn { height: 34px; }
+</style>
+{% endblock extra_css %}
 {% block content %}
 <div class="container" style="margin-top: 40px;">
   <h2 class="text-center" style="font-weight: 300; margin-bottom: 30px;">Semester Committee</h2>
@@ -79,7 +84,7 @@
             <div class="input-group">
               <select class="form-control" name="teacher" required>
                 <option selected disabled value="">-- Select Teacher --</option>
-                {% for o in available_moderators %}
+                {% for o in available_teachers %}
                 <option value="{{ o.email }}">{{ o.name }}</option>
                 {% endfor %}
               </select>
@@ -99,7 +104,7 @@
             <div class="input-group">
               <select class="form-control" name="teacher" required>
                 <option selected disabled value="">-- Select Teacher --</option>
-                {% for o in available_translators %}
+                {% for o in available_teachers %}
                 <option value="{{ o.email }}">{{ o.name }}</option>
                 {% endfor %}
               </select>
@@ -119,7 +124,7 @@
             <div class="input-group">
               <select class="form-control" name="teacher" required>
                 <option selected disabled value="">-- Select Teacher --</option>
-                {% for o in available_typists %}
+                {% for o in available_teachers %}
                 <option value="{{ o.email }}">{{ o.name }}</option>
                 {% endfor %}
               </select>
