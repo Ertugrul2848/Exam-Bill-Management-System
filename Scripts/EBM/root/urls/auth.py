@@ -6,6 +6,7 @@ from ..views import (
     register, pending_registrations, approve_registration, reject_registration, add_teacher_direct, complete_profile,
     register_with_token, resend_invitation, cancel_invitation,
     manage_moderators, edit_moderator, remove_moderator,
+    transfer_chairman,
 )
 
 urlpatterns = [
@@ -29,4 +30,5 @@ urlpatterns = [
     path('change-password/', change_password, name='change_password'),
     path('forgot-password/', forgot_password, name='forgot_password'),
     path('reset-password/<uidb64>/<token>/', reset_password, name='reset_password'),
+    path('transfer-chairman/', transfer_chairman, name='transfer_chairman'),
 ]

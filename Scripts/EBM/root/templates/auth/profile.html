@@ -49,6 +49,11 @@
         <a href="{% url 'change_password' %}" class="btn btn-warning" style="margin-left: 5px;">
           <span class="glyphicon glyphicon-lock"></span> Change Password
         </a>
+        {% if request.user.username == 'chairman' %}
+        <a href="{% url 'transfer_chairman' %}" class="btn btn-danger" style="margin-left: 5px;">
+          <span class="glyphicon glyphicon-transfer"></span> Transfer Chairman Role
+        </a>
+        {% endif %}
       </form>
 
     </div>

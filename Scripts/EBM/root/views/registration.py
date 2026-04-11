@@ -371,3 +371,90 @@ def reject_registration(request, pk):
 
     messages.success(request, f'{reg.name} has been rejected.')
     return redirect(reverse('pending_registrations'))
+
+
+@login_required(login_url='/log')
+def transfer_chairman(request):
+    """Multi-step secure transfer of chairman role to another faculty member."""
+    is_chairman = User.objects.filter(username='chairman', pk=request.user.pk).exists()
+    if not is_chairman:
+        messages.error(request, 'Access Denied!')
+        return redirect(reverse('home'))
+
+    all_faculty = faculty.objects.exclude(email=request.user.email).order_by('name')
+
+    if request.method == 'POST':
+        step = request.POST.get('step')
+
+        if step == 'confirm':
+            new_email = request.POST.get('new_chairman')
+            confirm_text = request.POST.get('confirm_text', '')
+            if confirm_text != 'TRANSFER CHAIRMAN':
+                messages.error(request, 'Please type TRANSFER CHAIRMAN to confirm')
+                return render(request, 'auth/transfer_chairman.html', {
+                    'faculty': all_faculty,
+                    'step': 'confirm',
+                    'selected': new_email,
+                    'selected_name': faculty.objects.get(email=new_email).name,
+                })
+            return render(request, 'auth/transfer_chairman.html', {
+                'faculty': all_faculty,
+                'step': 'password',
+                'selected': new_email,
+                'selected_name': faculty.objects.get(email=new_email).name,
+            })
+
+        elif step == 'password':
+            new_email = request.POST.get('new_chairman')
+            password = request.POST.get('password', '')
+            if not request.user.check_password(password):
+                messages.error(request, 'Incorrect password!')
+                return render(request, 'auth/transfer_chairman.html', {
+                    'faculty': all_faculty,
+                    'step': 'password',
+                    'selected': new_email,
+                    'selected_name': faculty.objects.get(email=new_email).name,
+                })
+
+            # Execute transfer
+            new_fac = faculty.objects.get(email=new_email)
+            new_user = User.objects.get(username=new_fac.username)
+            old_user = request.user
+
+            # Give old chairman a new unique username
+            temp_username = f"ex_chairman_{old_user.pk}"
+            old_user.username = temp_username
+            old_user.save()
+
+            old_fac = faculty.objects.get(email=old_user.email)
+            old_fac.username = temp_username
+            old_fac.save()
+
+            # Promote new chairman
+            new_user.username = 'chairman'
+            new_user.save()
+            new_fac.username = 'chairman'
+            new_fac.save()
+
+            messages.success(request, f'Chairman role transferred to {new_fac.name}. You have been logged out.')
+            from django.contrib.auth import logout
+            logout(request)
+            return redirect(reverse('log'))
+
+        else:
+            # Step 1: select person
+            new_email = request.POST.get('new_chairman')
+            if not new_email:
+                messages.error(request, 'Please select a person')
+                return render(request, 'auth/transfer_chairman.html', {
+                    'faculty': all_faculty,
+                    'step': 'select',
+                })
+            return render(request, 'auth/transfer_chairman.html', {
+                'faculty': all_faculty,
+                'step': 'confirm',
+                'selected': new_email,
+                'selected_name': faculty.objects.get(email=new_email).name,
+            })
+
+    return render(request, 'auth/transfer_chairman.html', {'faculty': all_faculty, 'step': 'select'})
