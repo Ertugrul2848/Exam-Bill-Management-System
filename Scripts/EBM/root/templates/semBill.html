@@ -1,12 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
-{% for msg in messages%} {% if 'nn' in msg.tags%}
-    <div id="popdiv"></div>
-    <div id="alert1">
-      <strong> {{msg}} </strong>
-      <button class="button" onclick="history.back()">Close</button>
-    </div>
-    {%endif%} {%endfor%}
+
     <div class="con">
       <form method="POST">
         {%csrf_token%} {%for o in ob%}

@@ -38,13 +38,7 @@ h1 {
 </style>
 {% endblock extra_css %}
 {% block content %}
-{% for msg in messages%} {% if 'session' in msg.tags%}
-    <div id="popdiv"></div>
-    <div id="alert1">
-      <strong> {{msg}} </strong>
-      <button class="button" onclick="history.back()">Close</button>
-    </div>
-    {%endif%} {%endfor%}
+
     <div class="con">
       <h1>Select an Option</h1>
       <button><a href="{% url 'createCom' %}">Create Committee</a></button>

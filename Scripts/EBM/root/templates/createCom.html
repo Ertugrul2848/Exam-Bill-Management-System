@@ -37,37 +37,6 @@ form {
 </style>
 {% endblock extra_css %}
 {% block content %}
-{% for msg in messages%} {% if 'chairman' in msg.tags%}
-    <div id="popdiv"></div>
-    <div id="alert1">
-      <strong> {{msg}} </strong>
-      <button class="button" onclick="history.back()">Close</button>
-    </div>
-    {%elif 'success' in msg.tags%}
-    <div id="popdiv"></div>
-    <div id="alert2">
-      <strong>{{msg}}</strong>
-      <button class="button" onclick="window.location.href='/'">Close</button>
-    </div>
-    {% elif 'sem' in msg.tags%}
-    <div id="popdiv"></div>
-    <div id="alert1">
-      <strong> {{msg}} </strong>
-      <button class="button" onclick="history.back()">Close</button>
-    </div>
-    {% elif 'twice' in msg.tags%}
-    <div id="popdiv"></div>
-    <div id="alert1">
-      <strong> {{msg}} </strong>
-      <button class="button" onclick="history.back()">Close</button>
-    </div>
-    {% elif 'access' in msg.tags%}
-    <div id="popdiv"></div>
-    <div id="alert1">
-      <strong> {{msg}} </strong>
-      <button class="button" onclick="history.back()">Close</button>
-    </div>
-    {%endif%} {%endfor%}
 
     <div class="con">
       <form method="POST">

@@ -36,19 +36,7 @@ form {
 </style>
 {% endblock extra_css %}
 {% block content %}
-{% for msg in messages%} {% if 'error' in msg.tags%}
-    <div id="popdiv"></div>
-    <div id="alert1">
-      <strong> {{msg}} </strong>
-      <button class="button" onclick="history.back()">Close</button>
-    </div>
-    {%elif 'success' in msg.tags%}
-    <div id="popdiv"></div>
-    <div id="alert2">
-      <strong>{{msg}}</strong>
-      <button class="button" onclick="history.back()">Close</button>
-    </div>
-    {%endif%} {%endfor%}
+
     <div class="con">
       <form method="POST">
         <h2>Create Course</h2>
