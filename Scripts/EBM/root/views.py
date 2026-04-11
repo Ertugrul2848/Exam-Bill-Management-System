@@ -41,6 +41,7 @@ URL Parameters Convention:
 """
 
 from django.http import HttpResponse
+from datetime import datetime
 from django.shortcuts import render, redirect, get_object_or_404
 from django.template.loader import get_template
 from django.urls import reverse
@@ -108,7 +109,6 @@ def committee(request):
                 messages.error(request, 'Session Does not Exist !!')
             else:
                 return redirect(reverse('createSem', args=[sess]))
-    from datetime import datetime
     sessions = Session.objects.all().order_by('-year')
     current_year = datetime.now().year
     return render(request, 'committee.html', {
@@ -130,7 +130,6 @@ def createCom(request):
     if not is_chairman:
         messages.error(request, 'Access Denied !!!')
     else:
-        from datetime import datetime
         ob = faculty.objects.filter()
         oc = External.objects.filter()
         cont = {
