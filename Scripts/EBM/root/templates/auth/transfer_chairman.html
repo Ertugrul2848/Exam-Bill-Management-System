@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% block title %}Transfer Chairman Role — EBM System{% endblock title %}
+{% block content %}
+<div class="container" style="max-width: 600px; margin-top: 40px;">
+  <div class="panel panel-danger">
+    <div class="panel-heading">
+      <h3 class="panel-title">
+        <span class="glyphicon glyphicon-transfer"></span> Transfer Chairman Role
+      </h3>
+    </div>
+    <div class="panel-body">
+
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} alert-dismissible" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+
+      <!-- Step indicator -->
+      <div class="row" style="margin-bottom: 20px; text-align: center;">
+        <div class="col-xs-4">
+          <span class="label {% if step == 'select' %}label-danger{% else %}label-success{% endif %}" style="font-size: 13px; padding: 6px 12px;">
+            1. Select Person
+          </span>
+        </div>
+        <div class="col-xs-4">
+          <span class="label {% if step == 'confirm' %}label-danger{% elif step == 'password' %}label-success{% else %}label-default{% endif %}" style="font-size: 13px; padding: 6px 12px;">
+            2. Confirm
+          </span>
+        </div>
+        <div class="col-xs-4">
+          <span class="label {% if step == 'password' %}label-danger{% else %}label-default{% endif %}" style="font-size: 13px; padding: 6px 12px;">
+            3. Verify
+          </span>
+        </div>
+      </div>
+      <hr>
+
+      {% if step == 'select' %}
+      <!-- Step 1: Choose new chairman -->
+      <div class="alert alert-warning">
+        <strong><span class="glyphicon glyphicon-warning-sign"></span> Warning!</strong>
+        This action will permanently transfer your chairman privileges to another person.
+        You will be logged out immediately after the transfer. This action cannot be undone without the new chairman's cooperation.
+      </div>
+
+      <form method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="step" value="select">
+
+        <div class="form-group">
+          <label for="new_chairman">Select New Chairman</label>
+          <select class="form-control" id="new_chairman" name="new_chairman" required>
+            <option value="">-- Select a faculty member --</option>
+            {% for f in faculty %}
+              <option value="{{ f.email }}">{{ f.name }} ({{ f.email }})</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <button type="submit" class="btn btn-danger">
+          <span class="glyphicon glyphicon-arrow-right"></span> Next
+        </button>
+        <a href="{% url 'profile' %}" class="btn btn-default">
+          <span class="glyphicon glyphicon-arrow-left"></span> Cancel
+        </a>
+      </form>
+
+      {% elif step == 'confirm' %}
+      <!-- Step 2: Type confirmation text -->
+      <div class="alert alert-danger">
+        <strong>You are about to transfer the chairman role to:</strong><br>
+        <span style="font-size: 16px; font-weight: bold;">{{ selected_name }}</span> ({{ selected }})
+      </div>
+
+      <p>To confirm this transfer, type <strong>TRANSFER CHAIRMAN</strong> exactly in the box below:</p>
+
+      <form method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="step" value="confirm">
+        <input type="hidden" name="new_chairman" value="{{ selected }}">
+
+        <div class="form-group">
+          <label for="confirm_text">Confirmation Phrase</label>
+          <input type="text" class="form-control" id="confirm_text" name="confirm_text"
+                 placeholder="Type: TRANSFER CHAIRMAN" autocomplete="off" required>
+        </div>
+
+        <button type="submit" class="btn btn-danger">
+          <span class="glyphicon glyphicon-arrow-right"></span> Next
+        </button>
+        <a href="{% url 'transfer_chairman' %}" class="btn btn-default">
+          <span class="glyphicon glyphicon-arrow-left"></span> Back
+        </a>
+      </form>
+
+      {% elif step == 'password' %}
+      <!-- Step 3: Enter password to finalize -->
+      <div class="alert alert-danger">
+        <strong>Final step:</strong> Enter your current password to complete the transfer to
+        <strong>{{ selected_name }}</strong>.
+      </div>
+
+      <form method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="step" value="password">
+        <input type="hidden" name="new_chairman" value="{{ selected }}">
+
+        <div class="form-group">
+          <label for="password">Your Current Password</label>
+          <input type="password" class="form-control" id="password" name="password"
+                 placeholder="Enter your password" autocomplete="current-password" required>
+        </div>
+
+        <button type="submit" class="btn btn-danger">
+          <span class="glyphicon glyphicon-transfer"></span> Transfer Chairman Role
+        </button>
+        <a href="{% url 'transfer_chairman' %}" class="btn btn-default">
+          <span class="glyphicon glyphicon-arrow-left"></span> Cancel
+        </a>
+      </form>
+
+      {% endif %}
+
+    </div>
+  </div>
+</div>
+{% endblock content %}

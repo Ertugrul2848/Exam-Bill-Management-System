@@ -7,7 +7,7 @@ from .course import (
     addInvigilator, indCourse, thesis, supervising,
 )
 from .billing import examBill, indBill, pdf_view, examBill2, semBill, indBill2, all_bills
-from .registration import register, pending_registrations, approve_registration, reject_registration, add_teacher_direct, complete_profile, register_with_token, resend_invitation, cancel_invitation
+from .registration import register, pending_registrations, approve_registration, reject_registration, add_teacher_direct, complete_profile, register_with_token, resend_invitation, cancel_invitation, transfer_chairman
 from .course_code import manage_course_codes, edit_course_code, sync_course_name, course_code_api, manage_credits
 from .moderator import manage_moderators, edit_moderator, remove_moderator
 
@@ -18,4 +18,5 @@ __all__ = [
     'addInvigilator', 'indCourse', 'thesis', 'supervising',
     'examBill', 'indBill', 'pdf_view', 'examBill2', 'semBill', 'indBill2', 'all_bills',
     'manage_moderators', 'edit_moderator', 'remove_moderator',
+    'transfer_chairman',
 ]
